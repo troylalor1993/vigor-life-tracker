@@ -340,7 +340,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 }
 @media(max-width:320px){#training .task-grid{grid-template-columns:1fr}}
 </style></head><body><main>
-<div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
+<div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent" id="scheduleHeadline">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
 <nav class="app-tabs" aria-label="App sections" id="appTabs">
 <button type="button" class="app-tab active" data-panel="faith">Faith</button>
@@ -359,7 +359,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
 <p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
 <div class="card" id="daily"><div class="row"><h2>Daily habits</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Check a habit whenever you complete it. Changes save automatically.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><div id="habitSaveFeedback" class="subtle" aria-live="polite"></div><p class="subtle" id="dailySaveStatus" aria-live="polite">Checkmarks save automatically.</p></div>
-<section class="zone-card" id="zone2"><div class="zone-heading"><h2>Zone 2 Movement</h2><span class="tag">8-day target</span></div><div id="zoneCycle" class="subtle"></div><div class="zone-total"><span id="zoneTotal">0</span> <small>/ <span id="zoneGoalLabel">150</span> minutes</small></div><div class="zone-meter" role="progressbar" aria-label="Zone 2 minutes this rotation" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" id="zoneMeter"><div id="zoneBar"></div></div><div class="zone-remaining" id="zoneRemaining">150 minutes remaining</div><div class="zone-form"><label for="zoneMinutes">Minutes completed<input id="zoneMinutes" type="number" inputmode="numeric" min="1" max="600" step="1" placeholder="e.g. 30"></label><button type="button" class="primary" id="addZoneMinutes">Add minutes</button></div><div id="zoneFeedback" class="subtle" aria-live="polite"></div><div class="zone-log" id="zoneLog"></div><details class="zone-goal-details"><summary>Change 8-day goal</summary><label for="zoneGoalInput">Target minutes per rotation<input id="zoneGoalInput" type="number" inputmode="numeric" min="1" max="2000" step="1"></label></details></section>
+<section class="zone-card" id="zone2"><div class="zone-heading"><h2>Zone 2 Movement</h2><span class="tag" id="zoneCycleBadge">8-day target</span></div><div id="zoneCycle" class="subtle"></div><div class="zone-total"><span id="zoneTotal">0</span> <small>/ <span id="zoneGoalLabel">150</span> minutes</small></div><div class="zone-meter" role="progressbar" aria-label="Zone 2 minutes this rotation" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" id="zoneMeter"><div id="zoneBar"></div></div><div class="zone-remaining" id="zoneRemaining">150 minutes remaining</div><div class="zone-form"><label for="zoneMinutes">Minutes completed<input id="zoneMinutes" type="number" inputmode="numeric" min="1" max="600" step="1" placeholder="e.g. 30"></label><button type="button" class="primary" id="addZoneMinutes">Add minutes</button></div><div id="zoneFeedback" class="subtle" aria-live="polite"></div><div class="zone-log" id="zoneLog"></div><details class="zone-goal-details"><summary id="zoneGoalCaption">Change 8-day goal</summary><label for="zoneGoalInput">Target minutes per rotation<input id="zoneGoalInput" type="number" inputmode="numeric" min="1" max="2000" step="1"></label></details></section>
 <div class="activity-card" id="activity"><div class="row"><h2>Daily Activity</h2><span class="tag">Manual entry</span></div><p class="subtle">Steps and active calories from your Apple Watch. Apple Health syncing can be added later.</p>
 <div class="activity-grid"><div class="activity-metric"><label for="activitySteps">Steps</label><input id="activitySteps" type="number" inputmode="numeric" min="0" max="150000" step="1" placeholder="0"><strong id="stepsGoalText">Goal 8,000 steps</strong><div class="activity-meter"><div id="stepsBar"></div></div><small id="stepsProgress">0%</small></div>
 <div class="activity-metric"><label for="activityCalories">Active calories (kcal)</label><input id="activityCalories" type="number" inputmode="numeric" min="0" max="10000" step="1" placeholder="0"><strong id="caloriesGoalText">Goal 500 kcal</strong><div class="activity-meter"><div id="caloriesBar"></div></div><small id="caloriesProgress">0%</small></div></div>
@@ -375,8 +375,8 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><h3>Milestone rewards</h3><p class="milestone-note">Set a reward for each weight milestone. Claim it once your recorded weight reaches the goal. These rewards do not spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
-<div class="card" id="training"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
-<div class="card" id="summary"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><h3>Daily habits</h3><div id="dailyReport" class="daily-stats"></div><p id="dailyInsight" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
+<div class="card" id="training"><div class="row"><h2 id="trainingHeading">Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
+<div class="card" id="summary"><div class="row"><h2 id="rotationHeading">8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><h3>Daily habits</h3><div id="dailyReport" class="daily-stats"></div><p id="dailyInsight" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div id="taskSaveFeedback" class="subtle" aria-live="polite"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
 <div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Log weight and waist once each rotation. Save again to correct your entry.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
 <section class="card theme-settings" id="themeSettings">
@@ -392,7 +392,10 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <strong class="accent">Keep your progress when adding to Home Screen</strong>
 <p class="subtle" id="homeScreenNoticeText">Home Screen apps and Safari may store data separately. Export from the version containing your progress, then import it here.</p>
 <button id="transferBackup" class="primary" type="button">Import existing progress</button>
-</div><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="backup-actions"><button id="export" class="secondary">Export backup</button><label class="secondary" for="import">Import backup<input id="import" type="file" accept=".json" style="display:none"></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly. If you clear browser storage, progress may be lost.</p><p id="backupFeedback" class="status-line" aria-live="polite"></p></div></main>
+</div><label class="field" for="cycleLength">Schedule type</label>
+<select id="cycleLength" aria-label="Choose 7-day or 8-day schedule"><option value="7">Standard 7-day week (Monday–Sunday)</option><option value="8">8-day rotating shift cycle</option></select>
+<label class="field" for="anchor" id="anchorLabel">Date of Day 1 (your first day shift)</label><input id="anchor" type="date">
+<p id="scheduleSaveStatus" class="subtle" aria-live="polite"></p><p id="scheduleHint">Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="backup-actions"><button id="export" class="secondary">Export backup</button><label class="secondary" for="import">Import backup<input id="import" type="file" accept=".json" style="display:none"></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly. If you clear browser storage, progress may be lost.</p><p id="backupFeedback" class="status-line" aria-live="polite"></p></div></main>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
@@ -425,7 +428,7 @@ relocate('rewards',document.querySelector('#rewards'));
 relocate('faith',document.querySelector('#devotional'));
 const couplesCard=document.createElement('section');
 couplesCard.id='couplesCard';couplesCard.className='card couples-card';
-couplesCard.innerHTML='<div class="dashboard-label">GROW TOGETHER</div><h2>Couples Accountability</h2><p class="couples-meta">A shared intention for you and Taleeba, without comparing weight or revealing private measurements.</p><p class="couples-meta"><strong>Local-only for now:</strong> These goals are saved on this iPhone, not visible on Taleeba’s device. Two-way syncing requires the separate accounts and Firebase setup.</p><div class="row"><strong>Our 8-day goals</strong><small id="coupleWindow"></small></div><div id="coupleGoals"></div><div class="couples-fields"><input id="newCoupleGoal" type="text" maxlength="75" placeholder="Add a goal you can do together" aria-label="New couples goal"><button id="addCoupleGoal" class="primary">Add goal</button></div><p id="coupleScore" class="couples-status" aria-live="polite"></p><label class="field">Encouragement or prayer intention<textarea id="coupleNote" class="couples-note" placeholder="Something to encourage each other with this rotation..."></textarea></label><p id="coupleSaveStatus" class="couples-status" aria-live="polite"></p>';
+couplesCard.innerHTML='<div class="dashboard-label">GROW TOGETHER</div><h2>Couples Accountability</h2><p class="couples-meta">A shared intention for you and Taleeba, without comparing weight or revealing private measurements.</p><p class="couples-meta"><strong>Local-only for now:</strong> These goals are saved on this iPhone, not visible on Taleeba’s device. Two-way syncing requires the separate accounts and Firebase setup.</p><div class="row"><strong id="coupleGoalsHeading">Our 8-day goals</strong><small id="coupleWindow"></small></div><div id="coupleGoals"></div><div class="couples-fields"><input id="newCoupleGoal" type="text" maxlength="75" placeholder="Add a goal you can do together" aria-label="New couples goal"><button id="addCoupleGoal" class="primary">Add goal</button></div><p id="coupleScore" class="couples-status" aria-live="polite"></p><label class="field">Encouragement or prayer intention<textarea id="coupleNote" class="couples-note" placeholder="Something to encourage each other with this rotation..."></textarea></label><p id="coupleSaveStatus" class="couples-status" aria-live="polite"></p>';
 panels.couples.append(couplesCard);
 relocate('settings',document.querySelector('#themeSettings'));
 relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
@@ -556,6 +559,9 @@ let state={};try{state=JSON.parse(localStorage.getItem(key))||{}}catch(e){}
 state.theme ||= 'gold';
 state.accentOverride ||= null;
 state.anchor ||= today;
+state.cycleLength=state.cycleLength===7?7:8;
+state.scheduleAnchors ||= {8:state.anchor||'2026-11-12'};
+if(!state.scheduleAnchors[8])state.scheduleAnchors[8]=state.anchor||'2026-11-12';
 state.shiftConfirmed = true; // User confirmed the existing November 12, 2026 cycle start.
 state.measurements ||= [];
 state.activities ||= base.map(x=>({...x}));
@@ -601,7 +607,7 @@ state.milestoneClaims ||= {};
 // Existing per-day checkmarks remain in the saved legacy data, without altering or deleting them.
 let offset=0,edit=false,habitEdit=false,rewardEdit=false;
 function rewardStats(){
- const rotationStart=plus(state.anchor,Math.floor(days(today,state.anchor)/8)*8),rotationEnd=plus(rotationStart,7);
+ const rotationStart=cycleStartFor(today),rotationEnd=endFor(rotationStart);
  const eligible=Object.entries(state.dailyCheckins||{}).filter(([date])=>date<=today);
  const checked=(v)=>Array.isArray(v?.habits)?v.habits.filter(Boolean).length:0;
  const habits=eligible.reduce((sum,[date,c])=>sum+checked(c),0);
@@ -637,7 +643,7 @@ function renderMilestoneRewards(){
 }
 
 function renderCouples(){
- const shared=state.couples,startDate=start(),endDate=plus(startDate,7),key=startDate;
+ const shared=state.couples,startDate=start(),endDate=endFor(startDate),key=startDate;
  $('coupleWindow').textContent=startDate+'–'+endDate;
  $('coupleGoals').replaceChildren();
  let count=0;
@@ -653,12 +659,12 @@ function renderCouples(){
 }
 
 function renderInsights(){
- const currentStart=plus(state.anchor,Math.floor(days(today,state.anchor)/8)*8);
- const rotationStarts=Array.from({length:4},(_,i)=>plus(currentStart,-i*8));
+ const currentStart=cycleStartFor(today);
+ const rotationStarts=Array.from({length:4},(_,i)=>plus(currentStart,-i*cycleDays()));
  const goal=state.zone2Goal||150,completed=state.completions||[],zones=state.zone2Logs||[];
  const checkins=state.dailyCheckins||{},dailyActivity=state.dailyActivity||{},habits=state.habitLabels||[];
  const rotations=rotationStarts.map((begin,index)=>{
-   const last=plus(begin,7),dates=Array.from({length:8},(_,i)=>plus(begin,i)),validDates=dates.filter(d=>d<=today);
+   const last=endFor(begin),dates=Array.from({length:cycleDays()},(_,i)=>plus(begin,i)),validDates=dates.filter(d=>d<=today);
    const logged=validDates.filter(d=>checkins[d]?.saved);
    const habitChecks=logged.reduce((sum,d)=>sum+(Array.isArray(checkins[d]?.habits)?checkins[d].habits.filter(Boolean).length:0),0);
    const workouts=completed.filter(c=>c.date>=begin&&c.date<=last&&c.date<=today);
@@ -771,14 +777,14 @@ const todayCheck=()=>$('dailyDate').value||today;
 function cleanCheck(v){v=v||{};return {habits:Array.from({length:state.habitLabels.length},(_,i)=>!!v.habits?.[i]),sleep:v.sleep??'',energy:v.energy??'',recovery:v.recovery??'',saved:!!v.saved}}
 
 function renderZone2(){
- const date=todayCheck(),rotationStart=plus(state.anchor,Math.floor(days(date,state.anchor)/8)*8),end=plus(rotationStart,7);
+ const date=todayCheck(),rotationStart=cycleStartFor(date),end=endFor(rotationStart);
  const logs=state.zone2Logs.filter(x=>x.date>=rotationStart&&x.date<=end);
  const total=logs.reduce((sum,x)=>sum+Number(x.minutes||0),0),goal=state.zone2Goal;
  $('zoneCycle').textContent=rotationStart+' to '+end;
  $('zoneTotal').textContent=total;$('zoneGoalLabel').textContent=goal;
  $('zoneBar').style.width=Math.min(100,(total/goal)*100)+'%';
  $('zoneMeter').setAttribute('aria-valuemax',String(goal));$('zoneMeter').setAttribute('aria-valuenow',String(Math.min(goal,total)));
- $('zoneRemaining').textContent=total>=goal?'✓ 8-day Zone 2 goal complete'+(total>goal?' · '+(total-goal)+' extra minutes':''):goal-total+' minutes remaining · about '+Math.ceil((goal-total)/Math.max(1,8-Math.min(7,Math.max(0,days(date,rotationStart)))))+' min/day over remaining rotation days';
+ $('zoneRemaining').textContent=total>=goal?'✓ '+cycleDays()+'-day Zone 2 goal complete'+(total>goal?' · '+(total-goal)+' extra minutes':''):goal-total+' minutes remaining · about '+Math.ceil((goal-total)/Math.max(1,cycleDays()-Math.min(cycleDays()-1,Math.max(0,days(date,rotationStart)))))+' min/day over remaining rotation days';
  $('zoneGoalInput').value=goal;
  $('zoneLog').replaceChildren();
  if(!logs.length)$('zoneLog').append(element('div','No sessions recorded this rotation.'));
@@ -910,8 +916,24 @@ function applyTheme(){
 const save=()=>{try{localStorage.setItem(key,JSON.stringify(state));
   if(localStorage.getItem(key)!==JSON.stringify(state))throw Error('Storage verification failed');
   return true}catch(err){alert('Your change could not be saved on this browser. Open this site directly in Safari and export a backup before continuing.');return false}};
-const start=()=>plus(state.anchor,Math.floor(days(today,state.anchor)/8)*8+offset*8);
-const inRange=(d,s)=>d>=s&&d<=plus(s,7);
+const cycleDays=()=>state.cycleLength===7?7:8;
+const cycleStartFor=date=>plus(state.anchor,Math.floor(days(date,state.anchor)/cycleDays())*cycleDays());
+const start=()=>plus(cycleStartFor(today),offset*cycleDays());
+const endFor=s=>plus(s,cycleDays()-1);
+const inRange=(d,s)=>d>=s&&d<=endFor(s);
+function displaySchedule(){
+ $('scheduleHeadline').textContent=cycleDays()+' days.';
+ $('trainingHeading').textContent='Flexible '+cycleDays()+'-day checklist';
+ $('rotationHeading').textContent=cycleDays()+'-day rotation summary';
+ $('zoneCycleBadge').textContent=cycleDays()+'-day target';
+ $('zoneGoalCaption').textContent='Change '+cycleDays()+'-day goal';
+ $('coupleGoalsHeading').textContent='Our '+cycleDays()+'-day goals';
+ $('cycleLength').value=String(cycleDays());
+ $('anchorLabel').textContent=cycleDays()===8?'Date of Day 1 (first day shift)':'Week starts on (Monday)';
+ $('scheduleHint').textContent=cycleDays()===8?'Repeats: 2 day shifts, 2 night shifts, 4 off. Your November 12, 2026 start date stays saved.':'Repeats Monday to Sunday. Workouts stay flexible and can be completed on any day.';
+}
+function shiftLabel(i,date){return cycleDays()===8?shifts[i]:parse(date).toLocaleDateString(undefined,{weekday:'short'});}
+
 function metricChart(points,key,unit){
 const values=points.filter(p=>p[key]!=null&&Number.isFinite(Number(p[key]))).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>({date:p.date,value:Number(p[key])}));
 if(!values.length)return '<p class="subtle">Record a check-in to see progress.</p>';
@@ -922,11 +944,12 @@ return '<svg class="trend-chart" viewBox="0 0 320 160" role="img" aria-label="'+
 
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
 function render(){
-const s=start(),end=plus(s,7),counts={};
+const s=start(),end=endFor(s),counts={};
+displaySchedule();
 $('shiftAlert').style.display='none';for(const c of state.completions){if(inRange(c.date,s))counts[c.activityId]=(counts[c.activityId]||0)+1}
 const target=state.activities.reduce((a,x)=>a+x.target,0),total=state.activities.reduce((a,x)=>a+Math.min(x.target,counts[x.id]||0),0);
 $('score').textContent=total+'/'+target;$('completionBar').style.width=(target?total/target*100:0)+'%';$('range').textContent=s+' to '+end;
-$('daystrip').replaceChildren();for(let i=0;i<8;i++){const d=plus(s,i),chip=element('div',undefined,'daychip'+(d===today?' active':''));chip.append(element('b','Day '+(i+1)));chip.append(element('span',shifts[i]));chip.append(element('br'));chip.append(element('small',d.slice(5)));$('daystrip').append(chip)}
+$('daystrip').replaceChildren();for(let i=0;i<cycleDays();i++){const d=plus(s,i),chip=element('div',undefined,'daychip'+(d===today?' active':''));chip.append(element('b','Day '+(i+1)));chip.append(element('span',shiftLabel(i,d)));chip.append(element('br'));chip.append(element('small',d.slice(5)));$('daystrip').append(chip)}
 $('tasks').replaceChildren();
 state.activities.forEach(a=>{
  const count=counts[a.id]||0;
@@ -953,7 +976,7 @@ state.activities.forEach(a=>{
  picker.setAttribute('aria-label','Choose a completion date for '+a.name);
  const datedBtn=element('button','Log date','secondary tiny');datedBtn.type='button';
  datedBtn.onclick=()=>{
-   if(!inRange(picker.value,s))return alert('Select a date within this 8-day rotation.');
+   if(!inRange(picker.value,s))return alert('Select a date within this '+cycleDays()+'-day rotation.');
    state.completions.push({id:'c'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});
    if(save())render();
  };
@@ -990,7 +1013,7 @@ $('milestones').replaceChildren();const marks=[344,318,292,266,240],next=marks.f
 marks.forEach(mark=>{const reached=latestWeight!=null&&latestWeight<=mark,chip=element('div',undefined,'milestone-item'+(reached?' reached':mark===next?' next':''));chip.append(element('strong',mark+' lb'));chip.append(element('small',reached?'✓ Reached':mark===next?'Next goal':'Upcoming'));$('milestones').append(chip)});
 $('nextMilestone').textContent=latestWeight==null?'Log your first rotation check-in to begin tracking milestones.':next?Math.max(0,Number(latestWeight)-next).toFixed(1)+' lb to the next milestone ('+next+' lb).':'Your 240 lb milestone is reached.';
 renderMilestoneRewards();
-const previous=plus(s,-8),prevEnd=plus(previous,7),previousCounts={};state.completions.forEach(c=>{if(inRange(c.date,previous))previousCounts[c.activityId]=(previousCounts[c.activityId]||0)+1});
+const previous=plus(s,-cycleDays()),prevEnd=endFor(previous),previousCounts={};state.completions.forEach(c=>{if(inRange(c.date,previous))previousCounts[c.activityId]=(previousCounts[c.activityId]||0)+1});
 const previousTotal=state.activities.reduce((sum,a)=>sum+Math.min(a.target,previousCounts[a.id]||0),0);
 const bonus=state.activities.reduce((sum,a)=>sum+Math.max(0,(counts[a.id]||0)-a.target),0);
 const lastMeasurement=state.measurements.filter(m=>inRange(m.date,previous)).sort((a,b)=>b.date.localeCompare(a.date))[0];
@@ -1000,10 +1023,10 @@ const changes=[];if(nowMeasurement&&lastMeasurement){changes.push('Weight '+(Num
 $('rotationComparison').textContent='Previous cycle ('+previous+' to '+prevEnd+'): '+previousTotal+'/'+target+' targets'+(changes.length?' · Change since then: '+changes.join(', '):' · Compare body measurements after two check-ins')+'.';
 $('summaryWindow').textContent=s+' to '+end;
 const note=$('rotationNote');note.value=state.rotationNotes[s]||'';note.oninput=()=>{state.rotationNotes[s]=note.value;save()};
-const cycleDays=Array.from({length:8},(_,i)=>plus(s,i)),logs=cycleDays.map(d=>state.dailyCheckins[d]).filter(x=>x?.saved);
+const rotationDates=Array.from({length:cycleDays()},(_,i)=>plus(s,i)),logs=rotationDates.map(d=>state.dailyCheckins[d]).filter(x=>x?.saved);
 const habitCount=logs.reduce((v,x)=>v+(Array.isArray(x.habits)?x.habits.filter(Boolean).length:0),0);
 $('dailyReport').replaceChildren();
-[['Days checked in',logs.length+'/8'],['Habits completed',String(habitCount)]].forEach(([label,val])=>{const node=element('div');node.append(element('small',label),element('b',val));$('dailyReport').append(node)});
+[['Days checked in',logs.length+'/'+cycleDays()],['Habits completed',String(habitCount)]].forEach(([label,val])=>{const node=element('div');node.append(element('small',label),element('b',val));$('dailyReport').append(node)});
 $('dailyInsight').textContent=logs.length?'Look at your consistency across the rotation, and choose one helpful improvement for next time.':'Check daily habits to begin seeing your 8-day consistency.';
 
 $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb';
@@ -1062,14 +1085,36 @@ $('editHabits').onclick=()=>{habitEdit=!habitEdit;renderDaily()};
 $('prev').onclick=()=>{offset--;render()};$('next').onclick=()=>{offset++;render()};$('current').onclick=()=>{offset=0;render()};
 $('toggleEdit').onclick=()=>{edit=!edit;render()};$('quickEdit').onclick=()=>{edit=true;showPanel('settings');render();$('customizeHeading').scrollIntoView({behavior:'smooth',block:'start'})};
 $('add').onclick=()=>{const name=$('newName').value.trim(),target=Math.max(1,Math.min(30,Number($('newTarget').value)||1));if(!name)return alert('Enter an activity');state.activities.push({id:'a'+Date.now()+'-'+Math.random().toString(36).slice(2),name,target});if(save()){render();$('taskSaveFeedback').textContent='✓ "'+name+'" added and saved';$('newName').value='';}};
-$('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this 8-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
-$('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;state.shiftConfirmed=true;offset=0;save();render()};
+$('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this '+cycleDays()+'-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
+$('cycleLength').onchange=()=>{
+ const next=Number($('cycleLength').value);
+ if(next===cycleDays())return;
+ if(![7,8].includes(next))return;
+ state.scheduleAnchors[cycleDays()]=state.anchor;
+ state.cycleLength=next;
+ if(next===7){
+  const weekday=(parse(today).getDay()+6)%7;
+  state.anchor=state.scheduleAnchors[7]||plus(today,-weekday);
+ }else state.anchor=state.scheduleAnchors[8]||'2026-11-12';
+ state.scheduleAnchors[next]=state.anchor;offset=0;
+ if(save()){render();renderZone2();$('scheduleSaveStatus').textContent='✓ '+next+'-day schedule saved. Previous records kept.'}
+};
+$('anchor').onchange=()=>{
+ if(!$('anchor').value)return;
+ const selected=$('anchor').value;
+ if(cycleDays()===7){
+  const weekday=(parse(selected).getDay()+6)%7;
+  state.anchor=plus(selected,-weekday);
+ }else state.anchor=selected;
+ state.scheduleAnchors[cycleDays()]=state.anchor;state.shiftConfirmed=true;offset=0;
+ if(save()){render();renderZone2();$('scheduleSaveStatus').textContent='✓ Start date saved'}
+};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 $('transferBackup').onclick=()=>$('import').click();
 const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
 const hasProgress=state.measurements.length>0||state.completions.length>0||Object.values(state.dailyCheckins).some(x=>x&&x.saved);
 $('homeScreenNoticeText').textContent=standalone?(hasProgress?'This Home Screen app is saving its own data. Export a backup regularly; Safari may show different records.':'This Home Screen app has no check-ins yet. If you saved them in Safari, export a backup there and import it here.'):'If you plan to use the Home Screen app, first export a backup here. Then open the Home Screen app and import it there, as it may have separate storage.';
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.zone2Logs||=[];state.zone2Goal||=150;state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 $('themeAccent').onchange=()=>{
  const color=$('themeAccent').value;
  if(relativeLuminance(color)<.22){$('themeMessage').textContent='Please choose a brighter accent for readable text and controls.';applyTheme();return;}
