@@ -464,7 +464,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 
 <section class="cloud-card" id="cloudSync">
 <div class="cloud-header"><div><div class="dashboard-label">PRIVATE CLOUD BACKUP</div><h2>Account & Automatic Sync</h2></div><span id="cloudStatus" class="cloud-badge">Connecting…</span></div>
-<p class="cloud-desc">Your workouts, habits, weight, waist, rewards and progress can be saved securely to your own account. Your existing iPhone data will not be overwritten automatically.</p>
+<p class="cloud-desc">Your workouts, habits, measurements and rewards sync through your private Firebase account. Changes confirmed in the cloud are loaded on your other devices; unsynced edits stay protected.</p>
 <div id="cloudSignedOut">
 <div class="cloud-fields"><label>Email<input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label for="cloudPassword">Password<div class="password-control"><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"><button type="button" id="togglePassword" aria-label="Show password" aria-pressed="false" class="secondary tiny">Show</button></div></label></div>
 <div class="cloud-actions"><button type="button" class="primary" id="cloudSignIn">Sign in</button><button type="button" class="secondary" id="cloudSignUp">Create account</button></div>
@@ -472,7 +472,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div id="cloudSignedIn" hidden><p id="cloudIdentity" class="cloud-id"></p><div class="cloud-actions"><button type="button" id="cloudSyncNow" class="primary">Sync now</button><button type="button" id="cloudSignOut" class="secondary">Sign out</button></div></div>
 <div id="cloudChoice" class="cloud-choice" hidden><strong id="cloudChoiceTitle">Choose your progress</strong><p id="cloudChoiceDescription"></p><button type="button" class="primary" id="cloudActionUpload">Upload this device</button><button type="button" class="secondary" id="cloudActionRestore">Restore cloud copy</button></div>
 <p id="cloudMessage" class="cloud-message" role="status" aria-live="polite">Your local tracker data is unchanged.</p>
-<p class="cloud-small">Your cloud data is private to your signed-in account. Couples syncing will be added separately after secure shared permissions are configured. If you use the same device for both accounts, use separate browser profiles to keep local records apart.</p>
+<p class="cloud-small">Your personal tracker is private. Couples Accountability is a separate shared space available only to the two connected accounts. If you share a phone, use separate browser profiles so local copies do not mix.</p>
 </section>
 <div class="card" id="shiftSettings"><h2>Shift calendar & backup</h2>
 <div id="homeScreenNotice" class="card" style="padding:14px;margin:0 0 14px;border-color:var(--border-strong)">
@@ -1350,6 +1350,17 @@ $('themeAccent').onchange=()=>{
 $('resetAccent').onclick=()=>{state.accentOverride=null;if(save()){applyTheme();$('themeMessage').textContent='✓ Theme accent restored'}};
 applyTheme();
 save();render();renderDaily();renderActivity();renderZone2();renderDailyVerse();
+// Refresh the day when returning after midnight, without discarding unsynced changes.
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden||iso(new Date())===today)return;
+ try{
+  if(localStorage.getItem('vigor-cloud-pending')==='yes'){
+   $('scheduleSaveStatus').textContent='A new day has started. Your offline changes are still pending; reopen after cloud sync finishes.';
+   return;
+  }
+ }catch(e){}
+ location.reload();
+});
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
  importStepsApp:(rows,includeCalories=false)=>{
