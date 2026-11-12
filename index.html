@@ -191,10 +191,10 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p></div>
 <nav class="app-tabs" aria-label="App sections" id="appTabs">
-<button type="button" class="app-tab active" data-panel="today">Today</button>
+<button type="button" class="app-tab active" data-panel="faith">Faith</button>
+<button type="button" class="app-tab" data-panel="today">Today</button>
 <button type="button" class="app-tab" data-panel="progress">Progress</button>
 <button type="button" class="app-tab" data-panel="rewards">Rewards</button>
-<button type="button" class="app-tab" data-panel="faith">Faith</button>
 <button type="button" class="app-tab" data-panel="settings">Settings</button>
 </nav>
 <section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
@@ -226,9 +226,9 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 const $=id=>document.getElementById(id);
 
 const main=document.querySelector('main'),panels={};
-['today','progress','rewards','faith','settings'].forEach(id=>{
+['faith','today','progress','rewards','settings'].forEach(id=>{
  const section=document.createElement('section');section.className='app-panel';section.id='panel-'+id;
- section.setAttribute('aria-label',id.charAt(0).toUpperCase()+id.slice(1));section.hidden=id!=='today';
+ section.setAttribute('aria-label',id.charAt(0).toUpperCase()+id.slice(1));section.hidden=id!=='faith';
  panels[id]=section;main.append(section);
 });
 function relocate(id,node){if(!node)throw Error('Missing section for '+id);panels[id].append(node)}
@@ -248,7 +248,7 @@ relocate('faith',document.querySelector('#devotional'));
 relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
 relocate('settings',document.querySelector('#shiftSettings'));
 relocate('settings',document.querySelector('#shiftAlert'));
-let selectedPanel='today';
+let selectedPanel='faith';
 function showPanel(id){
  if(!panels[id])return;
  selectedPanel=id;
@@ -377,7 +377,7 @@ state.activities ||= base.map(x=>({...x}));
 state.completions ||= [];
 state.dailyCheckins ||= {};
 state.habitLabels ||= ['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];
-['Read Bible','Pray','Read a book'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});
+['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});
 state.readDays ||= {};
 state.rotationNotes ||= {};
 const suggestedRewards=[
@@ -575,7 +575,7 @@ $('add').onclick=()=>{const name=$('newName').value.trim(),target=Math.max(1,Mat
 $('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this 8-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
 $('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;state.shiftConfirmed=true;offset=0;save();render()};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];['Read Bible','Pray','Read a book'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.milestoneRewards||={};state.milestoneClaims||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.milestoneRewards||={};state.milestoneClaims||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 save();render();renderDaily();renderDailyVerse();
 })();
 </script></body>
