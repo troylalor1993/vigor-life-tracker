@@ -89,6 +89,32 @@
  #daily #editHabits{min-height:42px}
  #daily #saveDaily{width:100%;min-height:48px}
 }
+
+/* Fix iOS Safari date-picker intrinsic sizing without affecting stored dates */
+#daily .daily-date-field{display:block;width:100%;min-width:0;max-width:100%;margin:0;padding:0}
+#daily .daily-date-field>label{display:block;color:#c6b99c;font-size:14px;font-weight:600;margin-bottom:9px}
+#daily .daily-date-control{display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:100%;min-width:0;overflow:hidden;border:1px solid #66522d;border-radius:11px;background:#101010}
+#daily .daily-date-control #dailyDate{
+ display:block!important;box-sizing:border-box!important;width:100%!important;
+ max-width:100%!important;min-width:0!important;margin:0!important;
+ height:52px;min-height:52px;padding:0 13px!important;
+ border:0!important;box-shadow:none!important;border-radius:10px!important;
+ background:#101010!important;color:#f7f3e8!important;font-size:16px!important;
+ text-align:left!important;line-height:52px!important;color-scheme:dark;
+ -webkit-appearance:none;appearance:none;
+}
+#daily #dailyDate::-webkit-date-and-time-value{min-width:0!important;max-width:100%;text-align:left}
+#daily #dailyDate::-webkit-datetime-edit{min-width:0!important;max-width:100%;overflow:hidden}
+#daily #dailyDate::-webkit-calendar-picker-indicator{opacity:.85;filter:sepia(1) saturate(3) hue-rotate(350deg)}
+#daily .habit input[type=checkbox]{
+ -webkit-appearance:none;appearance:none;position:relative;background:#101010;
+ border:2px solid #9b8349;border-radius:7px;cursor:pointer;flex:0 0 22px
+}
+#daily .habit input[type=checkbox]:checked{background:#d4af37;border-color:#d4af37}
+#daily .habit input[type=checkbox]:checked::after{
+ content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
+ border:solid #101010;border-width:0 2px 2px 0;transform:rotate(45deg)
+}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
 <nav class="quick-links" aria-label="Jump to section"><a href="#daily">Daily habits</a><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
@@ -100,7 +126,7 @@
 <div class="devotional-block"><strong>Today’s application</strong><p id="verseApplication"></p></div>
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
 <p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
-<div class="card" id="daily"><div class="row"><h2>Daily habits & recovery</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Unrecorded days are not scored as failures.</p><label class="field">Date<input id="dailyDate" type="date"></label><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><h3>Recovery check-in</h3><div class="recovery-grid"><label>Sleep (hours)<input id="sleepInput" type="number" min="0" max="24" step=".5" placeholder="e.g. 7"></label><label>Energy<select id="energyInput"><option value="">Not rated</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select></label><label>Recovery<select id="recoveryInput"><option value="">Not rated</option><option value="poor">Poor</option><option value="okay">Okay</option><option value="good">Good</option></select></label></div><div class="row" style="margin-top:16px"><button id="saveDaily" class="primary">Save check-in</button><span id="dailySaveStatus" class="subtle" aria-live="polite"></span></div></div>
+<div class="card" id="daily"><div class="row"><h2>Daily habits & recovery</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Unrecorded days are not scored as failures.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><h3>Recovery check-in</h3><div class="recovery-grid"><label>Sleep (hours)<input id="sleepInput" type="number" min="0" max="24" step=".5" placeholder="e.g. 7"></label><label>Energy<select id="energyInput"><option value="">Not rated</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select></label><label>Recovery<select id="recoveryInput"><option value="">Not rated</option><option value="poor">Poor</option><option value="okay">Okay</option><option value="good">Good</option></select></label></div><div class="row" style="margin-top:16px"><button id="saveDaily" class="primary">Save check-in</button><span id="dailySaveStatus" class="subtle" aria-live="polite"></span></div></div>
 <div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p></div>
