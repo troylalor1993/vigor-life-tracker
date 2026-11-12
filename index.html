@@ -645,7 +645,7 @@ state.scheduleAnchors ||= {8:state.anchor||'2026-11-12'};
 if(!state.scheduleAnchors[8])state.scheduleAnchors[8]=state.anchor||'2026-11-12';
 state.shiftConfirmed = true; // User confirmed the existing November 12, 2026 cycle start.
 state.measurements ||= [];
-state.bodyGoals ||= {startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};
+state.bodyGoals = {startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(state.bodyGoals&&typeof state.bodyGoals==='object'?state.bodyGoals:{})};
 state.activities ||= base.map(x=>({...x}));
 if(!state.fast36AddedV1){
   if(!state.activities.some(a=>a.id==='fast36'||/^36[ -]?hour fast$/i.test(String(a.name||'').trim()))){
@@ -1165,7 +1165,7 @@ $('weight').value=rotationMeasurement?.weight??'';$('waist').value=rotationMeasu
 const sorted=state.measurements.slice().sort((a,b)=>b.date.localeCompare(a.date));
 const latestWeight=sorted.find(m=>m.weight!=null)?.weight,latestWaist=sorted.find(m=>m.waist!=null)?.waist;
 $('transformationSummary').replaceChildren();
-const body=state.bodyGoals;
+const body=state.bodyGoals||(state.bodyGoals={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38});
 const weightDiff=latestWeight==null?null:body.startWeight-Number(latestWeight),waistDiff=latestWaist==null?null:body.startWaist-Number(latestWaist);
 $('weightGoalCaption').textContent='Goal '+body.goalWeight+' lb';
 $('waistGoalCaption').textContent='Goal '+body.goalWaist+' in';
@@ -1329,7 +1329,21 @@ window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
  applyPersonal:payload=>{
   if(!payload||!Array.isArray(payload.measurements)||!Array.isArray(payload.activities)||!payload.anchor)throw Error('Invalid cloud tracker data');
-  state=payload;
+  // Older Firebase backups predate editable body targets. Fill missing fields before rendering.
+  const previousCouples=state.couples;
+  const defaults={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};
+  state={...payload,
+   bodyGoals:{...defaults,...(payload.bodyGoals&&typeof payload.bodyGoals==='object'?payload.bodyGoals:{})},
+   activityGoals:{steps:8000,calories:500,...(payload.activityGoals||{})},
+   zone2Goal:payload.zone2Goal||150,
+   dailyActivity:payload.dailyActivity||{},
+   dailyCheckins:payload.dailyCheckins||{},
+   completions:payload.completions||[],
+   zone2Logs:payload.zone2Logs||[],
+   habitLabels:payload.habitLabels||state.habitLabels,
+   scheduleAnchors:payload.scheduleAnchors||{8:payload.anchor},
+   couples:window.vigorCouplesSharedActive?previousCouples:(payload.couples||previousCouples)
+  };
   localStorage.setItem(key,JSON.stringify(state));
   applyTheme();render();renderDaily();renderActivity();renderZone2();renderDailyVerse();
  },
@@ -1341,7 +1355,7 @@ window.vigorCloudBridge={
  },
  restore:payload=>{
   if(!payload||typeof payload!=='object'||!Array.isArray(payload.activities)||!Array.isArray(payload.measurements)||typeof payload.anchor!=='string')throw Error('Invalid cloud backup.');
-  localStorage.setItem(key,JSON.stringify(payload));
+  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})}}));
   window.location.reload();
  }
 };
