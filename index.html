@@ -193,7 +193,26 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 .habit-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0 3px}
 .habit-add-row button{min-width:95px}
 @media(max-width:650px){.habit-add-row input{min-width:0}.habit-add-row button{padding:9px}}
-.manual-save{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px}.manual-save #saveProgress{min-width:145px;min-height:43px}.manual-save #saveProgressStatus{font-size:12px;color:#c6b68e}@media(max-width:650px){.manual-save{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center}.manual-save #saveProgress{min-width:0;padding:11px}.manual-save #saveProgressStatus{line-height:1.4}}.couples-card{background:linear-gradient(145deg,#211c14,#141414);border:1px solid #68522d}.couples-meta{color:#cbb789;font-size:12px;line-height:1.6}.couple-goal{display:flex;align-items:center;gap:10px;padding:12px 9px;border-bottom:1px solid #3e3322}.couple-goal input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:#d4af37}.couple-goal span{flex:1;overflow-wrap:anywhere}.couple-goal button{padding:6px 9px}.couples-fields{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:13px}.couples-fields input{min-width:0}.couples-note{width:100%;min-height:80px;margin-top:8px}.couples-status{font-size:12px;color:#d4af37}.app-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:650px){.app-tab{font-size:10px}.couples-fields{grid-template-columns:1fr}.couples-fields button{width:100%}}</style></head><body><main>
+.manual-save{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px}.manual-save #saveProgress{min-width:145px;min-height:43px}.manual-save #saveProgressStatus{font-size:12px;color:#c6b68e}@media(max-width:650px){.manual-save{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center}.manual-save #saveProgress{min-width:0;padding:11px}.manual-save #saveProgressStatus{line-height:1.4}}.couples-card{background:linear-gradient(145deg,#211c14,#141414);border:1px solid #68522d}.couples-meta{color:#cbb789;font-size:12px;line-height:1.6}.couple-goal{display:flex;align-items:center;gap:10px;padding:12px 9px;border-bottom:1px solid #3e3322}.couple-goal input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:#d4af37}.couple-goal span{flex:1;overflow-wrap:anywhere}.couple-goal button{padding:6px 9px}.couples-fields{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:13px}.couples-fields input{min-width:0}.couples-note{width:100%;min-height:80px;margin-top:8px}.couples-status{font-size:12px;color:#d4af37}.app-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:650px){.app-tab{font-size:10px}.couples-fields{grid-template-columns:1fr}.couples-fields button{width:100%}}
+/* Compact daily activity metrics */
+.activity-card{background:#151515;border:1px solid #554425;border-radius:18px;padding:16px;margin:0 0 13px}
+.activity-card h2{margin:0 0 5px}
+.activity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.activity-metric{min-width:0;background:#1d1a15;border:1px solid #443820;border-radius:13px;padding:13px}
+.activity-metric label{color:#e9dbbb;font-size:13px;display:block}
+.activity-metric input{margin:8px 0 7px;min-width:0;width:100%;font-size:17px;height:46px}
+.activity-metric strong{font-size:12px;color:#e3c46e}
+.activity-meter{height:8px;border-radius:100px;background:#3e3322;overflow:hidden;margin:9px 0}
+.activity-meter>div{height:100%;width:0;background:#d4af37;border-radius:100px;transition:width .2s ease}
+.activity-card details{margin-top:12px;border-top:1px solid #463921;padding-top:10px}
+.activity-card summary{cursor:pointer;color:#e4c77a;font-weight:650;font-size:13px}
+.activity-goals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:12px}
+.activity-goals label{display:block;font-size:12px;color:#cdbf9f}
+.activity-goals input{margin-top:6px;font-size:16px}
+.activity-actions{display:flex;align-items:center;gap:12px;margin-top:13px;flex-wrap:wrap}
+#activityStatus{font-size:12px;color:#d5c39e}
+@media(max-width:430px){.activity-grid{gap:7px}.activity-metric{padding:10px}.activity-metric input{font-size:16px}.activity-goals{grid-template-columns:1fr}}
+</style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
 <nav class="app-tabs" aria-label="App sections" id="appTabs">
@@ -213,6 +232,11 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
 <p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
 <div class="card" id="daily"><div class="row"><h2>Daily habits</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Check a habit whenever you complete it. Changes save automatically.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><div id="habitSaveFeedback" class="subtle" aria-live="polite"></div><p class="subtle" id="dailySaveStatus" aria-live="polite">Checkmarks save automatically.</p></div>
+<div class="activity-card" id="activity"><div class="row"><h2>Daily Activity</h2><span class="tag">Manual entry</span></div><p class="subtle">Steps and active calories from your Apple Watch. Apple Health syncing can be added later.</p>
+<div class="activity-grid"><div class="activity-metric"><label for="activitySteps">Steps</label><input id="activitySteps" type="number" inputmode="numeric" min="0" max="150000" step="1" placeholder="0"><strong id="stepsGoalText">Goal 8,000 steps</strong><div class="activity-meter"><div id="stepsBar"></div></div><small id="stepsProgress">0%</small></div>
+<div class="activity-metric"><label for="activityCalories">Active calories (kcal)</label><input id="activityCalories" type="number" inputmode="numeric" min="0" max="10000" step="1" placeholder="0"><strong id="caloriesGoalText">Goal 500 kcal</strong><div class="activity-meter"><div id="caloriesBar"></div></div><small id="caloriesProgress">0%</small></div></div>
+<div class="activity-actions"><button type="button" id="saveActivity" class="primary">Save activity</button><span id="activityStatus" aria-live="polite">Not logged for this date</span></div>
+<details><summary>Adjust step & calorie goals</summary><div class="activity-goals"><label>Daily step target<input id="activityStepsGoal" type="number" inputmode="numeric" min="1" max="150000" step="1"></label><label>Daily active calorie target (kcal)<input id="activityCaloriesGoal" type="number" inputmode="numeric" min="1" max="10000" step="1"></label></div><p class="subtle">Goals apply to future progress displays. Active calories are estimates, not a food allowance.</p></details></div>
 <div class="card" id="rewards"><div class="row"><h2>Earned rewards</h2><button id="editRewards" class="secondary tiny">Edit rewards</button></div><div class="reward-score-grid"><div class="reward-score"><strong id="rewardRotation">0</strong><small>This rotation</small></div><div class="reward-score"><strong id="rewardEarned">0</strong><small>Lifetime earned</small></div><div class="reward-score available"><strong id="rewardBalance">0</strong><small>Available points</small></div></div><p id="rewardPeriod" class="reward-rotation"></p><p id="rewardSpent" class="subtle">0 points redeemed</p><p class="subtle">Earn 5 points per daily habit and 20 per completed workout. Use points to plan enjoyable treats and quality time together. Food is never something you must earn: regular meals and snacks remain part of taking care of yourself.</p><p class="subtle">Example: Six completed habits a day for eight days and five workouts earns 340 points. Points carry forward between rotations. Redeeming a reward logs the occasion, not permission to eat.</p><section class="unlocked-panel" aria-labelledby="unlockedTitle">
 <h3 id="unlockedTitle">Unlocked rewards <span id="unlockedCount" class="tag">0 available</span></h3>
 <p>Rewards you can claim whenever you're ready. Points are deducted only when you redeem.</p>
@@ -249,6 +273,7 @@ function collapsible(id,node,title,open){
  const heading=document.createElement('summary');heading.textContent=title;details.append(heading,node);panels[id].append(details);
 }
 relocate('today',document.querySelector('#daily'));
+relocate('today',document.querySelector('#activity'));
 relocate('today',document.querySelector('#training'));
 relocate('progress',document.querySelector('.cards'));
 collapsible('progress',document.querySelector('#transformationSummary').closest('.card'),'Weight & waist charts',false);
@@ -398,6 +423,8 @@ if(!state.fast36AddedV1){
 }
 state.completions ||= [];
 state.dailyCheckins ||= {};
+state.dailyActivity ||= {};
+state.activityGoals ||= {steps:8000,calories:500};
 state.habitLabels ||= ['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];
 if(!state.habitMigrationV2){
  state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);
@@ -524,6 +551,31 @@ function renderRewards(){
 
 const todayCheck=()=>$('dailyDate').value||today;
 function cleanCheck(v){v=v||{};return {habits:Array.from({length:state.habitLabels.length},(_,i)=>!!v.habits?.[i]),sleep:v.sleep??'',energy:v.energy??'',recovery:v.recovery??'',saved:!!v.saved}}
+
+function activityFor(date){return state.dailyActivity[date]||{}}
+function renderActivity(){
+ const date=todayCheck(),item=activityFor(date),goals=state.activityGoals;
+ $('activitySteps').value=item.steps??'';
+ $('activityCalories').value=item.calories??'';
+ $('activityStepsGoal').value=goals.steps;
+ $('activityCaloriesGoal').value=goals.calories;
+ $('activityStatus').textContent=item.saved?'✓ Saved on this device for '+date:'Not logged for this date';
+ updateActivityMeters();
+}
+function updateActivityMeters(){
+ const goals=state.activityGoals;
+ for(const [valueId,goal,barId,progressId,goalLabel,unit] of [
+  ['activitySteps',goals.steps,'stepsBar','stepsProgress','stepsGoalText','steps'],
+  ['activityCalories',goals.calories,'caloriesBar','caloriesProgress','caloriesGoalText','kcal']
+ ]){
+  const raw=$(valueId).value,amount=raw===''?0:Math.max(0,Number(raw)||0);
+  const percent=Math.round(amount/goal*100);
+  $(barId).style.width=Math.min(100,percent)+'%';
+  $(progressId).textContent=raw===''?'No entry':percent+'% of target'+(percent>=100?' · Goal reached':'');
+  $(goalLabel).textContent='Goal '+Number(goal).toLocaleString()+' '+unit;
+ }
+}
+
 function renderDaily(){
  const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);$('habitGrid').replaceChildren();
  state.habitLabels.forEach((name,i)=>{const label=element('label',undefined,'habit'+(entry.habits[i]?' checked':'')),input=element('input');input.type='checkbox';input.checked=entry.habits[i];input.onchange=()=>{const item=cleanCheck(state.dailyCheckins[date]);item.habits[i]=input.checked;item.saved=true;state.dailyCheckins[date]=item;save();renderDaily();render()};label.append(input,element('span',name));$('habitGrid').append(label)});
@@ -637,7 +689,31 @@ $('saveProgress').onclick=()=>{
   status.textContent='✓ Saved on this device at '+stamp;
  }
 };
-$('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=renderDaily;
+$('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=()=>{renderDaily();renderActivity()};
+['activitySteps','activityCalories'].forEach(id=>$(id).oninput=updateActivityMeters);
+$('saveActivity').onclick=()=>{
+ const date=todayCheck(),stepsRaw=$('activitySteps').value,caloriesRaw=$('activityCalories').value;
+ if(!date||date>today)return alert('Choose today or an earlier date');
+ if(stepsRaw===''&&caloriesRaw==='')return alert('Enter your steps or active calories');
+ const steps=stepsRaw===''?null:Number(stepsRaw),calories=caloriesRaw===''?null:Number(caloriesRaw);
+ if(steps!==null&&(!Number.isInteger(steps)||steps<0||steps>150000))return alert('Enter a valid whole-number step count');
+ if(calories!==null&&(!Number.isInteger(calories)||calories<0||calories>10000))return alert('Enter valid active calories in kcal');
+ state.dailyActivity[date]={steps,calories,saved:true};
+ // Automatically check the step-target habit when the entered count reaches the target.
+ if(steps!==null&&steps>=state.activityGoals.steps){
+  const idx=state.habitLabels.findIndex(name=>name.toLowerCase()==='reached step target');
+  if(idx>=0){const item=cleanCheck(state.dailyCheckins[date]);item.habits[idx]=true;item.saved=true;state.dailyCheckins[date]=item}
+ }
+ if(save()){renderActivity();renderDaily();render()}
+};
+function saveActivityGoals(){
+ const steps=Number($('activityStepsGoal').value),calories=Number($('activityCaloriesGoal').value);
+ if(!Number.isInteger(steps)||steps<1||steps>150000||!Number.isInteger(calories)||calories<1||calories>10000)return alert('Enter positive whole-number goals');
+ state.activityGoals={steps,calories};
+ if(save()){updateActivityMeters();$('activityStatus').textContent='✓ Goals saved on this device'}
+}
+$('activityStepsGoal').onchange=saveActivityGoals;
+$('activityCaloriesGoal').onchange=saveActivityGoals;
 $('editHabits').onclick=()=>{habitEdit=!habitEdit;renderDaily()};
 
 $('prev').onclick=()=>{offset--;render()};$('next').onclick=()=>{offset++;render()};$('current').onclick=()=>{offset=0;render()};
@@ -650,7 +726,7 @@ $('transferBackup').onclick=()=>$('import').click();
 const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
 const hasProgress=state.measurements.length>0||state.completions.length>0||Object.values(state.dailyCheckins).some(x=>x&&x.saved);
 $('homeScreenNoticeText').textContent=standalone?(hasProgress?'This Home Screen app is saving its own data. Export a backup regularly; Safari may show different records.':'This Home Screen app has no check-ins yet. If you saved them in Safari, export a backup there and import it here.'):'If you plan to use the Home Screen app, first export a backup here. Then open the Home Screen app and import it there, as it may have separate storage.';
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
-save();render();renderDaily();renderDailyVerse();
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+save();render();renderDaily();renderActivity();renderDailyVerse();
 })();
 </script></body>
