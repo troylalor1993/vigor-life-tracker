@@ -55,7 +55,7 @@ async function saveShared(){
   if(JSON.stringify(readShared())!==sent){queued=true;schedule()}
   else writeStatus("Saved together","Shared changes were saved to Firebase.");
  }catch(e){queued=true;writeStatus("Retry needed","Shared changes remain on this device. "+tidyError(e))}
- finally{writing=false;if(queued&&navigator.onLine){queued=false;schedule()}}
+ finally{writing=false}
 }
 function schedule(){
  if(!active())return;
