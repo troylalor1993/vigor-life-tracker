@@ -271,6 +271,31 @@ function rewardStats(){
  const earned=habits*5+workouts*20,spent=state.rewardRedemptions.reduce((sum,r)=>sum+Number(r.cost||0),0);
  return {earned,spent,balance:earned-spent};
 }
+
+function renderMilestoneRewards(){
+ const holder=$('milestoneRewards');holder.replaceChildren();
+ const weights=state.measurements.map(m=>Number(m.weight)).filter(n=>Number.isFinite(n)&&n>0);
+ const best=weights.length?Math.min(...weights):null;
+ [344,318,292,266,240].forEach(mark=>{
+  const id=String(mark),unlocked=best!==null&&best<=mark,claimed=state.milestoneClaims[id];
+  const tile=element('div',undefined,'milestone-reward'+(claimed?' claimed':''));
+  const heading=element('h3',mark+' lb milestone');
+  const status=element('p',claimed?'✓ Claimed '+claimed.date:unlocked?'Unlocked — well done!':'Locked until '+mark+' lb');
+  const label=element('label','Your reward'),input=element('input');input.type='text';input.maxLength=100;
+  input.placeholder='Enter your reward';input.value=state.milestoneRewards[id]||'';
+  input.setAttribute('aria-label','Reward for '+mark+' pounds');
+  input.onchange=()=>{state.milestoneRewards[id]=input.value.trim();save()};
+  const button=element('button',claimed?'✓ Claimed':unlocked?'Claim reward':'Not yet unlocked','secondary tiny');
+  button.disabled=!!claimed||!unlocked;button.style.opacity=button.disabled?'.55':'1';
+  button.onclick=()=>{
+   const reward=input.value.trim();if(!reward)return alert('Enter your reward first.');
+   if(!confirm('Mark the '+mark+' lb reward as claimed?'))return;
+   state.milestoneRewards[id]=reward;state.milestoneClaims[id]={name:reward,date:today};save();renderMilestoneRewards();
+  };
+  label.append(input);tile.append(heading,status,label,button);holder.append(tile);
+ });
+}
+
 function renderRewards(){
  const score=rewardStats();$('rewardBalance').textContent=score.balance+' pts';$('rewardEarned').textContent=score.earned+' earned';$('rewardSpent').textContent=score.spent+' redeemed';
  $('rewardWarning').textContent=score.balance<0?'Your balance is temporarily negative because an earlier activity was undone.':'';
@@ -351,6 +376,7 @@ $('weightChart').innerHTML=metricChart(sorted,'weight','lb');$('waistChart').inn
 $('milestones').replaceChildren();const marks=[344,318,292,266,240],next=marks.find(v=>latestWeight==null||latestWeight>v);
 marks.forEach(mark=>{const reached=latestWeight!=null&&latestWeight<=mark,chip=element('div',undefined,'milestone-item'+(reached?' reached':mark===next?' next':''));chip.append(element('strong',mark+' lb'));chip.append(element('small',reached?'✓ Reached':mark===next?'Next goal':'Upcoming'));$('milestones').append(chip)});
 $('nextMilestone').textContent=latestWeight==null?'Log your first rotation check-in to begin tracking milestones.':next?Math.max(0,Number(latestWeight)-next).toFixed(1)+' lb to the next milestone ('+next+' lb).':'Your 240 lb milestone is reached.';
+renderMilestoneRewards();
 const previous=plus(s,-8),prevEnd=plus(previous,7),previousCounts={};state.completions.forEach(c=>{if(inRange(c.date,previous))previousCounts[c.activityId]=(previousCounts[c.activityId]||0)+1});
 const previousTotal=state.activities.reduce((sum,a)=>sum+Math.min(a.target,previousCounts[a.id]||0),0);
 const bonus=state.activities.reduce((sum,a)=>sum+Math.max(0,(counts[a.id]||0)-a.target),0);
@@ -385,7 +411,7 @@ $('add').onclick=()=>{const name=$('newName').value.trim(),target=Math.max(1,Mat
 $('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this 8-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
 $('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;state.shiftConfirmed=true;offset=0;save();render()};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards||=[{id:'r1',name:'Extra recovery / relaxation time',cost:100},{id:'r2',name:'Fun outing or experience',cost:250},{id:'r3',name:'Fitness gear savings goal',cost:500}];state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards||=[{id:'r1',name:'Extra recovery / relaxation time',cost:100},{id:'r2',name:'Fun outing or experience',cost:250},{id:'r3',name:'Fitness gear savings goal',cost:500}];state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];['Read Bible','Pray','Read a book'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.milestoneRewards||={};state.milestoneClaims||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 save();render();renderDaily();renderDailyVerse();
 })();
 </script></body>
