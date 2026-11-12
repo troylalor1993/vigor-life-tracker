@@ -9,7 +9,7 @@
 .scripture-reflection{color:#cfc5af;font-size:14px;line-height:1.65;margin:13px 0 0}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
-<section class="card scripture-card" aria-labelledby="verseTitle"><div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Scripture</h2></div><small id="verseDate"></small></div><blockquote id="verseText" class="scripture-text"></blockquote><div id="verseRef" class="scripture-ref"></div><p id="verseReflection" class="scripture-reflection"></p><p class="subtle" style="margin-bottom:0">King James Version · A new passage each day</p></section>
+<section class="card scripture-card" aria-labelledby="verseTitle"><div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Scripture</h2></div><small id="verseDate"></small></div><div id="verseText" class="scripture-text"></div><div id="verseRef" class="scripture-ref"></div><p id="verseReflection" class="scripture-reflection"></p><p><a id="verseNLTLink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer" style="color:#e6c76d;font-weight:700">Read passage in NLT ↗</a></p><p class="subtle" style="margin-bottom:0">NLT reading link · New passage each day · Reflections are original, not Scripture quotations.</p></section>
 <div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
 <div class="card"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
@@ -50,9 +50,10 @@ function renderDailyVerse(){
 const now=new Date(),day=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86400000);
 const verse=dailyVerses[((day%dailyVerses.length)+dailyVerses.length)%dailyVerses.length];
 $('verseDate').textContent=now.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-$('verseText').textContent='“'+verse[1]+'”';
-$('verseRef').textContent=verse[0];
-$('verseReflection').textContent=verse[2];
+$('verseText').textContent=verse[2];
+$('verseRef').textContent=verse[0]+' (NLT)';
+$('verseReflection').textContent='Read today’s full passage in the New Living Translation using the link below.';
+$('verseNLTLink').href='https://www.biblegateway.com/passage/?search='+encodeURIComponent(verse[0])+'&version=NLT';
 }
 renderDailyVerse();
 
