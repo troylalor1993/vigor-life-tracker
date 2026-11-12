@@ -39,6 +39,7 @@ async function attach(id){
    window.vigorCloudBridge?.applyCouples(record.shared);
   }
   sharedReady=true;
+  window.vigorCouplesSharedActive=true;
   writeStatus(record.members.length>=2?"Connected together":"Invitation ready",record.members.length>=2?"Shared goals and encouragements are updating across both accounts.":"Share the code with your partner. They must verify their email before joining.");
  },err=>writeStatus("Sync issue",tidyError(err)));
 }
@@ -138,6 +139,7 @@ $("coupleLeaveDisplay").onclick=()=>{
 };
 onAuthStateChanged(auth,current=>{
  if(unlisten){unlisten();unlisten=null}
+ window.vigorCouplesSharedActive=false;
  clearTimeout(timer);user=current;coupleId=null;sharedReady=false;baseline=null;queued=false;
  void connectExisting();
 });
