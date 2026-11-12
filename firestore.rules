@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Each account controls its own private fitness, weight, waist and activity records.
+    match /users/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+      match /data/{documentId} {
+        allow read, write: if signedIn() && request.auth.uid == userId;
+      }
+    }
+
+    // Couples data is separate from either user's private fitness tracker.
+    match /couples/{coupleId} {
+      // Never allow discovery of other couples.
+      allow list: if false;
+
+      // Members can read; the invited partner can retrieve only the exact
+      // invitation code when their Firebase email has been verified.
+      allow get: if signedIn() && (
+        request.auth.uid in resource.data.members ||
+        (
+          request.auth.token.email_verified == true &&
+          request.auth.token.email == resource.data.invitedEmail
+        )
+      );
+
+      // Only an owner can create a new two-person invitation.
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'invitedEmail', 'members', 'shared', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'ownerUid', 'invitedEmail', 'members', 'shared'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.invitedEmail is string
+        && request.resource.data.invitedEmail.size() >= 5
+        && request.resource.data.members == [request.auth.uid]
+        && request.resource.data.shared is map;
+
+      allow update: if signedIn() && (
+        // Existing members edit only the shared content.
+        (
+          request.auth.uid in resource.data.members
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['shared', 'updatedAt'])
+          && request.resource.data.shared is map
+        )
+        ||
+        // The verified invited partner may join once, becoming member #2.
+        (
+          resource.data.members.size() == 1
+          && !(request.auth.uid in resource.data.members)
+          && request.auth.token.email_verified == true
+          && request.auth.token.email == resource.data.invitedEmail
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['members', 'updatedAt'])
+          && request.resource.data.members.size() == 2
+          && request.resource.data.members[0] == resource.data.members[0]
+          && request.resource.data.members[1] == request.auth.uid
+        )
+      );
+      allow delete: if false;
+    }
+
+    // No access to any other collection.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
