@@ -1,6 +1,6 @@
 import { getApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendEmailVerification, reload, getIdToken } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, runTransaction, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const $=id=>document.getElementById(id);
 const db=getFirestore(getApp());
@@ -43,20 +43,85 @@ async function attach(id){
   writeStatus(record.members.length>=2?"Connected together":"Invitation ready",record.members.length>=2?"Shared goals and encouragements are updating across both accounts.":"Share the code with your partner. They must verify their email before joining.");
  },err=>writeStatus("Sync issue",tidyError(err)));
 }
+// Three-way merge retains independent changes made on either phone.
+const json=value=>JSON.stringify(value);
+const copy=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
+function mergeList(before=[],local=[],remote=[]){
+ const base=new Map(before.map(x=>[x.id,x]));
+ const user=new Map(local.map(x=>[x.id,x]));
+ const merged=new Map(remote.map(x=>[x.id,copy(x)]));
+ for(const [id,original] of base){
+  if(!user.has(id)){merged.delete(id);continue}
+  const changed=user.get(id);
+  if(json(changed)!==json(original))merged.set(id,copy(changed));
+ }
+ for(const [id,value] of user)if(!base.has(id))merged.set(id,copy(value));
+ return [...merged.values()];
+}
+function mergeObject(before={},local={},remote={}){
+ const result={...copy(remote)};
+ for(const key of new Set([...Object.keys(before||{}),...Object.keys(local||{})])){
+  const earlier=before?.[key],mine=local?.[key];
+  if(json(mine)===json(earlier))continue;
+  if(mine===undefined){delete result[key];continue}
+  const theirs=remote?.[key];
+  if(key==="messages"&&Array.isArray(mine)){
+   result[key]=mergeList(Array.isArray(earlier)?earlier:[],mine,Array.isArray(theirs)?theirs:[]);
+  }else if(mine&&typeof mine==="object"&&!Array.isArray(mine)&&theirs&&typeof theirs==="object"&&!Array.isArray(theirs)){
+   result[key]=mergeObject(earlier&&typeof earlier==="object"?earlier:{},mine,theirs);
+  }else result[key]=copy(mine);
+ }
+ return result;
+}
+function mergeShared(before,local,remote){
+ const result={...copy(remote)};
+ for(const key of new Set([...Object.keys(local),...Object.keys(before||{})])){
+  if(json(local[key])===json(before?.[key]))continue;
+  if(key==="goals"||key==="goalLogs"){
+   result[key]=mergeList(before?.[key]||[],local[key]||[],remote[key]||[]);
+  }else if(local[key]&&typeof local[key]==="object"&&!Array.isArray(local[key])){
+   result[key]=mergeObject(before?.[key]||{},local[key],remote[key]||{});
+  }else result[key]=copy(local[key]);
+ }
+ return result;
+}
 async function saveShared(){
  if(!active()||writing)return;
  if(!navigator.onLine){queued=true;writeStatus("Offline","Your changes are saved locally. Shared sync will retry when online.");return}
- writing=true;queued=false;
+ writing=true;queued=false;let succeeded=false;
+ const userAtStart=user, idAtStart=coupleId;
  try{
-  const shared=readShared();if(!valid(shared))throw Error("Shared Couples data is invalid.");
-  const sent=JSON.stringify(shared);
-  writeStatus("Syncing","Saving the latest shared changes…");
-  await updateDoc(pairDoc(coupleId),{shared,updatedAt:serverTimestamp()});
-  baseline=sent;
-  if(JSON.stringify(readShared())!==sent){queued=true;schedule()}
-  else writeStatus("Saved together","Shared changes were saved to Firebase.");
- }catch(e){queued=true;writeStatus("Retry needed","Shared changes remain on this device. "+tidyError(e))}
- finally{writing=false}
+  const myChanges=readShared();if(!valid(myChanges))throw Error("Shared Couples data is invalid.");
+  const localStart=json(myChanges);
+  const base=baseline?JSON.parse(baseline):copy(myChanges);
+  writeStatus("Syncing","Merging and saving changes from both phones…");
+  const merged=await runTransaction(db,async txn=>{
+   const ref=pairDoc(idAtStart),snapshot=await txn.get(ref);
+   if(!snapshot.exists())throw Error("The shared space no longer exists.");
+   const record=snapshot.data();
+   if(!record.members?.includes(userAtStart.uid)||!valid(record.shared))throw Error("Your account is not linked to this shared space.");
+   const next=mergeShared(base,myChanges,record.shared);
+   txn.update(ref,{shared:next,updatedAt:serverTimestamp()});
+   return next;
+  });
+  if(user!==userAtStart||coupleId!==idAtStart)return;
+  // Rebase edits made while the transaction was in flight, rather than losing them.
+  const now=readShared();
+  const next=json(now)!==localStart?mergeShared(myChanges,now,merged):merged;
+  baseline=json(merged);succeeded=true;
+  if(json(next)!==json(now))window.vigorCloudBridge.applyCouples(next);
+  if(json(next)!==baseline){queued=true}
+  else writeStatus("Saved together","Shared changes from both phones are saved.");
+ }catch(e){
+  queued=true;writeStatus("Retry needed","Shared edits are still on this device. "+tidyError(e));
+ }finally{
+  writing=false;
+  // Avoid a tight error retry loop: errors retry on reconnect, foreground, or next edit.
+  if(queued&&navigator.onLine&&json(readShared())!==baseline){
+   // Retry only if a newer edit arrived DURING the successful transaction.
+   if(succeeded)schedule();
+  }
+ }
 }
 function schedule(){
  if(!active())return;
