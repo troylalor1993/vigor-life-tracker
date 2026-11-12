@@ -745,6 +745,14 @@ function renderMilestoneRewards(){
  });
 }
 
+// A couple uses one shared rotation, independent of either partner's personal work schedule.
+const coupleCycleDays=()=>state.couples?.sharedCycleLength===7?7:8;
+const coupleCycleAnchor=()=>state.couples?.sharedAnchor||'2026-11-12';
+const coupleStart=()=>{
+ const anchor=coupleCycleAnchor(),length=coupleCycleDays();
+ return plus(anchor,Math.floor(days(today,anchor)/length)*length);
+};
+const coupleEnd=begin=>plus(begin,coupleCycleDays()-1);
 function coupleInit(){
  const c=state.couples;
  c.goals ||= [];
@@ -777,16 +785,16 @@ function coupleInit(){
 }
 function renderCouples(){
  coupleInit();
- const c=state.couples,s=start(),end=endFor(s),countGoal=g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=end).length;
+ const c=state.couples,s=coupleStart(),end=coupleEnd(s),countGoal=g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=end).length;
  const goalsMet=c.goals.filter(g=>countGoal(g)>=Math.max(1,Number(g.target)||1)).length;
  const countTotal=c.goals.reduce((n,g)=>n+countGoal(g),0);
  $('coupleWindow').textContent=s.slice(5)+' – '+end.slice(5);
  $('coupleGoalsMet').textContent=goalsMet+'/'+c.goals.length;
  $('coupleSessions').textContent=countTotal;
- const rotationStarts=Array.from({length:24},(_,i)=>plus(s,-i*cycleDays()));
+ const rotationStarts=Array.from({length:24},(_,i)=>plus(s,-i*coupleCycleDays()));
  let streak=0;
  for(const begin of rotationStarts){
-  const last=endFor(begin);
+  const last=coupleEnd(begin);
   const met=c.goals.filter(g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=begin&&x.date<=last).length>=Math.max(1,Number(g.target)||1)).length;
   if(met>=Math.min(c.goals.length,3)&&c.goals.length){streak++}else break;
  }
@@ -1228,32 +1236,32 @@ $('addCoupleGoal').onclick=()=>{
  c.goals.push({id:'cg-'+Date.now(),name,target:1});if(save()){$('newCoupleGoal').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Shared goal saved locally · syncing to your partner'}
 };
 function savePrayer(){
- const s=start(),c=state.couples;c.prayer[s]={category:$('couplePrayerCategory').value,text:$('couplePrayer').value};
+ const s=coupleStart(),c=state.couples;c.prayer[s]={category:$('couplePrayerCategory').value,text:$('couplePrayer').value};
  if(save())$('coupleSaveStatus').textContent='✓ Prayer focus saved locally · syncing to your partner';
 }
 $('couplePrayerCategory').onchange=savePrayer;$('couplePrayer').oninput=savePrayer;
 $('sendCoupleEncouragement').onclick=()=>{
  const text=$('coupleEncouragement').value.trim();if(!text)return alert('Write an encouragement first.');
- const s=start(),c=state.couples;c.messages[s]||=[];
+ const s=coupleStart(),c=state.couples;c.messages[s]||=[];
  c.messages[s].push({id:'cmsg-'+Date.now(),date:today,text,author:'local'});
  if(save()){$('coupleEncouragement').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Encouragement saved locally · syncing to your partner'}
 };
 function saveCoupleReward(){
- const s=start(),c=state.couples,existing=c.reward[s]||{};
+ const s=coupleStart(),c=state.couples,existing=c.reward[s]||{};
  c.reward[s]={...existing,name:$('coupleRewardName').value.trim(),threshold:Math.max(1,Math.min(c.goals.length,Math.floor(Number($('coupleRewardThreshold').value)||1)))};
  if(save()){$('coupleSaveStatus').textContent='✓ Reward saved locally · syncing to your partner';renderCouples()}
 }
 $('coupleRewardName').onchange=saveCoupleReward;$('coupleRewardThreshold').onchange=saveCoupleReward;
 $('coupleClaimReward').onclick=()=>{
- const s=start(),c=state.couples,reward=c.reward[s]||{name:'Coffee date',threshold:Math.min(4,c.goals.length)};
- const met=c.goals.filter(g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=endFor(s)).length>=Math.max(1,Number(g.target)||1)).length;
+ const s=coupleStart(),c=state.couples,reward=c.reward[s]||{name:'Coffee date',threshold:Math.min(4,c.goals.length)};
+ const met=c.goals.filter(g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=coupleEnd(s)).length>=Math.max(1,Number(g.target)||1)).length;
  if(met<Math.max(1,reward.threshold)||reward.claimed)return;
  if(!confirm('Mark "'+(reward.name||'Shared reward')+'" as claimed?'))return;
  c.reward[s]={...reward,claimed:true,claimedOn:today};if(save())renderCouples();
 };
 ['Win','Improve','Gratitude'].forEach(k=>{
  $('couple'+k).oninput=()=>{
-  const s=start(),c=state.couples;c.reflections[s]||={};
+  const s=coupleStart(),c=state.couples;c.reflections[s]||={};
   c.reflections[s][k.toLowerCase()]=$('couple'+k).value;
   if(save())$('coupleSaveStatus').textContent='✓ Reflection saved locally · syncing to your partner';
  };
