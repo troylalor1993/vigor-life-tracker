@@ -504,7 +504,7 @@ relocate('today',document.querySelector('#training'));
 relocate('progress',document.querySelector('.cards'));
 const insightsCard=document.createElement('section');
 insightsCard.id='progressInsights';insightsCard.className='insight-card';
-insightsCard.innerHTML='<div class="dashboard-label">YOUR HISTORY, MADE USEFUL</div><h2>Progress Insights</h2><p id="insightLead" class="insight-lead"></p><div id="insightStats" class="insight-highlights"></div><h3>What is going well</h3><div id="insightStrengths"></div><h3>Where to focus next</h3><div id="insightPriorities"></div><details class="insight-history"><summary>See last 4 rotations</summary><div style="overflow-x:auto"><table><thead><tr><th>Rotation</th><th>Habits</th><th>Workouts</th><th>Zone 2</th></tr></thead><tbody id="insightHistory"></tbody></table></div></details><p class="insight-note">Insights use only recorded entries. Blank days are not treated as failures. Exercise and calorie estimates are informational, not medical advice. This history is saved on this device until cloud sync is enabled.</p>';
+insightsCard.innerHTML='<div class="dashboard-label">YOUR HISTORY, MADE USEFUL</div><h2>Progress Insights</h2><p id="insightLead" class="insight-lead"></p><div id="insightStats" class="insight-highlights"></div><h3>What is going well</h3><div id="insightStrengths"></div><h3>Where to focus next</h3><div id="insightPriorities"></div><details class="insight-history"><summary>See last 4 rotations</summary><div style="overflow-x:auto"><table><thead><tr><th>Rotation</th><th>Habits</th><th>Workouts</th><th>Zone 2</th></tr></thead><tbody id="insightHistory"></tbody></table></div></details><p class="insight-note">Insights use recorded entries only; blank days are not treated as failures. Your history saves locally and syncs when your private Firebase account is connected.</p>';
 panels.progress.append(insightsCard);
 collapsible('progress',document.querySelector('#transformationSummary').closest('.card'),'Weight & waist charts',false);
 collapsible('progress',document.querySelector('#milestones').closest('.card'),'Weight milestones & rewards',false);
@@ -880,7 +880,7 @@ function renderInsights(){
  }
  if(current.zoneMinutes>=goal)line(strengths,'Zone 2 target met:',current.zoneMinutes+' minutes logged in this rotation.');
  else if(current.zoneEntries.length&&current.zoneMinutes>0)line(strengths,'Aerobic effort recorded:',current.zoneMinutes+' minutes logged this rotation.');
- if(current.stepDays.length&&current.stepMet===current.stepDays.length)line(strengths,'Step consistency:',current.stepMet+' of '+current.stepDays.length+' recorded step days met your current goal.');
+ 
  const weights=(state.measurements||[]).filter(m=>m.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
  if(weights.length>=2){
   const first=weights[0],last=weights[weights.length-1],delta=Number(last.weight)-Number(first.weight);
@@ -1095,7 +1095,7 @@ const save=()=>{try{
   if(localStorage.getItem(key)!==serialized)throw Error('Storage verification failed');
   window.dispatchEvent(new Event('vigor-local-changed'));
   return true;
-}catch(err){alert('Your change could not be saved on this browser. Open this site directly in Safari and export a backup before continuing.');return false}};
+}catch(err){alert('Your change could not be saved on this device. Check available storage and use Export Backup under Settings before continuing.');return false}};
 const cycleDays=()=>state.cycleLength===7?7:8;
 const cycleStartFor=date=>plus(state.anchor,Math.floor(days(date,state.anchor)/cycleDays())*cycleDays());
 const start=()=>plus(cycleStartFor(today),offset*cycleDays());
@@ -1225,23 +1225,23 @@ renderRewards();renderCouples();renderInsights();
 $('addCoupleGoal').onclick=()=>{
  const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a shared goal.');
  const c=state.couples;if(c.goals.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert('That shared goal already exists.');
- c.goals.push({id:'cg-'+Date.now(),name,target:1});if(save()){$('newCoupleGoal').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Shared goal saved on this device'}
+ c.goals.push({id:'cg-'+Date.now(),name,target:1});if(save()){$('newCoupleGoal').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Shared goal saved locally · syncing to your partner'}
 };
 function savePrayer(){
  const s=start(),c=state.couples;c.prayer[s]={category:$('couplePrayerCategory').value,text:$('couplePrayer').value};
- if(save())$('coupleSaveStatus').textContent='✓ Prayer focus saved on this device';
+ if(save())$('coupleSaveStatus').textContent='✓ Prayer focus saved locally · syncing to your partner';
 }
 $('couplePrayerCategory').onchange=savePrayer;$('couplePrayer').oninput=savePrayer;
 $('sendCoupleEncouragement').onclick=()=>{
  const text=$('coupleEncouragement').value.trim();if(!text)return alert('Write an encouragement first.');
  const s=start(),c=state.couples;c.messages[s]||=[];
  c.messages[s].push({id:'cmsg-'+Date.now(),date:today,text,author:'local'});
- if(save()){$('coupleEncouragement').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Encouragement saved on this device'}
+ if(save()){$('coupleEncouragement').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Encouragement saved locally · syncing to your partner'}
 };
 function saveCoupleReward(){
  const s=start(),c=state.couples,existing=c.reward[s]||{};
  c.reward[s]={...existing,name:$('coupleRewardName').value.trim(),threshold:Math.max(1,Math.min(c.goals.length,Math.floor(Number($('coupleRewardThreshold').value)||1)))};
- if(save()){$('coupleSaveStatus').textContent='✓ Reward saved on this device';renderCouples()}
+ if(save()){$('coupleSaveStatus').textContent='✓ Reward saved locally · syncing to your partner';renderCouples()}
 }
 $('coupleRewardName').onchange=saveCoupleReward;$('coupleRewardThreshold').onchange=saveCoupleReward;
 $('coupleClaimReward').onclick=()=>{
@@ -1255,7 +1255,7 @@ $('coupleClaimReward').onclick=()=>{
  $('couple'+k).oninput=()=>{
   const s=start(),c=state.couples;c.reflections[s]||={};
   c.reflections[s][k.toLowerCase()]=$('couple'+k).value;
-  if(save())$('coupleSaveStatus').textContent='✓ Reflection saved on this device';
+  if(save())$('coupleSaveStatus').textContent='✓ Reflection saved locally · syncing to your partner';
  };
 });
 $('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
@@ -1333,7 +1333,7 @@ $('anchor').onchange=()=>{
  if(save()){render();renderZone2();$('scheduleSaveStatus').textContent='✓ Start date saved'}
 };
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 $('themeAccent').onchange=()=>{
  const color=$('themeAccent').value;
  if(relativeLuminance(color)<.22){$('themeMessage').textContent='Please choose a brighter accent for readable text and controls.';applyTheme();return;}
