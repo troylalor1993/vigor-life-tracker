@@ -372,6 +372,25 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 .couple-reward h3{margin:0;font-size:17px}.couple-reward .field{display:block;margin:10px 0}
 .couple-reward .field input{margin-top:6px}.couple-reward .primary{min-height:42px}
 @media(max-width:570px){.couple-mini-grid{grid-template-columns:1fr}.couple-summary-grid strong{font-size:20px}.couple-goal-grid{gap:7px}.couple-goal-card{padding:10px}.couple-goal-card strong{font-size:12px}.couple-hero{flex-wrap:wrap}}
+
+/* Private Firebase cloud saving */
+.cloud-card{border:1px solid var(--border-strong);border-radius:16px;padding:16px;background:var(--panel);margin:0 0 14px}
+.cloud-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cloud-header h2{margin:0 0 6px}
+.cloud-badge{color:var(--accent-soft);border:1px solid var(--border-strong);border-radius:30px;font-size:12px;font-weight:750;padding:6px 10px}
+.cloud-desc{font-size:13px;line-height:1.6;color:var(--muted)}
+.cloud-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cloud-fields label{font-size:12px;color:var(--muted);display:block;min-width:0}
+.cloud-fields input{display:block;width:100%;min-width:0;margin-top:7px;min-height:46px;font-size:16px}
+.cloud-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.cloud-actions button{min-height:44px}
+.cloud-choice{border:1px solid var(--border-strong);border-radius:12px;background:var(--panel-alt);padding:13px;margin:12px 0}
+.cloud-choice p{font-size:13px;line-height:1.5}
+.cloud-choice button{min-height:44px;margin:5px 7px 5px 0}
+.cloud-message{font-size:13px;color:var(--accent-soft);line-height:1.6;margin-top:10px}
+.cloud-small{font-size:12px;color:var(--muted);line-height:1.55}
+.cloud-id{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:600px){.cloud-fields{grid-template-columns:1fr}.cloud-actions button{flex:1 1 auto}.cloud-choice button{width:100%}}
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent" id="scheduleHeadline">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
@@ -419,6 +438,19 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="theme-preview"><div class="row"><strong>Live preview</strong><span class="tag">Theme</span></div><small>Faith · Fitness · Consistency</small><div class="theme-preview-bar"><span></span></div></div>
 <div class="theme-custom"><label class="field" for="themeAccent">Custom accent</label><input id="themeAccent" type="color" value="#d4af37"><button type="button" id="resetAccent" class="secondary tiny">Use theme accent</button></div>
 <p id="themeMessage" class="subtle" aria-live="polite"></p>
+</section>
+
+<section class="cloud-card" id="cloudSync">
+<div class="cloud-header"><div><div class="dashboard-label">PRIVATE CLOUD BACKUP</div><h2>Account & Automatic Sync</h2></div><span id="cloudStatus" class="cloud-badge">Connecting…</span></div>
+<p class="cloud-desc">Your workouts, habits, weight, waist, rewards and progress can be saved securely to your own account. Your existing iPhone data will not be overwritten automatically.</p>
+<div id="cloudSignedOut">
+<div class="cloud-fields"><label>Email<input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="cloudPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"></label></div>
+<div class="cloud-actions"><button type="button" class="primary" id="cloudSignIn">Sign in</button><button type="button" class="secondary" id="cloudSignUp">Create account</button></div>
+<p class="cloud-small">Use a separate account for each of you. Your password is handled by Firebase Authentication.</p></div>
+<div id="cloudSignedIn" hidden><p id="cloudIdentity" class="cloud-id"></p><div class="cloud-actions"><button type="button" id="cloudSyncNow" class="primary">Sync now</button><button type="button" id="cloudSignOut" class="secondary">Sign out</button></div></div>
+<div id="cloudChoice" class="cloud-choice" hidden><strong id="cloudChoiceTitle">Choose your progress</strong><p id="cloudChoiceDescription"></p><button type="button" class="primary" id="cloudActionUpload">Upload this device</button><button type="button" class="secondary" id="cloudActionRestore">Restore cloud copy</button></div>
+<p id="cloudMessage" class="cloud-message" role="status" aria-live="polite">Your local tracker data is unchanged.</p>
+<p class="cloud-small">Your cloud data is private to your signed-in account. Couples syncing will be added separately after secure shared permissions are configured. If you use the same device for both accounts, use separate browser profiles to keep local records apart.</p>
 </section>
 <div class="card" id="shiftSettings"><h2>Shift calendar & backup</h2>
 <div id="homeScreenNotice" class="card" style="padding:14px;margin:0 0 14px;border-color:#9b7938">
@@ -1019,9 +1051,13 @@ function applyTheme(){
  $('themeAccent').value=state.accentOverride||selected.swatch;
 }
 
-const save=()=>{try{localStorage.setItem(key,JSON.stringify(state));
-  if(localStorage.getItem(key)!==JSON.stringify(state))throw Error('Storage verification failed');
-  return true}catch(err){alert('Your change could not be saved on this browser. Open this site directly in Safari and export a backup before continuing.');return false}};
+const save=()=>{try{
+  const serialized=JSON.stringify(state);
+  localStorage.setItem(key,serialized);
+  if(localStorage.getItem(key)!==serialized)throw Error('Storage verification failed');
+  window.dispatchEvent(new Event('vigor-local-changed'));
+  return true;
+}catch(err){alert('Your change could not be saved on this browser. Open this site directly in Safari and export a backup before continuing.');return false}};
 const cycleDays=()=>state.cycleLength===7?7:8;
 const cycleStartFor=date=>plus(state.anchor,Math.floor(days(date,state.anchor)/cycleDays())*cycleDays());
 const start=()=>plus(cycleStartFor(today),offset*cycleDays());
@@ -1261,5 +1297,15 @@ $('themeAccent').onchange=()=>{
 $('resetAccent').onclick=()=>{state.accentOverride=null;if(save()){applyTheme();$('themeMessage').textContent='✓ Theme accent restored'}};
 applyTheme();
 save();render();renderDaily();renderActivity();renderZone2();renderDailyVerse();
+window.vigorCloudBridge={
+ read:()=>JSON.parse(JSON.stringify(state)),
+ restore:payload=>{
+  if(!payload||typeof payload!=='object'||!Array.isArray(payload.activities)||!Array.isArray(payload.measurements)||typeof payload.anchor!=='string')throw Error('Invalid cloud backup.');
+  localStorage.setItem(key,JSON.stringify(payload));
+  window.location.reload();
+ }
+};
 })();
-</script></body>
+</script>
+<script type="module" src="./firebase-sync.js"></script>
+</body>
