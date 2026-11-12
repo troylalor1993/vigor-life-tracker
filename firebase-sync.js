@@ -30,7 +30,7 @@ const cloudDoc=()=>doc(db,"users",user.uid,"data","tracker");
 function status(label,details){
  $("cloudStatus").textContent=label;
  $("cloudMessage").textContent=details;
- if(label==="Saved to cloud")$("saveProgressStatus").textContent="✓ Saved to Firebase";
+
 }
 function markPending(value){
  try {if(value)localStorage.setItem(pendingKey,"yes");else localStorage.removeItem(pendingKey)}catch(e){}
@@ -170,9 +170,6 @@ $("cloudSyncNow").onclick=async()=>{
  if(!linked){status("Not linked","Finish the first sync setup.");return}
  markPending(true);await upload();
 };
-$("saveProgress").addEventListener("click",()=>{
- if(linked){markPending(true);void upload()}
-});
 window.addEventListener("online",()=>{if(pending()&&linked)scheduleUpload()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&pending()&&linked)scheduleUpload()});
 onAuthStateChanged(auth,current=>{void updateSession(current)});
