@@ -193,7 +193,7 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 .habit-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0 3px}
 .habit-add-row button{min-width:95px}
 @media(max-width:650px){.habit-add-row input{min-width:0}.habit-add-row button{padding:9px}}
-.manual-save{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px}.manual-save #saveProgress{min-width:145px;min-height:43px}.manual-save #saveProgressStatus{font-size:12px;color:#c6b68e}@media(max-width:650px){.manual-save{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center}.manual-save #saveProgress{min-width:0;padding:11px}.manual-save #saveProgressStatus{line-height:1.4}}</style></head><body><main>
+.manual-save{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px}.manual-save #saveProgress{min-width:145px;min-height:43px}.manual-save #saveProgressStatus{font-size:12px;color:#c6b68e}@media(max-width:650px){.manual-save{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center}.manual-save #saveProgress{min-width:0;padding:11px}.manual-save #saveProgressStatus{line-height:1.4}}.couples-card{background:linear-gradient(145deg,#211c14,#141414);border:1px solid #68522d}.couples-meta{color:#cbb789;font-size:12px;line-height:1.6}.couple-goal{display:flex;align-items:center;gap:10px;padding:12px 9px;border-bottom:1px solid #3e3322}.couple-goal input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:#d4af37}.couple-goal span{flex:1;overflow-wrap:anywhere}.couple-goal button{padding:6px 9px}.couples-fields{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:13px}.couples-fields input{min-width:0}.couples-note{width:100%;min-height:80px;margin-top:8px}.couples-status{font-size:12px;color:#d4af37}.app-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:650px){.app-tab{font-size:10px}.couples-fields{grid-template-columns:1fr}.couples-fields button{width:100%}}</style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
 <nav class="app-tabs" aria-label="App sections" id="appTabs">
@@ -201,6 +201,7 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 <button type="button" class="app-tab" data-panel="today">Today</button>
 <button type="button" class="app-tab" data-panel="progress">Progress</button>
 <button type="button" class="app-tab" data-panel="rewards">Rewards</button>
+<button type="button" class="app-tab" data-panel="couples">Couples</button>
 <button type="button" class="app-tab" data-panel="settings">Settings</button>
 </nav>
 <section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
@@ -237,7 +238,7 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 const $=id=>document.getElementById(id);
 
 const main=document.querySelector('main'),panels={};
-['faith','today','progress','rewards','settings'].forEach(id=>{
+['faith','today','progress','rewards','couples','settings'].forEach(id=>{
  const section=document.createElement('section');section.className='app-panel';section.id='panel-'+id;
  section.setAttribute('aria-label',id.charAt(0).toUpperCase()+id.slice(1));section.hidden=id!=='faith';
  panels[id]=section;main.append(section);
@@ -256,6 +257,10 @@ relocate('progress',document.querySelector('#measurements'));
 collapsible('progress',document.querySelector('#summary'),'8-day rotation report',false);
 relocate('rewards',document.querySelector('#rewards'));
 relocate('faith',document.querySelector('#devotional'));
+const couplesCard=document.createElement('section');
+couplesCard.id='couplesCard';couplesCard.className='card couples-card';
+couplesCard.innerHTML='<div class="dashboard-label">GROW TOGETHER</div><h2>Couples Accountability</h2><p class="couples-meta">A shared intention for you and Taleeba, without comparing weight or revealing private measurements.</p><p class="couples-meta"><strong>Local-only for now:</strong> These goals are saved on this iPhone, not visible on Taleeba’s device. Two-way syncing requires the separate accounts and Firebase setup.</p><div class="row"><strong>Our 8-day goals</strong><small id="coupleWindow"></small></div><div id="coupleGoals"></div><div class="couples-fields"><input id="newCoupleGoal" type="text" maxlength="75" placeholder="Add a goal you can do together" aria-label="New couples goal"><button id="addCoupleGoal" class="primary">Add goal</button></div><p id="coupleScore" class="couples-status" aria-live="polite"></p><label class="field">Encouragement or prayer intention<textarea id="coupleNote" class="couples-note" placeholder="Something to encourage each other with this rotation..."></textarea></label><p id="coupleSaveStatus" class="couples-status" aria-live="polite"></p>';
+panels.couples.append(couplesCard);
 relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
 relocate('settings',document.querySelector('#shiftSettings'));
 relocate('settings',document.querySelector('#shiftAlert'));
@@ -401,6 +406,7 @@ if(!state.habitMigrationV2){
 }
 state.readDays ||= {};
 state.rotationNotes ||= {};
+state.couples ||= {goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};
 const suggestedRewards=[
 {id:'r1',name:'Favourite snack',cost:150},
 {id:'r2',name:'Fast-food meal',cost:350},
@@ -457,6 +463,21 @@ function renderMilestoneRewards(){
  });
 }
 
+function renderCouples(){
+ const shared=state.couples,startDate=start(),endDate=plus(startDate,7),key=startDate;
+ $('coupleWindow').textContent=startDate+'–'+endDate;
+ $('coupleGoals').replaceChildren();
+ let count=0;
+ shared.goals.forEach(goal=>{
+  const token=key+'|'+goal.id,checked=!!shared.completed[token];if(checked)count++;
+  const row=element('label',undefined,'couple-goal'),checkbox=element('input'),name=element('span',goal.name),remove=element('button','Remove','secondary tiny');
+  checkbox.type='checkbox';checkbox.checked=checked;checkbox.onchange=()=>{shared.completed[token]=checkbox.checked;if(save()){renderCouples();$('coupleSaveStatus').textContent='✓ Saved on this device'}};
+  remove.type='button';remove.onclick=e=>{e.preventDefault();if(!confirm('Remove this couples goal?'))return;shared.goals=shared.goals.filter(g=>g.id!==goal.id);if(save()){renderCouples();$('coupleSaveStatus').textContent='✓ Goal removed'}};
+  row.append(checkbox,name,remove);$('coupleGoals').append(row);
+ });
+ $('coupleScore').textContent=count+' of '+shared.goals.length+' shared intentions completed this rotation';
+ $('coupleNote').value=shared.notes[key]||'';
+}
 function renderRewards(){
  const score=rewardStats();$('rewardBalance').textContent=score.balance.toLocaleString();$('rewardEarned').textContent=score.earned.toLocaleString();$('rewardRotation').textContent=score.rotation.toLocaleString();$('rewardSpent').textContent=score.spent.toLocaleString()+' points redeemed';$('rewardPeriod').textContent='Current rotation: '+score.rotationStart+' to '+score.rotationEnd+' · Earned points carry forward; only this rotation’s total starts fresh.';
  $('rewardWarning').textContent=score.balance<0?'Your balance is temporarily negative because an earlier activity was undone.':'';
@@ -600,8 +621,13 @@ $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb
 $('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
 $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('tr');[m.date,m.weight??'—',m.waist??'—'].forEach(v=>tr.append(element('td',String(v))));const cell=element('td'),remove=element('button','Delete','secondary tiny');remove.onclick=()=>{if(confirm('Delete this measurement?')){state.measurements=state.measurements.filter(x=>x.date!==m.date);save();render()}};cell.append(remove);tr.append(cell);$('history').append(tr)});
 $('anchor').value=state.anchor;
-renderRewards();
+renderRewards();renderCouples();
 }
+$('addCoupleGoal').onclick=()=>{const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a goal');
+ if(state.couples.goals.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert('That goal already exists');
+ state.couples.goals.push({id:'cg-'+Date.now(),name});if(save()){renderCouples();$('newCoupleGoal').value='';$('coupleSaveStatus').textContent='✓ Goal saved on this device'};
+};
+$('coupleNote').oninput=()=>{state.couples.notes[start()]=$('coupleNote').value;if(save())$('coupleSaveStatus').textContent='✓ Note saved on this device'};
 $('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
 $('addReward').onclick=()=>{const name=$('newRewardName').value.trim(),cost=Math.floor(Number($('newRewardCost').value));if(!name||!Number.isFinite(cost)||cost<1||cost>100000)return alert('Enter a reward name and valid cost');state.rewards.push({id:'reward-'+Date.now(),name,cost});save();renderRewards()};
 $('saveProgress').onclick=()=>{
@@ -624,7 +650,7 @@ $('transferBackup').onclick=()=>$('import').click();
 const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
 const hasProgress=state.measurements.length>0||state.completions.length>0||Object.values(state.dailyCheckins).some(x=>x&&x.saved);
 $('homeScreenNoticeText').textContent=standalone?(hasProgress?'This Home Screen app is saving its own data. Export a backup regularly; Safari may show different records.':'This Home Screen app has no check-ins yet. If you saved them in Safari, export a backup there and import it here.'):'If you plan to use the Home Screen app, first export a backup here. Then open the Home Screen app and import it there, as it may have separate storage.';
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 save();render();renderDaily();renderDailyVerse();
 })();
 </script></body>
