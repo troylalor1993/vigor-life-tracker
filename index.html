@@ -70,7 +70,26 @@
  #measurements #saveMeasure{width:100%;min-height:48px}
  .backup-actions>*{flex:1;min-width:0}
 }
-.habit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.habit{display:flex;align-items:center;gap:10px;border:1px solid #443820;border-radius:12px;padding:13px;min-height:48px;background:#1b1b1b}.habit input{width:20px;height:20px;flex:0 0 20px;accent-color:#d4af37}.habit.checked{background:#302719;border-color:#a08339}.recovery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.recovery-grid label{font-size:13px;color:#c6b99c}.recovery-grid input,.recovery-grid select{width:100%;margin-top:6px;min-height:44px}.daily-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.daily-stats>div{padding:13px;border:1px solid #3b321f;border-radius:11px}.daily-stats b{display:block;font-size:22px;color:#d4af37}.habit-edit label{display:block;font-size:12px;color:#c6b99c;margin-top:10px}@media(max-width:650px){.habit-grid,.recovery-grid{grid-template-columns:1fr}.recovery-grid input,.recovery-grid select{font-size:16px}#dailyDate{width:100%}}</style></head><body><main>
+.habit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.habit{display:flex;align-items:center;gap:10px;border:1px solid #443820;border-radius:12px;padding:13px;min-height:48px;background:#1b1b1b}.habit input{width:20px;height:20px;flex:0 0 20px;accent-color:#d4af37}.habit.checked{background:#302719;border-color:#a08339}.recovery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.recovery-grid label{font-size:13px;color:#c6b99c}.recovery-grid input,.recovery-grid select{width:100%;margin-top:6px;min-height:44px}.daily-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.daily-stats>div{padding:13px;border:1px solid #3b321f;border-radius:11px}.daily-stats b{display:block;font-size:22px;color:#d4af37}.habit-edit label{display:block;font-size:12px;color:#c6b99c;margin-top:10px}@media(max-width:650px){.habit-grid,.recovery-grid{grid-template-columns:1fr}.recovery-grid input,.recovery-grid select{font-size:16px}#dailyDate{width:100%}}
+/* iPhone daily-habits form: contain date and darken native selects */
+#daily{min-width:0;overflow:hidden}
+#daily .field{display:block;min-width:0;max-width:100%}
+#daily #dailyDate{display:block;box-sizing:border-box;min-width:0;max-width:100%;width:100%;margin-top:9px;min-height:50px;background:#101010;color:#f7f3e8;border:1px solid #66522d;border-radius:10px;padding:12px 14px;text-align:left;font-size:16px;color-scheme:dark}
+#daily .recovery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#daily .recovery-grid label{display:block;min-width:0;max-width:100%;font-size:14px;color:#c8bba1}
+#daily .recovery-grid input,#daily .recovery-grid select{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;min-height:50px;margin-top:8px;padding:12px 14px;background-color:#101010;color:#f7f3e8;border:1px solid #66522d;border-radius:10px;font-size:16px;color-scheme:dark}
+#daily .recovery-grid select{-webkit-appearance:none;appearance:none;padding-right:40px;background-image:linear-gradient(45deg,transparent 50%,#d4af37 50%),linear-gradient(135deg,#d4af37 50%,transparent 50%);background-position:calc(100% - 23px) 22px,calc(100% - 17px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+#daily .recovery-grid select option{background:#101010;color:#f7f3e8}
+#daily .habit{min-width:0;overflow:hidden}
+#daily .habit input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:#d4af37}
+#daily .habit span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:700px){
+ #daily .recovery-grid{grid-template-columns:minmax(0,1fr);gap:14px}
+ #daily .row{align-items:flex-start}
+ #daily #editHabits{min-height:42px}
+ #daily #saveDaily{width:100%;min-height:48px}
+}
+</style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
 <nav class="quick-links" aria-label="Jump to section"><a href="#daily">Daily habits</a><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
 <section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
