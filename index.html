@@ -36,6 +36,18 @@
 .status-line{color:#d6bf79;font-size:12px;min-height:18px;margin:4px 0}
 .card{scroll-margin-top:12px}
 @media(max-width:550px){main{padding:20px 12px 70px}.scripture-actions>*{flex:1;text-align:center}.quick-links a{padding:9px 11px}.cards .card{padding:12px 9px}.cards small{font-size:11px}.summary-grid .metric{font-size:19px}}
+
+/* Phone refinements based on live Safari screenshots */
+@media(max-width:650px){
+  #measurements .fields{grid-template-columns:1fr}
+  #measurements .field input{width:100%;display:block;min-height:48px}
+  .quick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;gap:8px}
+  .quick-links a{text-align:center;white-space:normal;min-height:42px;display:flex;align-items:center;justify-content:center}
+  .cards{gap:8px}
+  .cards .card{min-width:0}
+  .cards .metric{overflow-wrap:anywhere}
+  .daystrip{gap:6px}
+}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
 <nav class="quick-links" aria-label="Jump to section"><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
@@ -52,7 +64,7 @@
 <div class="card" id="training"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
 <div class="card" id="summary"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
-<div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Record both your weight and waist once during each 8-day rotation. You can correct an entry later.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="367.2"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="55"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
+<div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p class="subtle">The example numbers below are placeholders until you enter and save your measurements.</p><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Record both your weight and waist once during each 8-day rotation. You can correct an entry later.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="367.2"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="55"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
 <div class="card"><h2>Shift calendar & backup</h2><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="row"><button id="export" class="secondary">Export backup</button><label class="secondary">Import backup<input id="import" type="file" accept=".json" hidden></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly. If you clear browser storage, progress may be lost.</p><p id="backupFeedback" class="status-line" aria-live="polite"></p></div></main>
 <script>
 (function(){
