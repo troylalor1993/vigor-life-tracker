@@ -152,7 +152,9 @@ $("coupleCreateInvite").onclick=async()=>{
  if(invitedEmail===user.email?.toLowerCase())return writeStatus("Different account needed","Enter your partner's email, not your own.");
  try{
   const id=crypto.randomUUID().replaceAll("-","");
-  const shared=readShared();if(!valid(shared))throw Error("Couples data is not ready.");
+  const personal=window.vigorCloudBridge?.read();
+  const existing=readShared();if(!valid(existing))throw Error("Couples data is not ready.");
+  const shared={...existing,sharedAnchor:personal.anchor||"2026-11-12",sharedCycleLength:personal.cycleLength===7?7:8};
   writeStatus("Creating","Preparing your secure invitation…");
   await setDoc(pairDoc(id),{ownerUid:user.uid,invitedEmail,members:[user.uid],shared,updatedAt:serverTimestamp()});
   await setDoc(linkDoc(),{coupleId:id,updatedAt:serverTimestamp()});
