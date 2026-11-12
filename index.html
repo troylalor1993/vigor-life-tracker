@@ -685,6 +685,10 @@ function coupleInit(){
  c.messages ||= {};
  c.reward ||= {};
  c.reflections ||= {};
+ // Carry forward an older combined prayer/encouragement note into the new prayer focus.
+ Object.entries(c.notes).forEach(([rotation,text])=>{
+  if(text&&!c.prayer[rotation])c.prayer[rotation]={category:'Family',text:String(text)};
+ });
  // Migrate previous single checkboxes once while preserving past rotation records.
  if(!c.goalsMigratedV2){
   const defaults={'cg-pray':2,'cg-walk':2,'cg-check':4};
