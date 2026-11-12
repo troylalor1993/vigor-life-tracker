@@ -612,19 +612,19 @@ function renderInsights(){
   const first=weights[0],last=weights[weights.length-1],delta=Number(last.weight)-Number(first.weight);
   if(delta<0)line(strengths,'Weight trend:',Math.abs(delta).toFixed(1)+' lb lower between your first and latest recorded weigh-ins.');
  }
- if(!strengths.childElementCount)line(strengths,'Getting started:',Your progress will appear here once you record a few days of activity.');
+ if(!strengths.childElementCount)line(strengths,'Getting started:','Your progress will appear here once you record a few days of activity.');
  if(observed.length&&observed[observed.length-1].rate<.7){
   const h=observed[observed.length-1];line(priorities,'One habit to strengthen:',h.name+' was checked on '+h.hit+' of '+h.total+' logged days. Try linking it to an existing routine.');
  }
  if(currentZoneGap>0){
-  const daysRemaining=Math.max(1,8-current.dates.length+1),perDay=Math.ceil(currentZoneGap/daysRemaining);
-  line(priorities,'Zone 2 plan:',currentZoneGap+' minutes remain to reach '+goal+'. Consider '+Math.min(60,perDay)+'-minute blocks when your schedule and recovery allow.');
+  const daysRemaining=Math.max(1,8-current.dates.length),perDay=Math.ceil(currentZoneGap/daysRemaining);
+  line(priorities,'Zone 2 plan:',currentZoneGap+' minutes remain to reach '+goal+'. Consider '+perDay+' minutes per remaining day, or split into shorter sessions as recovery allows.');
  }
  if(current.stepDays.length&&current.stepMet<current.stepDays.length){
   line(priorities,'Step target:',current.stepMet+' of '+current.stepDays.length+' days with step records met your goal. A short walk may help close smaller gaps.');
  }
- if(totalCheckins<3)line(priorities,'Improve the data:',Log a few more daily check-ins to make habit patterns more reliable.');
- if(!priorities.childElementCount)line(priorities,'Keep it sustainable:',You are meeting your recorded targets. Maintain manageable training and recovery habits.');
+ if(totalCheckins<3)line(priorities,'Improve the data:','Log a few more daily check-ins to make habit patterns more reliable.');
+ if(!priorities.childElementCount)line(priorities,'Keep it sustainable:','You are meeting your recorded targets. Maintain manageable training and recovery habits.');
  const history=$('insightHistory');history.replaceChildren();
  rotations.forEach(r=>{
   const row=element('tr');[r.begin.slice(5)+(r.current?' · now':''),r.logged.length?r.habitChecks+' checks / '+r.logged.length+' days':'—',r.workouts.length?String(r.workouts.length):'—',r.zoneEntries.length?r.zoneMinutes+' min':'—'].forEach(value=>row.append(element('td',value)));history.append(row);
