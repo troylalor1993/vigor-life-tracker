@@ -212,6 +212,13 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 .activity-actions{display:flex;align-items:center;gap:12px;margin-top:13px;flex-wrap:wrap}
 #activityStatus{font-size:12px;color:#d5c39e}
 @media(max-width:430px){.activity-grid{gap:7px}.activity-metric{padding:10px}.activity-metric input{font-size:16px}.activity-goals{grid-template-columns:1fr}}
+
+/* Realistic, responsive activity suggestions */
+.activity-suggestions{margin-top:13px;padding:13px 14px;background:#1d1a14;border:1px solid #51412a;border-radius:12px}
+.activity-suggestions h3{font-size:15px;color:#e8ce79;margin:0 0 8px}
+.activity-suggestions .suggestion{font-size:13px;color:#eee3cb;line-height:1.5;padding:6px 0}
+.activity-suggestions .suggestion strong{color:#edcd69}
+.activity-suggestions .estimate-note{font-size:11px;color:#bbaa87;line-height:1.5;margin:8px 0 0}
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
@@ -235,7 +242,7 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 <div class="activity-card" id="activity"><div class="row"><h2>Daily Activity</h2><span class="tag">Manual entry</span></div><p class="subtle">Steps and active calories from your Apple Watch. Apple Health syncing can be added later.</p>
 <div class="activity-grid"><div class="activity-metric"><label for="activitySteps">Steps</label><input id="activitySteps" type="number" inputmode="numeric" min="0" max="150000" step="1" placeholder="0"><strong id="stepsGoalText">Goal 8,000 steps</strong><div class="activity-meter"><div id="stepsBar"></div></div><small id="stepsProgress">0%</small></div>
 <div class="activity-metric"><label for="activityCalories">Active calories (kcal)</label><input id="activityCalories" type="number" inputmode="numeric" min="0" max="10000" step="1" placeholder="0"><strong id="caloriesGoalText">Goal 500 kcal</strong><div class="activity-meter"><div id="caloriesBar"></div></div><small id="caloriesProgress">0%</small></div></div>
-<div class="activity-actions"><button type="button" id="saveActivity" class="primary">Save activity</button><span id="activityStatus" aria-live="polite">Not logged for this date</span></div>
+<section class="activity-suggestions" aria-live="polite"><h3>How to reach your goals</h3><div id="activitySuggestions"></div><p class="estimate-note">Walking time assumes roughly 90 steps/min. Active calories vary widely by pace, body size, and terrain; estimates aren't guarantees. Use Apple Watch measurements to see what works for you.</p></section><div class="activity-actions"><button type="button" id="saveActivity" class="primary">Save activity</button><span id="activityStatus" aria-live="polite">Not logged for this date</span></div>
 <details><summary>Adjust step & calorie goals</summary><div class="activity-goals"><label>Daily step target<input id="activityStepsGoal" type="number" inputmode="numeric" min="1" max="150000" step="1"></label><label>Daily active calorie target (kcal)<input id="activityCaloriesGoal" type="number" inputmode="numeric" min="1" max="10000" step="1"></label></div><p class="subtle">Goals apply to future progress displays. Active calories are estimates, not a food allowance.</p></details></div>
 <div class="card" id="rewards"><div class="row"><h2>Earned rewards</h2><button id="editRewards" class="secondary tiny">Edit rewards</button></div><div class="reward-score-grid"><div class="reward-score"><strong id="rewardRotation">0</strong><small>This rotation</small></div><div class="reward-score"><strong id="rewardEarned">0</strong><small>Lifetime earned</small></div><div class="reward-score available"><strong id="rewardBalance">0</strong><small>Available points</small></div></div><p id="rewardPeriod" class="reward-rotation"></p><p id="rewardSpent" class="subtle">0 points redeemed</p><p class="subtle">Earn 5 points per daily habit and 20 per completed workout. Use points to plan enjoyable treats and quality time together. Food is never something you must earn: regular meals and snacks remain part of taking care of yourself.</p><p class="subtle">Example: Six completed habits a day for eight days and five workouts earns 340 points. Points carry forward between rotations. Redeeming a reward logs the occasion, not permission to eat.</p><section class="unlocked-panel" aria-labelledby="unlockedTitle">
 <h3 id="unlockedTitle">Unlocked rewards <span id="unlockedCount" class="tag">0 available</span></h3>
@@ -573,6 +580,37 @@ function updateActivityMeters(){
   $(barId).style.width=Math.min(100,percent)+'%';
   $(progressId).textContent=raw===''?'No entry':percent+'% of target'+(percent>=100?' · Goal reached':'');
   $(goalLabel).textContent='Goal '+Number(goal).toLocaleString()+' '+unit;
+ }
+ renderActivitySuggestions();
+}
+function renderActivitySuggestions(){
+ const output=$('activitySuggestions');output.replaceChildren();
+ const read=id=>$(id).value===''?null:Number($(id).value);
+ const steps=read('activitySteps'),calories=read('activityCalories');
+ const add=(text)=>output.append(element('div',text,'suggestion'));
+ if(steps===null&&calories===null){
+  add('Enter your current steps and active calories from Apple Watch to see the remaining targets.');
+  return;
+ }
+ if(steps===null)add('Steps: enter your current step count to estimate walking time.');
+ else {
+  const remaining=Math.max(0,state.activityGoals.steps-steps);
+  if(remaining===0)add('✓ Step goal reached!');
+  else {
+   const minutes=Math.ceil(remaining/90);
+   add(remaining.toLocaleString()+' steps to go · about '+minutes+' min of steady walking at ~90 steps/min.');
+   if(minutes>30)add('You could split this into several short walks throughout the day.');
+  }
+ }
+ if(calories===null)add('Active calories: enter your current Apple Watch estimate for guidance.');
+ else {
+  const remaining=Math.max(0,state.activityGoals.calories-calories);
+  if(remaining===0)add('✓ Active-calorie goal reached!');
+  else {
+   // A broad illustrative walking-only range; not a prediction of an individual burn.
+   const minMinutes=Math.ceil(remaining/8),maxMinutes=Math.ceil(remaining/3);
+   add(remaining.toLocaleString()+' active kcal to go · walking might take roughly '+minMinutes+'–'+maxMinutes+' min, depending on intensity and your watch readings.');
+  }
  }
 }
 
