@@ -1033,7 +1033,7 @@ function displaySchedule(){
  $('rotationHeading').textContent=cycleDays()+'-day rotation summary';
  $('zoneCycleBadge').textContent=cycleDays()+'-day target';
  $('zoneGoalCaption').textContent='Change '+cycleDays()+'-day goal';
- $('coupleGoalsHeading').textContent='Our '+cycleDays()+'-day goals';
+ // Couples section now uses a fixed heading and its own rotation date label.
  $('cycleLength').value=String(cycleDays());
  $('anchorLabel').textContent=cycleDays()===8?'Date of Day 1 (first day shift)':'Week starts on (Monday)';
  $('scheduleHint').textContent=cycleDays()===8?'Repeats: 2 day shifts, 2 night shifts, 4 off. Your November 12, 2026 start date stays saved.':'Repeats Monday to Sunday. Workouts stay flexible and can be completed on any day.';
