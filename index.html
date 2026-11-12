@@ -37,8 +37,8 @@ $('daystrip').replaceChildren();for(let i=0;i<8;i++){const d=plus(s,i),chip=elem
 $('tasks').replaceChildren();
 state.activities.forEach(a=>{
 const count=counts[a.id]||0,wrap=element('div',undefined,'taskitem'),top=element('div',undefined,'row'),left=element('div');
-left.append(element('div',a.name,'taskname'));left.append(element('small',count+' of '+a.target+' completed'));
-top.append(left,element('span',count>=a.target?'Goal met':'In progress','tag'));wrap.append(top);
+left.append(element('div',a.name,'taskname'));left.append(element('small',count+' of '+a.target+' completed'+(count>a.target?' · '+(count-a.target)+' bonus':'')));
+top.append(left,element('span',count>a.target?'Goal exceeded +'+(count-a.target):count===a.target?'Goal met':'In progress','tag'));wrap.append(top);
 const entry=element('div',undefined,'entry');
 const picker=element('input');picker.type='date';picker.min=s;picker.max=end;picker.value=inRange(today,s)?today:s;picker.setAttribute('aria-label','Completion date for '+a.name);
 const button=element('button','✓ Complete','primary checkbtn');button.onclick=()=>{if(!inRange(picker.value,s))return alert('Choose a day in this 8-day cycle');state.completions.push({id:'c'+Date.now()+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});save();render()};
