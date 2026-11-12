@@ -306,6 +306,39 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 .insight-history td,.insight-history th{font-size:12px;padding:10px 6px}
 .insight-note{color:#bbae93;font-size:12px;line-height:1.55;margin-top:12px}
 @media(max-width:540px){.insight-card{padding:14px}.insight-stat strong{font-size:19px}}
+
+/* Compact, accessible 8-day checklist: two columns, expandable detail only on demand */
+#training .task-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+#training .task-compact{min-width:0;background:var(--panel-alt);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px}
+#training .task-compact.task-met{border-color:var(--accent)}
+#training .task-compact-head{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;min-height:37px}
+#training .task-compact-title{font-size:13px;line-height:1.3;color:var(--text-primary);overflow-wrap:anywhere;font-weight:700}
+#training .task-compact-count{flex:0 0 auto;color:var(--accent-soft);font-size:12px;font-weight:750;white-space:nowrap}
+#training .task-compact-meter{height:5px;border-radius:30px;background:var(--border);overflow:hidden}
+#training .task-compact-meter>div{height:100%;background:var(--accent);border-radius:30px}
+#training .task-compact-controls{display:flex;align-items:center;gap:7px;margin-top:auto;flex-wrap:wrap}
+#training .task-compact-add{flex:1 1 auto;min-width:0;padding:10px 6px;font-size:12px;min-height:42px;border-radius:10px}
+#training .task-compact-details{flex:0 0 auto;min-width:0}
+#training .task-compact-toggle{list-style:none;cursor:pointer;color:var(--accent-soft);padding:9px 2px;font-size:12px;font-weight:650;min-height:42px;display:flex;align-items:center}
+#training .task-compact-toggle::-webkit-details-marker{display:none}
+#training .task-compact-detail-body{margin-top:6px;padding-top:9px;border-top:1px solid var(--border);display:grid;gap:8px}
+#training .task-compact-details[open]{flex:1 0 100%}
+#training .task-compact-date-row{display:flex;align-items:center;gap:7px;min-width:0}
+#training .task-compact-date-row input[type=date]{flex:1 1 0;width:100%;min-width:0;max-width:100%;font-size:14px;padding:8px 5px;color-scheme:dark}
+#training .task-compact-log{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#training .task-compact-bonus{font-size:11px;color:var(--accent-soft)}
+#training .task-grid-help{font-size:12px;margin:11px 0 0}
+@media(max-width:440px){
+ #training .task-grid{gap:7px}
+ #training .task-compact{padding:10px;gap:8px}
+ #training .task-compact-head{min-height:44px}
+ #training .task-compact-title{font-size:12px}
+ #training .task-compact-controls{gap:4px}
+ #training .task-compact-toggle{font-size:11px}
+ #training .task-compact-date-row{flex-wrap:wrap}
+ #training .task-compact-date-row input[type=date]{flex-basis:100%}
+}
+@media(max-width:320px){#training .task-grid{grid-template-columns:1fr}}
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
@@ -342,7 +375,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><h3>Milestone rewards</h3><p class="milestone-note">Set a reward for each weight milestone. Claim it once your recorded weight reaches the goal. These rewards do not spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
-<div class="card" id="training"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
+<div class="card" id="training"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
 <div class="card" id="summary"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><h3>Daily habits</h3><div id="dailyReport" class="daily-stats"></div><p id="dailyInsight" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div id="taskSaveFeedback" class="subtle" aria-live="polite"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
 <div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Log weight and waist once each rotation. Save again to correct your entry.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
@@ -896,19 +929,50 @@ $('score').textContent=total+'/'+target;$('completionBar').style.width=(target?t
 $('daystrip').replaceChildren();for(let i=0;i<8;i++){const d=plus(s,i),chip=element('div',undefined,'daychip'+(d===today?' active':''));chip.append(element('b','Day '+(i+1)));chip.append(element('span',shifts[i]));chip.append(element('br'));chip.append(element('small',d.slice(5)));$('daystrip').append(chip)}
 $('tasks').replaceChildren();
 state.activities.forEach(a=>{
-const count=counts[a.id]||0,wrap=element('div',undefined,'taskitem'),top=element('div',undefined,'row'),left=element('div');
-left.append(element('div',a.name,'taskname'));left.append(element('small',count+' of '+a.target+' completed'+(count>a.target?' · '+(count-a.target)+' bonus':'')));
-top.append(left,element('span',count>a.target?'Goal exceeded +'+(count-a.target):count===a.target?'Goal met':'In progress','tag'));wrap.append(top);
-const entry=element('div',undefined,'entry');
-const completionDate=inRange(today,s)?today:s,button=element('button',inRange(today,s)?'✓ Complete today':'✓ Complete','primary checkbtn');
-const backdate=element('button','Change date','secondary tiny'),picker=element('input'),dateWrap=element('div',undefined,'completion-date');
-picker.type='date';picker.min=s;picker.max=end;picker.value=completionDate;picker.setAttribute('aria-label','Completion date for '+a.name);
-backdate.onclick=()=>{dateWrap.classList.toggle('open');backdate.textContent=dateWrap.classList.contains('open')?'Hide date':'Change date'};
-button.onclick=()=>{if(!inRange(picker.value,s))return alert('Choose a day in this 8-day cycle');state.completions.push({id:'c'+Date.now()+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});save();render()};
-dateWrap.append(picker);entry.append(button,backdate);wrap.append(entry,dateWrap);
-const records=state.completions.filter(c=>c.activityId===a.id&&inRange(c.date,s)).sort((a,b)=>a.date.localeCompare(b.date));
-records.forEach(c=>{const row=element('div',undefined,'entry'),txt=element('span','✓ '+c.date,'subtle'),undo=element('button','Undo','secondary tiny');undo.onclick=()=>{state.completions=state.completions.filter(x=>x.id!==c.id);save();render()};row.append(txt,undo);wrap.append(row)});
-$('tasks').append(wrap)});
+ const count=counts[a.id]||0;
+ const item=element('div',undefined,'task-compact'+(count>=a.target?' task-met':''));
+ const head=element('div',undefined,'task-compact-head');
+ const label=element('strong',a.name,'task-compact-title'),counter=element('span',count+'/'+a.target,'task-compact-count');
+ head.append(label,counter);
+ const meter=element('div',undefined,'task-compact-meter'),fill=element('div');
+ fill.style.width=(a.target?Math.min(100,count/a.target*100):0)+'%';meter.append(fill);
+ const controls=element('div',undefined,'task-compact-controls');
+ const todayAllowed=inRange(today,s),defaultDate=todayAllowed?today:s;
+ const addBtn=element('button','+ Complete','primary task-compact-add');
+ addBtn.type='button';addBtn.setAttribute('aria-label','Log '+a.name+' for '+defaultDate);
+ addBtn.onclick=()=>{
+   state.completions.push({id:'c'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:a.id,date:defaultDate});
+   if(save())render();
+ };
+ const detail=element('details',undefined,'task-compact-details');
+ const summary=element('summary','Details','task-compact-toggle');
+ detail.append(summary);
+ const inner=element('div',undefined,'task-compact-detail-body');
+ const dateRow=element('div',undefined,'task-compact-date-row');
+ const picker=element('input');picker.type='date';picker.min=s;picker.max=end;picker.value=defaultDate;
+ picker.setAttribute('aria-label','Choose a completion date for '+a.name);
+ const datedBtn=element('button','Log date','secondary tiny');datedBtn.type='button';
+ datedBtn.onclick=()=>{
+   if(!inRange(picker.value,s))return alert('Select a date within this 8-day rotation.');
+   state.completions.push({id:'c'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});
+   if(save())render();
+ };
+ dateRow.append(picker,datedBtn);inner.append(dateRow);
+ const records=state.completions.filter(c=>c.activityId===a.id&&inRange(c.date,s)).sort((x,y)=>y.date.localeCompare(x.date));
+ if(!records.length)inner.append(element('p','No sessions logged this rotation.','subtle'));
+ else records.forEach(c=>{
+   const row=element('div',undefined,'task-compact-log');
+   const date=element('span','✓ '+c.date,'subtle'),undo=element('button','Undo','secondary tiny');
+   undo.type='button';undo.onclick=()=>{
+     state.completions=state.completions.filter(x=>x.id!==c.id);if(save())render();
+   };row.append(date,undo);inner.append(row);
+ });
+ detail.append(inner);
+ controls.append(addBtn,detail);
+ item.append(head,meter,controls);
+ if(count>a.target)item.append(element('div','+'+(count-a.target)+' bonus session'+(count-a.target===1?'':'s'),'task-compact-bonus'));
+ $('tasks').append(item);
+});
 $('editArea').classList.toggle('hidden',!edit);$('toggleEdit').textContent=edit?'Close editor':'Edit list';$('editList').replaceChildren();
 state.activities.forEach(a=>{const row=element('div',undefined,'editgrid spaced'),name=element('input'),target=element('input'),del=element('button','Remove','secondary tiny');name.value=a.name;name.setAttribute('aria-label','Activity name');target.type='number';target.min='1';target.max='30';target.value=a.target;target.setAttribute('aria-label','Target count');name.onchange=()=>{a.name=name.value.trim()||a.name;if(save())$('taskSaveFeedback').textContent='✓ Workout/task name saved'};target.onchange=()=>{a.target=Math.max(1,Math.min(30,Number(target.value)||1));if(save())$('taskSaveFeedback').textContent='✓ Target saved'};del.onclick=()=>{if(confirm('Remove this activity? Previously logged completions are retained in backup data.')){state.activities=state.activities.filter(x=>x.id!==a.id);save();render()}};row.append(name,target,del);$('editList').append(row)});
 const rotationMeasurement=state.measurements.filter(m=>inRange(m.date,s)).sort((a,b)=>b.date.localeCompare(a.date))[0];
