@@ -139,7 +139,7 @@ async function updateSession(current){
     status("Updated from cloud","Your latest progress from Firebase was loaded automatically.");
    }else{linked=true;linkedEvent();status("Saved to cloud","Your device and cloud data match. Automatic sync is active.")}
   }else{linked=true;linkedEvent();scheduleUpload()}
- }catch(e){status("Connection issue","Firestore access failed: "+(e.code||e.message)+". Check authentication and security rules.")}
+ }catch(e){status("Connection issue","Cloud setup could not finish: "+(e.code||e.message)+". Your existing local progress is retained.")}
 }
 const authError=e=>({
  "auth/email-already-in-use":"This email already has an account. Select Sign in.",
