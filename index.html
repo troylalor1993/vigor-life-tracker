@@ -219,6 +219,27 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 .activity-suggestions .suggestion{font-size:13px;color:#eee3cb;line-height:1.5;padding:6px 0}
 .activity-suggestions .suggestion strong{color:#edcd69}
 .activity-suggestions .estimate-note{font-size:11px;color:#bbaa87;line-height:1.5;margin:8px 0 0}
+
+.zone-card{background:#181714;border:1px solid #66502b;border-radius:16px;padding:16px;margin:0 0 13px}
+.zone-card .zone-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.zone-card h2{margin:0;font-size:19px}
+.zone-total{font-size:31px;font-weight:800;color:#e5c465;line-height:1.2;margin:12px 0 4px}
+.zone-total small{font-size:14px;font-weight:500}
+.zone-meter{height:11px;background:#3b311f;overflow:hidden;border-radius:30px;margin:11px 0}
+.zone-meter>div{height:100%;background:#d4af37;border-radius:30px;transition:width .25s}
+.zone-remaining{font-size:13px;color:#e1c778}
+.zone-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end;margin-top:14px}
+.zone-form label{font-size:12px;color:#d0bfa0}
+.zone-form input{margin-top:7px;min-width:0;min-height:44px;font-size:16px}
+.zone-form button{min-height:44px}
+.zone-log{font-size:12px;color:#c9b89b;margin-top:12px}
+.zone-log-row{display:flex;justify-content:space-between;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #3e321f}
+.zone-log-row button{font-size:12px}
+.zone-goal-details{margin-top:11px}
+.zone-goal-details summary{cursor:pointer;color:#e3c675;font-size:13px}
+.zone-goal-details label{display:block;color:#c9b89b;font-size:12px;margin-top:10px}
+.zone-goal-details input{max-width:160px;margin:7px 0}
+@media(max-width:430px){.zone-form{grid-template-columns:1fr}.zone-form button{width:100%}}
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
@@ -239,6 +260,7 @@ details.compact-details>.card{border:none;border-top:1px solid #443820;border-ra
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
 <p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
 <div class="card" id="daily"><div class="row"><h2>Daily habits</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Check a habit whenever you complete it. Changes save automatically.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><div id="habitSaveFeedback" class="subtle" aria-live="polite"></div><p class="subtle" id="dailySaveStatus" aria-live="polite">Checkmarks save automatically.</p></div>
+<section class="zone-card" id="zone2"><div class="zone-heading"><h2>Zone 2 Movement</h2><span class="tag">8-day target</span></div><div id="zoneCycle" class="subtle"></div><div class="zone-total"><span id="zoneTotal">0</span> <small>/ <span id="zoneGoalLabel">150</span> minutes</small></div><div class="zone-meter" role="progressbar" aria-label="Zone 2 minutes this rotation" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" id="zoneMeter"><div id="zoneBar"></div></div><div class="zone-remaining" id="zoneRemaining">150 minutes remaining</div><div class="zone-form"><label for="zoneMinutes">Minutes completed<input id="zoneMinutes" type="number" inputmode="numeric" min="1" max="600" step="1" placeholder="e.g. 30"></label><button type="button" class="primary" id="addZoneMinutes">Add minutes</button></div><div id="zoneFeedback" class="subtle" aria-live="polite"></div><div class="zone-log" id="zoneLog"></div><details class="zone-goal-details"><summary>Change 8-day goal</summary><label for="zoneGoalInput">Target minutes per rotation<input id="zoneGoalInput" type="number" inputmode="numeric" min="1" max="2000" step="1"></label></details></section>
 <div class="activity-card" id="activity"><div class="row"><h2>Daily Activity</h2><span class="tag">Manual entry</span></div><p class="subtle">Steps and active calories from your Apple Watch. Apple Health syncing can be added later.</p>
 <div class="activity-grid"><div class="activity-metric"><label for="activitySteps">Steps</label><input id="activitySteps" type="number" inputmode="numeric" min="0" max="150000" step="1" placeholder="0"><strong id="stepsGoalText">Goal 8,000 steps</strong><div class="activity-meter"><div id="stepsBar"></div></div><small id="stepsProgress">0%</small></div>
 <div class="activity-metric"><label for="activityCalories">Active calories (kcal)</label><input id="activityCalories" type="number" inputmode="numeric" min="0" max="10000" step="1" placeholder="0"><strong id="caloriesGoalText">Goal 500 kcal</strong><div class="activity-meter"><div id="caloriesBar"></div></div><small id="caloriesProgress">0%</small></div></div>
@@ -281,6 +303,7 @@ function collapsible(id,node,title,open){
 }
 relocate('today',document.querySelector('#daily'));
 relocate('today',document.querySelector('#activity'));
+relocate('today',document.querySelector('#zone2'));
 relocate('today',document.querySelector('#training'));
 relocate('progress',document.querySelector('.cards'));
 collapsible('progress',document.querySelector('#transformationSummary').closest('.card'),'Weight & waist charts',false);
@@ -432,6 +455,8 @@ state.completions ||= [];
 state.dailyCheckins ||= {};
 state.dailyActivity ||= {};
 state.activityGoals ||= {steps:8000,calories:500};
+state.zone2Logs ||= [];
+state.zone2Goal ||= 150;
 state.habitLabels ||= ['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];
 if(!state.habitMigrationV2){
  state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);
@@ -559,6 +584,23 @@ function renderRewards(){
 const todayCheck=()=>$('dailyDate').value||today;
 function cleanCheck(v){v=v||{};return {habits:Array.from({length:state.habitLabels.length},(_,i)=>!!v.habits?.[i]),sleep:v.sleep??'',energy:v.energy??'',recovery:v.recovery??'',saved:!!v.saved}}
 
+function renderZone2(){
+ const date=todayCheck(),rotationStart=plus(state.anchor,Math.floor(days(date,state.anchor)/8)*8),end=plus(rotationStart,7);
+ const logs=state.zone2Logs.filter(x=>x.date>=rotationStart&&x.date<=end);
+ const total=logs.reduce((sum,x)=>sum+Number(x.minutes||0),0),goal=state.zone2Goal;
+ $('zoneCycle').textContent=rotationStart+' to '+end;
+ $('zoneTotal').textContent=total;$('zoneGoalLabel').textContent=goal;
+ $('zoneBar').style.width=Math.min(100,(total/goal)*100)+'%';
+ $('zoneMeter').setAttribute('aria-valuemax',String(goal));$('zoneMeter').setAttribute('aria-valuenow',String(Math.min(goal,total)));
+ $('zoneRemaining').textContent=total>=goal?'✓ 8-day Zone 2 goal complete'+(total>goal?' · '+(total-goal)+' extra minutes':''):goal-total+' minutes remaining · about '+Math.ceil((goal-total)/Math.max(1,8-Math.min(7,Math.max(0,days(date,rotationStart)))))+' min/day over remaining rotation days';
+ $('zoneGoalInput').value=goal;
+ $('zoneLog').replaceChildren();
+ if(!logs.length)$('zoneLog').append(element('div','No sessions recorded this rotation.'));
+ [...logs].sort((a,b)=>b.date.localeCompare(a.date)).forEach(x=>{
+  const row=element('div',undefined,'zone-log-row'),label=element('span',x.date+' · '+x.minutes+' min'),remove=element('button','Undo','secondary tiny');
+  remove.onclick=()=>{state.zone2Logs=state.zone2Logs.filter(v=>v.id!==x.id);if(save()){renderZone2();$('zoneFeedback').textContent='✓ Entry removed'}};row.append(label,remove);$('zoneLog').append(row);
+ });
+}
 function activityFor(date){return state.dailyActivity[date]||{}}
 function renderActivity(){
  const date=todayCheck(),item=activityFor(date),goals=state.activityGoals;
@@ -727,7 +769,13 @@ $('saveProgress').onclick=()=>{
   status.textContent='✓ Saved on this device at '+stamp;
  }
 };
-$('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=()=>{renderDaily();renderActivity()};
+$('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=()=>{renderDaily();renderActivity();renderZone2()};
+$('addZoneMinutes').onclick=()=>{const minutes=Number($('zoneMinutes').value),date=todayCheck();if(!Number.isInteger(minutes)||minutes<1||minutes>600)return alert('Enter 1–600 whole minutes');if(!date||date>today)return alert('Select today or an earlier day');
+ state.zone2Logs.push({id:'z2-'+Date.now()+'-'+Math.random().toString(36).slice(2),date,minutes});
+ if(save()){$('zoneMinutes').value='';renderZone2();$('zoneFeedback').textContent='✓ '+minutes+' minutes saved for '+date}
+};
+$('zoneGoalInput').onchange=()=>{const goal=Number($('zoneGoalInput').value);if(!Number.isInteger(goal)||goal<1||goal>2000)return alert('Choose a target between 1 and 2,000 minutes');state.zone2Goal=goal;if(save()){$('zoneFeedback').textContent='✓ Goal updated';renderZone2()}};
+
 ['activitySteps','activityCalories'].forEach(id=>$(id).oninput=updateActivityMeters);
 $('saveActivity').onclick=()=>{
  const date=todayCheck(),stepsRaw=$('activitySteps').value,caloriesRaw=$('activityCalories').value;
@@ -764,7 +812,7 @@ $('transferBackup').onclick=()=>$('import').click();
 const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
 const hasProgress=state.measurements.length>0||state.completions.length>0||Object.values(state.dailyCheckins).some(x=>x&&x.saved);
 $('homeScreenNoticeText').textContent=standalone?(hasProgress?'This Home Screen app is saving its own data. Export a backup regularly; Safari may show different records.':'This Home Screen app has no check-ins yet. If you saved them in Safari, export a backup there and import it here.'):'If you plan to use the Home Screen app, first export a backup here. Then open the Home Screen app and import it there, as it may have separate storage.';
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
-save();render();renderDaily();renderActivity();renderDailyVerse();
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.zone2Logs||=[];state.zone2Goal||=150;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+save();render();renderDaily();renderActivity();renderZone2();renderDailyVerse();
 })();
 </script></body>
