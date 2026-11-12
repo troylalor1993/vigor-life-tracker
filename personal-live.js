@@ -23,9 +23,10 @@ function start(uid){
   if(JSON.stringify(latest)!==JSON.stringify(local)){
    try{
     window.vigorCloudBridge?.applyPersonal(latest);
+    window.dispatchEvent(new CustomEvent("vigor-personal-cloud-received",{detail:{uid:activeUid,payload:latest}}));
     status("Updated from cloud","Latest changes from your other device are now visible.");
    }catch(e){status("Refresh issue","Could not apply a cloud update. Local progress was not erased.")}
-  }
+  }else window.dispatchEvent(new CustomEvent("vigor-personal-cloud-received",{detail:{uid:activeUid,payload:latest}}));
  },e=>status("Live sync issue",e.message||"Realtime connection unavailable."));
 }
 function stop(){
