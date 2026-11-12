@@ -131,9 +131,12 @@ async function updateSession(current){
   }else if(remote){
    const local=read();
    if(JSON.stringify(remote)!==JSON.stringify(local)){
-    // Differences must not overwrite potentially important progress automatically.
-    showChoice("Different records found","Your saved cloud data and this device have different content. Choose which copy to keep.",true);
-    status("Choose a copy","Review this decision carefully; export the local backup if uncertain.");
+    // With no pending local edits, this device has already chosen the cloud as source of truth.
+    // Preserve its pre-refresh local copy in case the user wants a manual recovery later.
+    try{localStorage.setItem("vigor-local-recovery-"+user.uid,JSON.stringify(local))}catch(e){}
+    window.vigorCloudBridge.applyPersonal(remote);
+    linked=true;linkedEvent();
+    status("Updated from cloud","Your latest progress from Firebase was loaded automatically.");
    }else{linked=true;linkedEvent();status("Saved to cloud","Your device and cloud data match. Automatic sync is active.")}
   }else{linked=true;linkedEvent();scheduleUpload()}
  }catch(e){status("Connection issue","Firestore access failed: "+(e.code||e.message)+". Check authentication and security rules.")}
