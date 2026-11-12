@@ -129,6 +129,17 @@
 .reward-history summary{cursor:pointer;color:#e2c46e;padding:9px 0}
 .reward-history ul{margin:4px 0;padding-left:22px;line-height:1.8}
 @media(max-width:650px){.reward-grid{grid-template-columns:1fr}}
+
+.unlocked-panel{border:1px solid #9b7938;background:linear-gradient(135deg,#282114,#171614);border-radius:15px;padding:16px;margin:16px 0}
+.unlocked-panel h3{color:#f1d77e;margin:0 0 7px;font-size:19px}
+.unlocked-panel p{font-size:13px;color:#d7c9aa;margin:0 0 12px}
+.unlocked-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.unlocked-item{padding:14px;border:1px solid #8f7337;border-radius:12px;background:#181715;display:flex;flex-direction:column;gap:8px}
+.unlocked-item strong{color:#fff0c7;font-size:15px}
+.unlocked-item small{color:#cbb684}
+.unlocked-item button{min-height:44px;margin-top:auto}
+.unlocked-empty{font-size:13px;color:#cdbf9e}
+@media(max-width:650px){.unlocked-list{grid-template-columns:1fr}}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
 <nav class="quick-links" aria-label="Jump to section"><a href="#daily">Daily habits</a><a href="#rewards">Rewards</a><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
@@ -141,7 +152,13 @@
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
 <p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
 <div class="card" id="daily"><div class="row"><h2>Daily habits & recovery</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Unrecorded days are not scored as failures.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><h3>Recovery check-in</h3><div class="recovery-grid"><label>Sleep (hours)<input id="sleepInput" type="number" min="0" max="24" step=".5" placeholder="e.g. 7"></label><label>Energy<select id="energyInput"><option value="">Not rated</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select></label><label>Recovery<select id="recoveryInput"><option value="">Not rated</option><option value="poor">Poor</option><option value="okay">Okay</option><option value="good">Good</option></select></label></div><div class="row" style="margin-top:16px"><button id="saveDaily" class="primary">Save check-in</button><span id="dailySaveStatus" class="subtle" aria-live="polite"></span></div></div>
-<div class="card" id="rewards"><div class="row"><h2>Earned rewards</h2><button id="editRewards" class="secondary tiny">Edit rewards</button></div><div class="reward-score-grid"><div class="reward-score"><strong id="rewardRotation">0</strong><small>This rotation</small></div><div class="reward-score"><strong id="rewardEarned">0</strong><small>Lifetime earned</small></div><div class="reward-score available"><strong id="rewardBalance">0</strong><small>Available points</small></div></div><p id="rewardPeriod" class="reward-rotation"></p><p id="rewardSpent" class="subtle">0 points redeemed</p><p class="subtle">Earn 5 points per daily habit and 20 per completed workout. Use points to plan enjoyable treats and quality time together. Food is never something you must earn: regular meals and snacks remain part of taking care of yourself.</p><p class="subtle">Example: Six completed habits a day for eight days and five workouts earns 340 points. Points carry forward between rotations. Redeeming a reward logs the occasion, not permission to eat.</p><div id="rewardGrid" class="reward-grid"></div><details class="reward-history"><summary>View redeemed rewards</summary><ul id="rewardHistory"></ul></details><div id="rewardEditor" class="hidden"><h3>Customize rewards</h3><div id="rewardEditList"></div><div class="reward-edit-row"><input id="newRewardName" maxlength="75" placeholder="Add reward" aria-label="New reward"><input id="newRewardCost" type="number" min="1" value="100" aria-label="Point cost"><button id="addReward" class="secondary tiny">Add</button></div></div><p id="rewardWarning" class="subtle" aria-live="polite"></p></div><div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
+<div class="card" id="rewards"><div class="row"><h2>Earned rewards</h2><button id="editRewards" class="secondary tiny">Edit rewards</button></div><div class="reward-score-grid"><div class="reward-score"><strong id="rewardRotation">0</strong><small>This rotation</small></div><div class="reward-score"><strong id="rewardEarned">0</strong><small>Lifetime earned</small></div><div class="reward-score available"><strong id="rewardBalance">0</strong><small>Available points</small></div></div><p id="rewardPeriod" class="reward-rotation"></p><p id="rewardSpent" class="subtle">0 points redeemed</p><p class="subtle">Earn 5 points per daily habit and 20 per completed workout. Use points to plan enjoyable treats and quality time together. Food is never something you must earn: regular meals and snacks remain part of taking care of yourself.</p><p class="subtle">Example: Six completed habits a day for eight days and five workouts earns 340 points. Points carry forward between rotations. Redeeming a reward logs the occasion, not permission to eat.</p><section class="unlocked-panel" aria-labelledby="unlockedTitle">
+<h3 id="unlockedTitle">Unlocked rewards <span id="unlockedCount" class="tag">0 available</span></h3>
+<p>Rewards you can claim whenever you're ready. Points are deducted only when you redeem.</p>
+<div id="unlockedList" class="unlocked-list"></div>
+</section>
+<h3 style="margin:18px 0 10px">Rewards to work toward</h3>
+<div id="rewardGrid" class="reward-grid"></div><details class="reward-history"><summary>View redeemed rewards</summary><ul id="rewardHistory"></ul></details><div id="rewardEditor" class="hidden"><h3>Customize rewards</h3><div id="rewardEditList"></div><div class="reward-edit-row"><input id="newRewardName" maxlength="75" placeholder="Add reward" aria-label="New reward"><input id="newRewardCost" type="number" min="1" value="100" aria-label="Point cost"><button id="addReward" class="secondary tiny">Add</button></div></div><p id="rewardWarning" class="subtle" aria-live="polite"></p></div><div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><h3>Milestone rewards</h3><p class="milestone-note">Set a reward for each weight milestone. Claim it once your recorded weight reaches the goal. These rewards do not spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
@@ -332,8 +349,22 @@ function renderMilestoneRewards(){
 function renderRewards(){
  const score=rewardStats();$('rewardBalance').textContent=score.balance.toLocaleString();$('rewardEarned').textContent=score.earned.toLocaleString();$('rewardRotation').textContent=score.rotation.toLocaleString();$('rewardSpent').textContent=score.spent.toLocaleString()+' points redeemed';$('rewardPeriod').textContent='Current rotation: '+score.rotationStart+' to '+score.rotationEnd+' · Earned points carry forward; only this rotation’s total starts fresh.';
  $('rewardWarning').textContent=score.balance<0?'Your balance is temporarily negative because an earlier activity was undone.':'';
+ const unlocked=state.rewards.filter(reward=>score.balance>=reward.cost);
+ $('unlockedCount').textContent=unlocked.length+' available';
+ const unlockedList=$('unlockedList');unlockedList.replaceChildren();
+ if(!unlocked.length)unlockedList.append(element('p','Keep earning points. Any reward you can afford will appear here automatically.','unlocked-empty'));
+ unlocked.forEach(reward=>{
+  const item=element('div',undefined,'unlocked-item'),name=element('strong',reward.name),detail=element('small',Number(reward.cost).toLocaleString()+' points · ready to redeem');
+  const button=element('button','Redeem '+Number(reward.cost).toLocaleString()+' points','primary');
+  button.onclick=()=>{if(rewardStats().balance<reward.cost)return alert('Not enough available points to redeem this reward.');
+   if(!confirm('Redeem '+reward.cost+' points for '+reward.name+'?'))return;
+   state.rewardRedemptions.push({id:'redeem-'+Date.now(),rewardId:reward.id,name:reward.name,cost:reward.cost,date:today});
+   if(save())renderRewards();
+  };
+  item.append(name,detail,button);unlockedList.append(item);
+ });
  $('rewardGrid').replaceChildren();
- state.rewards.forEach(reward=>{
+ state.rewards.filter(reward=>score.balance<reward.cost).forEach(reward=>{
   const item=element('div',undefined,'reward-tile'),title=element('h3',reward.name);
   const cost=element('p',reward.cost.toLocaleString()+'-point target');
   const meter=element('div',undefined,'reward-progress'),fill=element('div');
@@ -341,10 +372,10 @@ function renderRewards(){
   meter.setAttribute('role','progressbar');meter.setAttribute('aria-label','Points progress toward '+reward.name);
   meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',String(reward.cost));meter.setAttribute('aria-valuenow',String(Math.max(0,Math.min(score.balance,reward.cost))));
   const remaining=Math.max(0,reward.cost-score.balance),status=element('div',score.balance>=reward.cost?'✓ Ready to redeem':Math.max(0,score.balance).toLocaleString()+' / '+reward.cost.toLocaleString()+' pts · '+remaining.toLocaleString()+' to go','reward-remaining');
-  const button=element('button',score.balance>=reward.cost?'Redeem '+reward.cost.toLocaleString()+' points':'Keep earning','secondary tiny');
-  button.disabled=score.balance<reward.cost;button.style.opacity=button.disabled?'.55':'1';
+  const button=element('button','Keep earning','secondary tiny');
+  button.disabled=true;button.style.opacity='.55';
   button.onclick=()=>{if(rewardStats().balance<reward.cost)return;if(!confirm('Use '+reward.cost+' points for '+reward.name+'?'))return;state.rewardRedemptions.push({id:'redeem-'+Date.now(),rewardId:reward.id,name:reward.name,cost:reward.cost,date:today});save();renderRewards()};
-  item.append(title,cost,meter,status,button);$('rewardGrid').append(item);
+  item.append(title,cost,meter,status);$('rewardGrid').append(item);
  });
  const history=$('rewardHistory');history.replaceChildren();
  if(!state.rewardRedemptions.length)history.append(element('li','No rewards redeemed yet.'));
