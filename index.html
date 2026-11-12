@@ -376,8 +376,8 @@ state.measurements ||= [];
 state.activities ||= base.map(x=>({...x}));
 state.completions ||= [];
 state.dailyCheckins ||= {};
-state.habitLabels ||= ['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];
-['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});
+state.habitLabels ||= ['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];
+state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});
 state.readDays ||= {};
 state.rotationNotes ||= {};
 const suggestedRewards=[
@@ -575,7 +575,7 @@ $('add').onclick=()=>{const name=$('newName').value.trim(),target=Math.max(1,Mat
 $('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this 8-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
 $('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;state.shiftConfirmed=true;offset=0;save();render()};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.milestoneRewards||={};state.milestoneClaims||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.milestoneRewards||={};state.milestoneClaims||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 save();render();renderDaily();renderDailyVerse();
 })();
 </script></body>
