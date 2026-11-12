@@ -55,6 +55,38 @@ function maybeImport(){
   feedback("✓ Imported "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal for "+sample.date+". Firebase sync will save them automatically.");
  }catch(e){attempted=false;feedback("Import could not be completed: "+e.message)}
 }
+function parsePastedLink(input){
+ const value=input.trim();
+ if(!value)throw Error("Paste the completed link from Shortcuts first.");
+ // Require the Vigor Life address so unrelated or deceptive URLs cannot be imported.
+ const clean=value.replace(/\s+/g,"");
+ let fragment;
+ if(clean.startsWith("#health="))fragment=clean;
+ else {
+  const url=new URL(clean);
+  if(url.protocol!=="https:"||url.hostname!=="troylalor1993.github.io"||!/^\/vigor-life-tracker\/?$/.test(url.pathname))throw Error("This link isn't from your Vigor Life Tracker.");
+  fragment=url.hash;
+ }
+ const data=parse(fragment);
+ if(!data)throw Error("The link is missing its Health measurements.");
+ return data;
+}
+$("healthPasteImport").onclick=()=>{
+ let sample;
+ try{sample=parsePastedLink($("healthPasteLink").value)}
+ catch(e){feedback("Could not read link: "+e.message);return}
+ if(!current||localStorage.getItem(linked)!==current.uid){
+  feedback("First sign into your personal Firebase account under Settings and complete cloud backup on this device. No health data was changed.");
+  return;
+ }
+ const who=current.email||"this account";
+ if(!confirm("Import "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal on "+sample.date+" into "+who+"? This replaces that day's recorded step and calorie totals."))return;
+ try{
+  window.vigorCloudBridge.importHealth(sample);
+  $("healthPasteLink").value="";
+  feedback("✓ Imported "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal for "+sample.date+". Automatic Firebase saving is enabled.");
+ }catch(e){feedback("Import failed: "+e.message)}
+};
 window.addEventListener("hashchange",ingestUrl);
 window.addEventListener("vigor-cloud-linked",maybeImport);
 onAuthStateChanged(auth,user=>{current=user;maybeImport()});
