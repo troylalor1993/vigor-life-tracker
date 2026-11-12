@@ -146,7 +146,7 @@ const shifts=['Day shift','Day shift','Night shift','Night shift','Day off','Day
 const base=[{id:'fullbody',name:'Full-body strength',target:3},{id:'zone2',name:'Zone 2 cardio',target:2},{id:'arms',name:'Arms & core',target:1},{id:'speed',name:'Sprint / interval conditioning',target:1},{id:'mobility',name:'Mobility / recovery',target:2}];
 let state={};try{state=JSON.parse(localStorage.getItem(key))||{}}catch(e){}
 state.anchor ||= today;
-state.shiftConfirmed ||= false;
+state.shiftConfirmed = true; // User confirmed the existing November 12, 2026 cycle start.
 state.measurements ||= [];
 state.activities ||= base.map(x=>({...x}));
 state.completions ||= [];
@@ -168,7 +168,7 @@ return '<svg class="trend-chart" viewBox="0 0 320 160" role="img" aria-label="'+
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
 function render(){
 const s=start(),end=plus(s,7),counts={};
-$('shiftAlert').style.display=state.shiftConfirmed?'none':'block';for(const c of state.completions){if(inRange(c.date,s))counts[c.activityId]=(counts[c.activityId]||0)+1}
+$('shiftAlert').style.display='none';for(const c of state.completions){if(inRange(c.date,s))counts[c.activityId]=(counts[c.activityId]||0)+1}
 const target=state.activities.reduce((a,x)=>a+x.target,0),total=state.activities.reduce((a,x)=>a+Math.min(x.target,counts[x.id]||0),0);
 $('score').textContent=total+'/'+target;$('completionBar').style.width=(target?total/target*100:0)+'%';$('range').textContent=s+' to '+end;
 $('daystrip').replaceChildren();for(let i=0;i<8;i++){const d=plus(s,i),chip=element('div',undefined,'daychip'+(d===today?' active':''));chip.append(element('b','Day '+(i+1)));chip.append(element('span',shifts[i]));chip.append(element('br'));chip.append(element('small',d.slice(5)));$('daystrip').append(chip)}
