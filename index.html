@@ -7,11 +7,41 @@
 .scripture-text{font-family:Georgia,serif;font-size:clamp(19px,3.5vw,25px);line-height:1.5;color:#f6e9c8;margin:12px 0}
 .scripture-ref{font-weight:750;color:#e6c76d;font-size:13px}
 .scripture-reflection{color:#cfc5af;font-size:14px;line-height:1.65;margin:13px 0 0}
+
+.dashboard-label{letter-spacing:1.7px;font-size:11px;font-weight:800;color:#d4af37}
+.scripture-title{font-family:Georgia,serif;font-size:clamp(24px,4vw,30px);margin:12px 0;color:#f6e9c8}
+.devotional-block{border-top:1px solid #3e3422;padding-top:12px;margin-top:12px}
+.devotional-block strong{color:#d4af37;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.devotional-block p{margin:6px 0;color:#ede2ca;line-height:1.6}
+.scripture-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.goldlink{color:#e6c76d;font-weight:700;text-decoration:none;border:1px solid #735d34;padding:10px 12px;border-radius:10px;display:inline-block}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.summary-grid>div{background:#1a1a1a;border-radius:12px;padding:14px;border:1px solid #3b321f}
+.trend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.trend-chart{width:100%;max-height:170px}
+.progress-note{font-size:13px;color:#cfc6b4;line-height:1.6}
+.milestone-list{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.milestone-item{border-radius:10px;border:1px solid #55462a;padding:12px 6px;text-align:center;background:#171717;color:#bcb19c;font-size:12px}
+.milestone-item strong{display:block;color:#e8d8aa;font-size:15px;margin-bottom:4px}
+.milestone-item.reached{background:#332713;border-color:#ad8736}
+.milestone-item.next{border:2px solid #d4af37}
+.completion-date{margin-top:8px;display:none}
+.completion-date.open{display:block}
+@media(max-width:550px){.summary-grid{grid-template-columns:repeat(3,1fr)}.trend-grid{grid-template-columns:1fr}.milestone-list{grid-template-columns:repeat(5,1fr)}.milestone-item{padding:9px 2px;font-size:10px}.milestone-item strong{font-size:12px}}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
-<section class="card scripture-card" aria-labelledby="verseTitle"><div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Scripture</h2></div><small id="verseDate"></small></div><div id="verseText" class="scripture-text"></div><div id="verseRef" class="scripture-ref"></div><p id="verseReflection" class="scripture-reflection"></p><p><a id="verseNLTLink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer" style="color:#e6c76d;font-weight:700">Read passage in NLT ↗</a></p><p class="subtle" style="margin-bottom:0">NLT reading link · New passage each day · Reflections are original, not Scripture quotations.</p></section>
+<section class="card scripture-card" aria-labelledby="verseTitle">
+<div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Devotional</h2></div><small id="verseDate"></small></div>
+<div id="verseRef" class="scripture-ref"></div><h3 class="scripture-title" id="devotionalTitle"></h3>
+<div class="devotional-block"><strong>Understanding the passage</strong><p id="verseMeaning"></p></div>
+<div class="devotional-block"><strong>Today’s application</strong><p id="verseApplication"></p></div>
+<div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
+<p class="subtle" style="margin-bottom:0">Original devotional reflections, not Bible quotations. NLT text opens in Bible Gateway.</p></section>
 <div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
+<div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
+<div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p></div>
 <div class="card"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
+<div class="card"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
 <div class="card"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle"></p><p class="subtle">Record both your weight and waist once during each 8-day rotation. You can correct an entry later.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="367.2"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="55"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
 <div class="card"><h2>Shift calendar & backup</h2><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="row"><button id="export" class="secondary">Export backup</button><label class="secondary">Import backup<input id="import" type="file" accept=".json" hidden></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly.</p></div></main>
@@ -20,43 +50,71 @@
 const $=id=>document.getElementById(id);
 const key='vigor-tracker';
 
-const dailyVerses=[
-["1 Corinthians 10:31","Whether therefore ye eat, or drink, or whatsoever ye do, do all to the glory of God.","Honour God in your daily choices, including how you eat, move, and recover."],
-["Galatians 6:9","And let us not be weary in well doing: for in due season we shall reap, if we faint not.","Small, faithful actions compound. Keep doing what is good, even when results take time."],
-["Proverbs 25:28","He that hath no rule over his own spirit is like a city that is broken down, and without walls.","Build self-control without confusing discipline with perfection."],
-["Philippians 4:13","I can do all things through Christ which strengtheneth me.","Lean on Christ for faithfulness in every circumstance, including difficult days."],
-["2 Timothy 1:7","For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.","Approach your goals with courage, love, and wise judgment."],
-["Psalm 118:24","This is the day which the LORD hath made; we will rejoice and be glad in it.","Receive today as an opportunity to give thanks and take one purposeful step."],
-["Proverbs 16:3","Commit thy works unto the LORD, and thy thoughts shall be established.","Bring your training and health goals before God, and pursue them with humility."],
-["Ecclesiastes 3:1","To every thing there is a season, and a time to every purpose under the heaven:","There are times to push, to recover, and to rest. Wisdom recognizes each season."],
-["Colossians 3:23","And whatsoever ye do, do it heartily, as to the Lord, and not unto men;","Train with purpose rather than for applause or comparison."],
-["Proverbs 24:16","For a just man falleth seven times, and riseth up again:","A difficult day does not need to become a defeated week. Begin again."],
-["Psalm 46:10","Be still, and know that I am God:","Rest and stillness have value. Your worth is not measured by constant activity."],
-["Isaiah 40:31","But they that wait upon the LORD shall renew their strength;","Remember that lasting strength is more than physical performance."],
-["1 Corinthians 9:27","But I keep under my body, and bring it into subjection:","Practice discipline with intention, not punishment or harshness toward yourself."],
-["Hebrews 12:1","let us run with patience the race that is set before us,","Focus on steady perseverance in the life God has given you."],
-["Romans 12:1","present your bodies a living sacrifice, holy, acceptable unto God,","Steward your body as part of a whole life offered in service to God."],
-["1 Timothy 4:8","For bodily exercise profiteth little: but godliness is profitable unto all things,","Physical training has value, but it must remain in perspective beside godliness."],
-["1 Corinthians 6:19","your body is the temple of the Holy Ghost which is in you,","Care for your body with gratitude. This passage also speaks to honouring God through how we live."],
-["Psalm 127:2","for so he giveth his beloved sleep.","Recovery matters. You do not have to earn rest through exhaustion."],
-["James 1:4","But let patience have her perfect work, that ye may be perfect and entire, wanting nothing.","Progress takes patience. Keep building sound habits one rotation at a time."],
-["Micah 6:8","to do justly, and to love mercy, and to walk humbly with thy God?","Health goals matter, but justice, mercy, and humility remain central to your walk."],
-["Psalm 23:2","he leadeth me beside the still waters.","Make room for peace and restoration, not only effort."],
-["Matthew 6:33","But seek ye first the kingdom of God, and his righteousness;","Let your relationship with God lead, rather than making fitness your highest priority."],
-["Proverbs 4:23","Keep thy heart with all diligence; for out of it are the issues of life.","Pay attention to your inward life as well as your physical habits."],
-["Psalm 28:7","The LORD is my strength and my shield; my heart trusted in him, and I am helped:","Give thanks for the strength to continue, especially through hard weeks."]
+const devotionalLibrary=[
+["1 Corinthians 10:31","Every choice can honour God","Paul calls believers to seek God's glory in ordinary actions, including eating and drinking.","Choose one practical health habit today and approach it with gratitude, not pride."],
+["Galatians 6:9","Do not grow weary","Paul encourages perseverance in doing good, trusting God's timing rather than immediate results.","Continue one good habit even if this rotation's progress feels slow."],
+["Proverbs 25:28","Discipline with wisdom","The proverb compares a lack of self-control to a city without protection.","Set one clear boundary around a habit that tends to distract you."],
+["Philippians 4:13","Strength in every circumstance","Paul speaks about Christ's strength to endure changing circumstances, not a guarantee of athletic success.","Ask Christ for endurance in the challenges today actually brings."],
+["2 Timothy 1:7","Courage and sound judgment","Paul encourages Timothy toward courage, love and self-control rather than fear.","Make one healthy decision with courage and wisdom."],
+["Psalm 118:24","Receive today with joy","The psalm celebrates the Lord's work and invites thankful rejoicing.","Find one reason to be thankful before focusing on your goals."],
+["Proverbs 16:3","Commit your work","This wisdom passage calls us to entrust our efforts and plans to the Lord.","Pray over your health goals, then take the next responsible step."],
+["Ecclesiastes 3:1","Respect the seasons","Ecclesiastes observes that life has seasons and fitting times for different activities.","Choose wisely between training, recovery and rest today."],
+["Colossians 3:23","Wholehearted effort","Paul urges sincere work done for the Lord rather than merely to please others.","Train for faithful stewardship, not for comparison or approval."],
+["Proverbs 24:16","Get up again","This proverb contrasts resilience in the righteous with the downfall of the wicked.","If you missed a workout or habit, begin again without giving up."],
+["Psalm 46:10","Be still","The psalm calls God's people to recognize His sovereignty amid upheaval.","Make a little space for quiet prayer and recovery."],
+["Isaiah 40:31","Renewed strength","Isaiah points to hope in the Lord as the source of renewed endurance.","Remember that faith and hope extend beyond physical fitness."],
+["1 Corinthians 9:27","Purposeful self-discipline","Paul uses athletic training to describe his commitment to living faithfully.","Practice disciplined habits without punishing your body."],
+["Hebrews 12:1","Run with perseverance","Hebrews calls believers to lay aside hindrances and persevere in faith.","Keep going at a sustainable pace rather than chasing instant results."],
+["Romans 12:1","A life offered to God","Paul describes whole-life worship as a living offering to God.","Care for your body as one part of a life devoted to Him."],
+["1 Timothy 4:8","Keep the right priorities","Paul recognizes value in bodily training while placing greater emphasis on godliness.","Make time for spiritual growth alongside physical training."],
+["1 Corinthians 6:19-20","Honour God with your body","Paul grounds bodily holiness in belonging to God and being redeemed by Christ.","Treat your body with dignity, gratitude and responsibility."],
+["Psalm 127:2","Rest is a gift","The psalm warns against anxious striving and remembers God's care.","Make sleep and restoration part of faithful stewardship."],
+["James 1:4","Let perseverance mature you","James calls believers to endurance in testing so that character may develop.","Treat consistency as character-building, not merely a number on a scale."],
+["Micah 6:8","Walk humbly","Micah summarizes a life of justice, mercy and humble fellowship with God.","Let humility and kindness shape your fitness journey."],
+["Psalm 23:2-3","Restoration matters","The shepherd image portrays God's care, rest and renewal.","Take time to recover and be restored."],
+["Matthew 6:33","Seek first the Kingdom","Jesus teaches His followers to prioritize God's reign and righteousness.","Do not let performance, appearance or numbers become your highest purpose."],
+["Proverbs 4:23","Guard your heart","Wisdom calls for careful attention to the inner life that shapes our actions.","Notice your motivation today: are you acting from gratitude or fear?"],
+["Psalm 28:7","Trust in the Lord","The psalmist responds to God's help with trust and thanksgiving.","Give thanks for the strength and support you already have."],
+["Mark 6:31","Make room for rest","Jesus invites His disciples away from constant demands for a period of rest.","Give yourself permission to recover from work and training."],
+["Matthew 11:28","Come to Christ for rest","Jesus invites the burdened to find rest in Him.","Bring your worries to God instead of carrying them alone."],
+["Proverbs 21:5","Plan diligently","Wisdom contrasts thoughtful planning with hurried, careless decisions.","Choose a realistic plan for the next eight days."],
+["Luke 16:10","Faithful in little things","Jesus teaches the importance of faithfulness in small responsibilities.","Focus on today's small, meaningful actions."],
+["1 Thessalonians 5:11","Encourage one another","Paul calls the church to mutual encouragement and building up.","Encourage someone else on their journey."],
+["Psalm 139:14","Wonderfully made","The psalmist praises God for His remarkable work in human creation.","Speak about your body with respect, even while pursuing change."],
+["Proverbs 3:5-6","Trust and seek direction","Wisdom calls us to trust the Lord rather than depend entirely on our own understanding.","Seek wisdom before making major changes to your routine."],
+["Romans 5:3-4","Endurance grows character","Paul connects suffering, perseverance, character and hope.","Remember that patient faithfulness matters more than perfect results."],
+["2 Corinthians 12:9","Grace in weakness","Paul learns that God's grace is sufficient even amid weakness.","Do not interpret a difficult day as a failure of faith."],
+["Psalm 90:12","Use your days wisely","The psalm asks God for wisdom to number our days.","Invest today in what has lasting value."],
+["Proverbs 17:22","Joy matters","This proverb observes the significance of a cheerful spirit.","Include something life-giving and joyful in your day."],
+["John 15:5","Abide in Christ","Jesus teaches that lasting spiritual fruit comes from abiding in Him.","Begin your day connected to Christ, not just a task list."],
+["Ephesians 5:15-16","Walk wisely","Paul urges careful and wise use of time.","Choose a workout or recovery activity that fits your actual schedule."],
+["Philippians 3:13-14","Press forward","Paul describes pursuing God's call rather than dwelling on what lies behind.","Let yesterday's setbacks stay behind you."],
+["Psalm 37:5","Entrust your way","The psalm encourages committing one's path to God and trusting Him.","Commit this rotation to God, then act responsibly."],
+["1 Peter 5:7","Release your anxieties","Peter calls believers to bring their cares to God because He cares for them.","Pause to pray about pressures that make consistency difficult."],
+["Joshua 1:9","Be strong and courageous","God calls Joshua to courage in fulfilling his responsibility.","Face the next challenge with courage and perspective."],
+["Proverbs 13:4","Diligence matters","This proverb contrasts empty desire with sustained diligence.","Choose action over merely wishing for change."],
+["Psalm 121:2","Help from the Lord","The psalm remembers God as the maker of heaven and earth and the source of help.","Remember your dependence on God alongside your personal effort."],
+["1 Corinthians 13:4","Love is patient","Paul describes the character of love, beginning with patience.","Practice patience toward yourself and those around you."],
+["Isaiah 41:10","Do not fear","God assures His people of His presence and help.","Let faith shape how you face uncertainty."],
+["Matthew 25:21","Faithful stewardship","Jesus' parable celebrates faithfulness with what has been entrusted.","Use your time, energy and opportunities responsibly."],
+["2 Peter 1:5-6","Grow in self-control","Peter lists self-control and perseverance among qualities to cultivate.","Practice one small habit that strengthens wise self-control."],
+["Psalm 62:1","Rest in God","The psalmist speaks of finding rest and salvation in God.","Make space for stillness even when your schedule is busy."],
+["James 1:5","Ask for wisdom","James encourages believers to ask God for wisdom.","Seek wise guidance about training, nutrition and recovery."],
+["Romans 15:13","Filled with hope","Paul prays for joy, peace and hope through the Holy Spirit.","Let hope shape the way you approach your next rotation."],
+["Hebrews 10:24-25","Spur one another on","Hebrews urges believers to encourage each other toward love and good works.","Find a constructive way to encourage others today."],
+["Psalm 103:2","Remember God's benefits","The psalmist calls himself to remember the Lord's goodness.","Write down something you're thankful for beyond the scale."]
 ];
 function renderDailyVerse(){
-const now=new Date(),day=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86400000);
-const verse=dailyVerses[((day%dailyVerses.length)+dailyVerses.length)%dailyVerses.length];
+const now=new Date(),date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+const day=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86400000),verse=devotionalLibrary[((day%devotionalLibrary.length)+devotionalLibrary.length)%devotionalLibrary.length];
 $('verseDate').textContent=now.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-$('verseText').textContent=verse[2];
-$('verseRef').textContent=verse[0]+' (NLT)';
-$('verseReflection').textContent='Read today’s full passage in the New Living Translation using the link below.';
+$('verseRef').textContent=verse[0]+' · NLT reading';
+$('devotionalTitle').textContent=verse[1];
+$('verseMeaning').textContent=verse[2];$('verseApplication').textContent=verse[3];
 $('verseNLTLink').href='https://www.biblegateway.com/passage/?search='+encodeURIComponent(verse[0])+'&version=NLT';
+const seen=!!state.readDays[date];$('markDevotional').textContent=seen?'✓ Read today · Undo':'✓ Mark as read';
+$('markDevotional').onclick=()=>{state.readDays[date]=!state.readDays[date];save();renderDailyVerse()};
 }
-renderDailyVerse();
-
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const parse=s=>new Date(s+'T12:00:00');
 const plus=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
@@ -69,11 +127,21 @@ state.anchor ||= today;
 state.measurements ||= [];
 state.activities ||= base.map(x=>({...x}));
 state.completions ||= [];
+state.readDays ||= {};
+state.rotationNotes ||= {};
 // Existing per-day checkmarks remain in the saved legacy data, without altering or deleting them.
 let offset=0,edit=false;
 const save=()=>localStorage.setItem(key,JSON.stringify(state));
 const start=()=>plus(state.anchor,Math.floor(days(today,state.anchor)/8)*8+offset*8);
 const inRange=(d,s)=>d>=s&&d<=plus(s,7);
+function metricChart(points,key,unit){
+const values=points.filter(p=>p[key]!=null&&Number.isFinite(Number(p[key]))).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>({date:p.date,value:Number(p[key])}));
+if(!values.length)return '<p class="subtle">Record a check-in to see progress.</p>';
+if(values.length===1)return '<p class="progress-note">First reading: '+values[0].value+' '+unit+' — add another rotation to see a trend.</p>';
+const vs=values.map(p=>p.value),lo=Math.min(...vs),hi=Math.max(...vs),span=Math.max(1,hi-lo),dots=values.map((p,i)=>({x:15+i*290/(values.length-1),y:125-(p.value-lo)/span*90,value:p.value,date:p.date}));
+return '<svg class="trend-chart" viewBox="0 0 320 160" role="img" aria-label="'+key+' trend" preserveAspectRatio="xMidYMid meet"><line x1="15" y1="130" x2="310" y2="130" stroke="#55462a"/><polyline fill="none" stroke="#d4af37" stroke-width="3" points="'+dots.map(p=>p.x+','+p.y).join(' ')+'"/>'+dots.map(p=>'<circle r="3.5" fill="#f0d37e" cx="'+p.x+'" cy="'+p.y+'"><title>'+p.date+': '+p.value+' '+unit+'</title></circle>').join('')+'<text x="15" y="151" font-size="11" fill="#bcb19c">'+values[0].date.slice(5)+'</text><text x="305" y="151" text-anchor="end" font-size="11" fill="#bcb19c">'+values[values.length-1].date.slice(5)+'</text></svg>';
+}
+
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
 function render(){
 const s=start(),end=plus(s,7),counts={};for(const c of state.completions){if(inRange(c.date,s))counts[c.activityId]=(counts[c.activityId]||0)+1}
@@ -86,9 +154,12 @@ const count=counts[a.id]||0,wrap=element('div',undefined,'taskitem'),top=element
 left.append(element('div',a.name,'taskname'));left.append(element('small',count+' of '+a.target+' completed'+(count>a.target?' · '+(count-a.target)+' bonus':'')));
 top.append(left,element('span',count>a.target?'Goal exceeded +'+(count-a.target):count===a.target?'Goal met':'In progress','tag'));wrap.append(top);
 const entry=element('div',undefined,'entry');
-const picker=element('input');picker.type='date';picker.min=s;picker.max=end;picker.value=inRange(today,s)?today:s;picker.setAttribute('aria-label','Completion date for '+a.name);
-const button=element('button','✓ Complete','primary checkbtn');button.onclick=()=>{if(!inRange(picker.value,s))return alert('Choose a day in this 8-day cycle');state.completions.push({id:'c'+Date.now()+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});save();render()};
-entry.append(picker,button);wrap.append(entry);
+const completionDate=inRange(today,s)?today:s,button=element('button',inRange(today,s)?'✓ Complete today':'✓ Complete','primary checkbtn');
+const backdate=element('button','Change date','secondary tiny'),picker=element('input'),dateWrap=element('div',undefined,'completion-date');
+picker.type='date';picker.min=s;picker.max=end;picker.value=completionDate;picker.setAttribute('aria-label','Completion date for '+a.name);
+backdate.onclick=()=>dateWrap.classList.toggle('open');
+button.onclick=()=>{if(!inRange(picker.value,s))return alert('Choose a day in this 8-day cycle');state.completions.push({id:'c'+Date.now()+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});save();render()};
+dateWrap.append(picker);entry.append(button,backdate);wrap.append(entry,dateWrap);
 const records=state.completions.filter(c=>c.activityId===a.id&&inRange(c.date,s)).sort((a,b)=>a.date.localeCompare(b.date));
 records.forEach(c=>{const row=element('div',undefined,'entry'),txt=element('span','✓ '+c.date,'subtle'),undo=element('button','Undo','secondary tiny');undo.onclick=()=>{state.completions=state.completions.filter(x=>x.id!==c.id);save();render()};row.append(txt,undo);wrap.append(row)});
 $('tasks').append(wrap)});
@@ -99,6 +170,26 @@ $('measureStatus').textContent=rotationMeasurement?'✓ Rotation check-in record
 $('measureDate').min=s;$('measureDate').max=end;$('measureDate').value=rotationMeasurement?.date??(inRange(today,s)?today:s);
 $('weight').value=rotationMeasurement?.weight??'';$('waist').value=rotationMeasurement?.waist??'';
 const sorted=state.measurements.slice().sort((a,b)=>b.date.localeCompare(a.date));
+const latestWeight=sorted.find(m=>m.weight!=null)?.weight,latestWaist=sorted.find(m=>m.waist!=null)?.waist;
+$('transformationSummary').replaceChildren();
+const weightDiff=latestWeight==null?null:370-Number(latestWeight),waistDiff=latestWaist==null?null:55-Number(latestWaist);
+$('transformationSummary').append(element('span',weightDiff==null?'Weight: log first check-in':(weightDiff>=0?weightDiff.toFixed(1)+' lb lost':Math.abs(weightDiff).toFixed(1)+' lb above start'),'tag'));
+$('transformationSummary').append(element('span',waistDiff==null?'Waist: log first check-in':(waistDiff>=0?waistDiff.toFixed(1)+' in reduced':Math.abs(waistDiff).toFixed(1)+' in above start'),'tag'));
+$('weightChart').innerHTML=metricChart(sorted,'weight','lb');$('waistChart').innerHTML=metricChart(sorted,'waist','in');
+$('milestones').replaceChildren();const marks=[344,318,292,266,240],next=marks.find(v=>latestWeight==null||latestWeight>v);
+marks.forEach(mark=>{const reached=latestWeight!=null&&latestWeight<=mark,chip=element('div',undefined,'milestone-item'+(reached?' reached':mark===next?' next':''));chip.append(element('strong',mark+' lb'));chip.append(element('small',reached?'✓ Reached':mark===next?'Next goal':'Upcoming'));$('milestones').append(chip)});
+$('nextMilestone').textContent=latestWeight==null?'Log your first rotation check-in to begin tracking milestones.':next?Math.max(0,Number(latestWeight)-next).toFixed(1)+' lb to the next milestone ('+next+' lb).':'Your 240 lb milestone is reached.';
+const previous=plus(s,-8),prevEnd=plus(previous,7),previousCounts={};state.completions.forEach(c=>{if(inRange(c.date,previous))previousCounts[c.activityId]=(previousCounts[c.activityId]||0)+1});
+const previousTotal=state.activities.reduce((sum,a)=>sum+Math.min(a.target,previousCounts[a.id]||0),0);
+const bonus=state.activities.reduce((sum,a)=>sum+Math.max(0,(counts[a.id]||0)-a.target),0);
+const lastMeasurement=state.measurements.filter(m=>inRange(m.date,previous)).sort((a,b)=>b.date.localeCompare(a.date))[0];
+const nowMeasurement=state.measurements.filter(m=>inRange(m.date,s)).sort((a,b)=>b.date.localeCompare(a.date))[0];
+$('rotationSummary').replaceChildren();[['Targets',total+'/'+target],['Bonus sessions','+'+bonus],['Check-in',nowMeasurement?'✓ Recorded':'Pending']].forEach(([name,value])=>{const box=element('div');box.append(element('small',name),element('div',value,'metric'));$('rotationSummary').append(box)});
+const changes=[];if(nowMeasurement&&lastMeasurement){changes.push('Weight '+(Number(nowMeasurement.weight)-Number(lastMeasurement.weight)).toFixed(1)+' lb');changes.push('Waist '+(Number(nowMeasurement.waist)-Number(lastMeasurement.waist)).toFixed(1)+' in')}
+$('rotationComparison').textContent='Previous cycle ('+previous+' to '+prevEnd+'): '+previousTotal+'/'+target+' targets'+(changes.length?' · Change since then: '+changes.join(', '):' · Compare body measurements after two check-ins')+'.';
+$('summaryWindow').textContent=s+' to '+end;
+const note=$('rotationNote');note.value=state.rotationNotes[s]||'';note.onchange=()=>{state.rotationNotes[s]=note.value;save()};
+
 $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb';
 $('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
 $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('tr');[m.date,m.weight??'—',m.waist??'—'].forEach(v=>tr.append(element('td',String(v))));const cell=element('td'),remove=element('button','Delete','secondary tiny');remove.onclick=()=>{if(confirm('Delete this measurement?')){state.measurements=state.measurements.filter(x=>x.date!==m.date);save();render()}};cell.append(remove);tr.append(cell);$('history').append(tr)});
@@ -111,6 +202,6 @@ $('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Numb
 $('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;offset=0;save();render()};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 $('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];save();location.reload()}}catch(e){alert('Invalid backup file')}};
-save();render();
+save();render();renderDailyVerse();
 })();
 </script></body>
