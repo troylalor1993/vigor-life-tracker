@@ -241,7 +241,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 .habit-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0 3px}
 .habit-add-row button{min-width:95px}
 @media(max-width:650px){.habit-add-row input{min-width:0}.habit-add-row button{padding:9px}}
-.manual-save{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px}.manual-save #saveProgress{min-width:145px;min-height:43px}.manual-save #saveProgressStatus{font-size:12px;color:#c6b68e}@media(max-width:650px){.manual-save{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center}.manual-save #saveProgress{min-width:0;padding:11px}.manual-save #saveProgressStatus{line-height:1.4}}.couples-card{background:linear-gradient(145deg,#211c14,#141414);border:1px solid #68522d}.couples-meta{color:#cbb789;font-size:12px;line-height:1.6}.couple-goal{display:flex;align-items:center;gap:10px;padding:12px 9px;border-bottom:1px solid var(--border)}.couple-goal input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:var(--accent)}.couple-goal span{flex:1;overflow-wrap:anywhere}.couple-goal button{padding:6px 9px}.couples-fields{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:13px}.couples-fields input{min-width:0}.couples-note{width:100%;min-height:80px;margin-top:8px}.couples-status{font-size:12px;color:var(--accent)}.app-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:650px){.app-tab{font-size:10px}.couples-fields{grid-template-columns:1fr}.couples-fields button{width:100%}}
+.couples-card{background:linear-gradient(145deg,#211c14,#141414);border:1px solid #68522d}.couples-meta{color:#cbb789;font-size:12px;line-height:1.6}.couple-goal{display:flex;align-items:center;gap:10px;padding:12px 9px;border-bottom:1px solid var(--border)}.couple-goal input[type=checkbox]{width:22px;height:22px;flex:0 0 22px;accent-color:var(--accent)}.couple-goal span{flex:1;overflow-wrap:anywhere}.couple-goal button{padding:6px 9px}.couples-fields{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:13px}.couples-fields input{min-width:0}.couples-note{width:100%;min-height:80px;margin-top:8px}.couples-status{font-size:12px;color:var(--accent)}.app-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}@media(max-width:650px){.app-tab{font-size:10px}.couples-fields{grid-template-columns:1fr}.couples-fields button{width:100%}}
 /* Compact daily activity metrics */
 .activity-card{background:var(--panel);border:1px solid #554425;border-radius:18px;padding:16px;margin:0 0 13px}
 .activity-card h2{margin:0 0 5px}
@@ -393,7 +393,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 @media(max-width:600px){.cloud-fields{grid-template-columns:1fr}.cloud-actions button{flex:1 1 auto}.cloud-choice button{width:100%}}
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent" id="scheduleHeadline">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
-<div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
+</div>
 <nav class="app-tabs" aria-label="App sections" id="appTabs">
 <button type="button" class="app-tab active" data-panel="faith">Faith</button>
 <button type="button" class="app-tab" data-panel="today">Today</button>
@@ -1217,13 +1217,6 @@ $('coupleClaimReward').onclick=()=>{
 });
 $('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
 $('addReward').onclick=()=>{const name=$('newRewardName').value.trim(),cost=Math.floor(Number($('newRewardCost').value));if(!name||!Number.isFinite(cost)||cost<1||cost>100000)return alert('Enter a reward name and valid cost');state.rewards.push({id:'reward-'+Date.now(),name,cost});save();renderRewards()};
-$('saveProgress').onclick=()=>{
- const saved=save();
- if(saved){
-  const status=$('saveProgressStatus'),stamp=new Date().toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
-  status.textContent='✓ Saved on this device at '+stamp;
- }
-};
 $('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=()=>{renderDaily();renderActivity();renderZone2()};
 $('addZoneMinutes').onclick=()=>{const minutes=Number($('zoneMinutes').value),date=todayCheck();if(!Number.isInteger(minutes)||minutes<1||minutes>600)return alert('Enter 1–600 whole minutes');if(!date||date>today)return alert('Select today or an earlier day');
  state.zone2Logs.push({id:'z2-'+Date.now()+'-'+Math.random().toString(36).slice(2),date,minutes});
