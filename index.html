@@ -379,12 +379,18 @@ const plus=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
 const days=(a,b)=>Math.round((parse(a)-parse(b))/86400000);
 const today=iso(new Date());
 const shifts=['Day shift','Day shift','Night shift','Night shift','Day off','Day off','Day off','Day off'];
-const base=[{id:'fullbody',name:'Full-body strength',target:3},{id:'zone2',name:'Zone 2 cardio',target:2},{id:'arms',name:'Arms & core',target:1},{id:'speed',name:'Sprint / interval conditioning',target:1},{id:'mobility',name:'Mobility / recovery',target:2}];
+const base=[{id:'fullbody',name:'Full-body strength',target:3},{id:'zone2',name:'Zone 2 cardio',target:2},{id:'arms',name:'Arms & core',target:1},{id:'speed',name:'Sprint / interval conditioning',target:1},{id:'mobility',name:'Mobility / recovery',target:2},{id:'fast36',name:'36-hour fast',target:1}];
 let state={};try{state=JSON.parse(localStorage.getItem(key))||{}}catch(e){}
 state.anchor ||= today;
 state.shiftConfirmed = true; // User confirmed the existing November 12, 2026 cycle start.
 state.measurements ||= [];
 state.activities ||= base.map(x=>({...x}));
+if(!state.fast36AddedV1){
+  if(!state.activities.some(a=>a.id==='fast36'||/^36[ -]?hour fast$/i.test(String(a.name||'').trim()))){
+    state.activities.push({id:'fast36',name:'36-hour fast',target:1});
+  }
+  state.fast36AddedV1=true;
+}
 state.completions ||= [];
 state.dailyCheckins ||= {};
 state.habitLabels ||= ['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];
