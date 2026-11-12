@@ -154,6 +154,13 @@ async function handleSignIn(signup){
   $("cloudPassword").value="";
  }catch(e){status("Sign-in failed",authError(e))}
 }
+$("togglePassword").onclick=()=>{
+ const input=$("cloudPassword"),show=input.type==="password";
+ input.type=show?"text":"password";
+ $("togglePassword").textContent=show?"Hide":"Show";
+ $("togglePassword").setAttribute("aria-label",show?"Hide password":"Show password");
+ $("togglePassword").setAttribute("aria-pressed",String(show));
+};
 $("cloudSignIn").onclick=()=>handleSignIn(false);
 $("cloudSignUp").onclick=()=>handleSignIn(true);
 $("cloudSignOut").onclick=async()=>{
