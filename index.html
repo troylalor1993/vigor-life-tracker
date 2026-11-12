@@ -262,6 +262,8 @@ state.rotationNotes ||= {};
 state.rewards ||= [{id:'r1',name:'Extra recovery / relaxation time',cost:100},{id:'r2',name:'Fun outing or experience',cost:250},{id:'r3',name:'Fitness gear savings goal',cost:500}];
 state.rewardRedemptions ||= [];
 state.milestoneRewards ||= {};
+const milestoneRewardSuggestions={'344':'AirPods','318':'New shoes','292':'Weekend getaway','266':'Apple MacBook Pro','240':'Vacation'};
+Object.entries(milestoneRewardSuggestions).forEach(([weight,name])=>{if(!(weight in state.milestoneRewards))state.milestoneRewards[weight]=name});
 state.milestoneClaims ||= {};
 // Existing per-day checkmarks remain in the saved legacy data, without altering or deleting them.
 let offset=0,edit=false,habitEdit=false,rewardEdit=false;
