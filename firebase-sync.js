@@ -4,7 +4,7 @@ import {
  createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
- getFirestore, doc, getDoc, setDoc, serverTimestamp
+ getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -22,7 +22,7 @@ const pendingKey = "vigor-cloud-pending";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-let user=null, linked=false, choiceNeeded=false, writing=false, uploadAgain=false, timer=null;
+let user=null, linked=false, choiceNeeded=false, writing=false, uploadAgain=false, timer=null,cloudBase=null;
 const linkedEvent=()=>window.dispatchEvent(new CustomEvent("vigor-cloud-linked",{detail:{uid:user?.uid}}));
 const unlinkedEvent=()=>window.dispatchEvent(new Event("vigor-cloud-unlinked"));
 const bridge=()=>window.vigorCloudBridge;
@@ -51,24 +51,87 @@ async function remoteData(){
  if(!snap.exists())return null;
  const payload=snap.data()?.payload;
  if(!valid(payload))throw new Error("Cloud record format is invalid.");
+ cloudBase=JSON.stringify(payload);
  return payload;
 }
+// Three-way merge protects independent edits saved on another signed-in device.
+// Activity logs are matched by record ID/date; daily checklists merge by habit position.
+const encoded=value=>JSON.stringify(value);
+const cloned=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
+function mergePersonal(before,local,remote){
+ if(encoded(local)===encoded(before))return cloned(remote);
+ if(encoded(remote)===encoded(before))return cloned(local);
+ if(local===undefined)return undefined;
+ if(Array.isArray(local)&&Array.isArray(remote)){
+  const key=arr=>arr.every(x=>x&&typeof x==="object"&&(typeof x.id==="string"||typeof x.date==="string"))
+   ?(arr.some(x=>x.id!==undefined)?"id":"date"):null;
+  const field=key(local)||key(remote)||key(Array.isArray(before)?before:[]);
+  if(field){
+   const old=new Map((Array.isArray(before)?before:[]).map(x=>[x[field],x]));
+   const changed=new Map(local.map(x=>[x[field],x]));
+   const merged=new Map(remote.map(x=>[x[field],cloned(x)]));
+   for(const [id,val] of old){
+    if(!changed.has(id)){merged.delete(id);continue}
+    if(encoded(changed.get(id))!==encoded(val))
+     merged.set(id,mergePersonal(val,changed.get(id),merged.get(id)));
+   }
+   for(const [id,val] of changed)if(!old.has(id))merged.set(id,cloned(val));
+   return [...merged.values()].filter(x=>x!==undefined);
+  }
+  return Array.from({length:Math.max(local.length,remote.length)},(_,i)=>
+   mergePersonal(Array.isArray(before)?before[i]:undefined,local[i],remote[i]))
+   .filter(x=>x!==undefined);
+ }
+ if(local&&remote&&typeof local==="object"&&typeof remote==="object"&&!Array.isArray(local)&&!Array.isArray(remote)){
+  const result={...cloned(remote)};
+  for(const k of new Set([...Object.keys(local),...Object.keys(before&&typeof before==="object"&&!Array.isArray(before)?before:{})])){
+   if(encoded(local[k])===encoded(before?.[k]))continue;
+   const next=mergePersonal(before?.[k],local[k],remote[k]);
+   if(next===undefined)delete result[k];else result[k]=next;
+  }
+  return result;
+ }
+ return cloned(local);
+}
+window.addEventListener("vigor-personal-cloud-received",e=>{
+ if(e.detail?.uid===user?.uid&&valid(e.detail.payload))cloudBase=JSON.stringify(e.detail.payload);
+});
 async function upload(){
  if(!user||!linked||choiceNeeded||writing)return;
  if(!navigator.onLine){markPending(true);status("Offline","Progress is on this device; cloud sync will retry when online.");return}
- writing=true;
+ writing=true;let succeeded=false;
+ const account=user, uid=user.uid;
  try{
   const payload=read();if(!valid(payload))throw new Error("Local tracker data is invalid.");
   const before=JSON.stringify(payload);
-  status("Syncing","Saving your changes to Firebase…");
-  await setDoc(cloudDoc(),{payload,format:1,updatedAt:serverTimestamp()});
-  if(before===JSON.stringify(read())&&!uploadAgain){
-   markPending(false);status("Saved to cloud","Your progress is saved to this device and Firebase.");
-  }else{markPending(true);uploadAgain=true}
- }catch(e){markPending(true);status("Retry needed","Cloud upload failed: "+(e.code||e.message)+". Your local progress remains available.")}
- finally{
+  const baseline=cloudBase?JSON.parse(cloudBase):null;
+  status("Syncing","Securely saving and reconciling changes…");
+  const result=await runTransaction(db,async transaction=>{
+   const ref=doc(db,"users",uid,"data","tracker");
+   const snap=await transaction.get(ref),remote=snap.exists()?snap.data()?.payload:null;
+   if(remote&&!valid(remote))throw Error("Cloud tracker data is invalid.");
+   const reference=baseline||remote||payload;
+   const merged=remote?mergePersonal(reference,payload,remote):payload;
+   transaction.set(ref,{payload:merged,format:1,updatedAt:serverTimestamp()});
+   return merged;
+  });
+  if(user!==account||!linked)return;
+  cloudBase=JSON.stringify(result);
+  const after=read();
+  const latest=before===JSON.stringify(after)?result:mergePersonal(payload,after,result);
+  if(JSON.stringify(after)!==JSON.stringify(latest))bridge().applyPersonal(latest);
+  if(JSON.stringify(latest)===JSON.stringify(result)){
+   markPending(false);status("Saved to cloud","Progress synchronized and saved securely.");
+  }else{
+   markPending(true);uploadAgain=true;
+   status("Syncing","Saving edits made while the last update was uploading…");
+  }
+  succeeded=true;
+ }catch(e){
+  markPending(true);status("Retry needed","Cloud saving failed: "+(e.code||e.message)+". Your local progress remains available.");
+ }finally{
   writing=false;
-  if(uploadAgain){uploadAgain=false;scheduleUpload()}
+  if(uploadAgain&&succeeded){uploadAgain=false;scheduleUpload()}
  }
 }
 function scheduleUpload(){
@@ -113,7 +176,7 @@ $("cloudActionUpload").onclick=firstUpload;
 $("cloudActionRestore").onclick=restoreCloud;
 async function updateSession(current){
  user=current;
- linked=false;choiceNeeded=false;clearTimeout(timer);unlinkedEvent();
+ cloudBase=null;linked=false;choiceNeeded=false;clearTimeout(timer);unlinkedEvent();
  $("cloudSignedOut").hidden=!!current;
  $("cloudSignedIn").hidden=!current;
  $("cloudIdentity").textContent=current?"Signed in as "+current.email:"";
