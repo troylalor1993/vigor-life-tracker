@@ -702,6 +702,7 @@ function coupleInit(){
    c.goalLogs.push({id:'legacy-'+key,date:key.slice(0,bar),goalId:key.slice(bar+1),legacyKey:key});
   });
   c.goalsMigratedV2=true;
+  save(); // Persist the one-time migration immediately so a refresh retains the upgraded goals.
  }
 }
 function renderCouples(){
@@ -727,7 +728,7 @@ function renderCouples(){
   const head=element('div',undefined,'row'),title=element('strong',g.name),score=element('span',n+'/'+target,'tag');head.append(title,score);
   const meter=element('div',undefined,'bar'),fill=element('div');fill.style.width=Math.min(100,100*n/target)+'%';meter.append(fill);
   const controls=element('div',undefined,'couple-goal-actions'),add=element('button','+ Done together','primary tiny'),detail=element('details',undefined,'couple-goal-detail');
-  add.type='button';add.onclick=()=>{c.goalLogs.push({id:'cglog-'+Date.now()+'-'+Math.random().toString(36).slice(2),goalId:g.id,date:today});if(save())renderCouples()};
+  add.type='button';add.onclick=()=>{const completionDate=inRange(today,s)?today:s;c.goalLogs.push({id:'cglog-'+Date.now()+'-'+Math.random().toString(36).slice(2),goalId:g.id,date:completionDate});if(save())renderCouples()};
   const summary=element('summary','Details');detail.append(summary);
   const inside=element('div',undefined,'couple-goal-detail-body'),input=element('input');input.type='number';input.min='1';input.max='30';input.value=target;input.setAttribute('aria-label','Target for '+g.name);
   const label=element('label','Target per rotation');label.append(input);
