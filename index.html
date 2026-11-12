@@ -28,9 +28,18 @@
 .completion-date{margin-top:8px;display:none}
 .completion-date.open{display:block}
 @media(max-width:550px){.summary-grid{grid-template-columns:repeat(3,1fr)}.trend-grid{grid-template-columns:1fr}.milestone-list{grid-template-columns:repeat(5,1fr)}.milestone-item{padding:9px 2px;font-size:10px}.milestone-item strong{font-size:12px}}
+
+/* Compact mobile-first navigation and visible feedback */
+.quick-links{display:flex;gap:8px;overflow-x:auto;margin:12px 0 18px;padding-bottom:5px}
+.quick-links a{color:#eddda9;background:#181715;border:1px solid #544324;padding:10px 13px;border-radius:12px;font-size:13px;text-decoration:none;white-space:nowrap;font-weight:700}
+.quick-links a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #f0d37e;outline-offset:2px}
+.status-line{color:#d6bf79;font-size:12px;min-height:18px;margin:4px 0}
+.card{scroll-margin-top:12px}
+@media(max-width:550px){main{padding:20px 12px 70px}.scripture-actions>*{flex:1;text-align:center}.quick-links a{padding:9px 11px}.cards .card{padding:12px 9px}.cards small{font-size:11px}.summary-grid .metric{font-size:19px}}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
-<section class="card scripture-card" aria-labelledby="verseTitle">
+<nav class="quick-links" aria-label="Jump to section"><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
+<section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
 <div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Devotional</h2></div><small id="verseDate"></small></div>
 <div id="verseRef" class="scripture-ref"></div><h3 class="scripture-title" id="devotionalTitle"></h3>
 <div class="devotional-block"><strong>Understanding the passage</strong><p id="verseMeaning"></p></div>
@@ -40,11 +49,11 @@
 <div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p></div>
-<div class="card"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
-<div class="card"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
+<div class="card" id="training"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
+<div class="card" id="summary"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
-<div class="card"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle"></p><p class="subtle">Record both your weight and waist once during each 8-day rotation. You can correct an entry later.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="367.2"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="55"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
-<div class="card"><h2>Shift calendar & backup</h2><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="row"><button id="export" class="secondary">Export backup</button><label class="secondary">Import backup<input id="import" type="file" accept=".json" hidden></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly.</p></div></main>
+<div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Record both your weight and waist once during each 8-day rotation. You can correct an entry later.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="367.2"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="55"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
+<div class="card"><h2>Shift calendar & backup</h2><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="row"><button id="export" class="secondary">Export backup</button><label class="secondary">Import backup<input id="import" type="file" accept=".json" hidden></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly. If you clear browser storage, progress may be lost.</p><p id="backupFeedback" class="status-line" aria-live="polite"></p></div></main>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
@@ -131,7 +140,7 @@ state.readDays ||= {};
 state.rotationNotes ||= {};
 // Existing per-day checkmarks remain in the saved legacy data, without altering or deleting them.
 let offset=0,edit=false;
-const save=()=>localStorage.setItem(key,JSON.stringify(state));
+const save=()=>{try{localStorage.setItem(key,JSON.stringify(state));return true}catch(err){alert('Unable to save to this browser. Export a backup and check whether private browsing or storage restrictions are enabled.');return false}};
 const start=()=>plus(state.anchor,Math.floor(days(today,state.anchor)/8)*8+offset*8);
 const inRange=(d,s)=>d>=s&&d<=plus(s,7);
 function metricChart(points,key,unit){
@@ -157,7 +166,7 @@ const entry=element('div',undefined,'entry');
 const completionDate=inRange(today,s)?today:s,button=element('button',inRange(today,s)?'✓ Complete today':'✓ Complete','primary checkbtn');
 const backdate=element('button','Change date','secondary tiny'),picker=element('input'),dateWrap=element('div',undefined,'completion-date');
 picker.type='date';picker.min=s;picker.max=end;picker.value=completionDate;picker.setAttribute('aria-label','Completion date for '+a.name);
-backdate.onclick=()=>dateWrap.classList.toggle('open');
+backdate.onclick=()=>{dateWrap.classList.toggle('open');backdate.textContent=dateWrap.classList.contains('open')?'Hide date':'Change date'};
 button.onclick=()=>{if(!inRange(picker.value,s))return alert('Choose a day in this 8-day cycle');state.completions.push({id:'c'+Date.now()+Math.random().toString(36).slice(2),activityId:a.id,date:picker.value});save();render()};
 dateWrap.append(picker);entry.append(button,backdate);wrap.append(entry,dateWrap);
 const records=state.completions.filter(c=>c.activityId===a.id&&inRange(c.date,s)).sort((a,b)=>a.date.localeCompare(b.date));
@@ -188,7 +197,7 @@ $('rotationSummary').replaceChildren();[['Targets',total+'/'+target],['Bonus ses
 const changes=[];if(nowMeasurement&&lastMeasurement){changes.push('Weight '+(Number(nowMeasurement.weight)-Number(lastMeasurement.weight)).toFixed(1)+' lb');changes.push('Waist '+(Number(nowMeasurement.waist)-Number(lastMeasurement.waist)).toFixed(1)+' in')}
 $('rotationComparison').textContent='Previous cycle ('+previous+' to '+prevEnd+'): '+previousTotal+'/'+target+' targets'+(changes.length?' · Change since then: '+changes.join(', '):' · Compare body measurements after two check-ins')+'.';
 $('summaryWindow').textContent=s+' to '+end;
-const note=$('rotationNote');note.value=state.rotationNotes[s]||'';note.onchange=()=>{state.rotationNotes[s]=note.value;save()};
+const note=$('rotationNote');note.value=state.rotationNotes[s]||'';note.oninput=()=>{state.rotationNotes[s]=note.value;save()};
 
 $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb';
 $('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
@@ -201,7 +210,7 @@ $('add').onclick=()=>{const name=$('newName').value.trim(),target=Math.max(1,Mat
 $('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this 8-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
 $('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;offset=0;save();render()};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 save();render();renderDailyVerse();
 })();
 </script></body>
