@@ -155,7 +155,7 @@ async function loadNltPassage(reference){
 const output=$('scriptureFull'),requestVersion=++passageRequestVersion,cacheKey='vigor-nlt-passage:'+reference;
 output.classList.add('loading');output.textContent='Loading the complete passage in NLT…';
 try{
-  const cached=sessionStorage.getItem(cacheKey);
+  const cached=sessionStorage.getItem(cacheKey+':clean-v2');
   if(cached){output.textContent=cached;output.classList.remove('loading');return}
   const url='https://api.nlt.to/api/passages?ref='+encodeURIComponent(reference)+'&key=TEST&version=NLT';
   const response=await fetch(url,{method:'GET',mode:'cors',credentials:'omit'});
@@ -163,12 +163,19 @@ try{
   const markup=await response.text();
   const doc=new DOMParser().parseFromString(markup,'text/html');
   doc.querySelectorAll('script,style,nav,header,footer').forEach(el=>el.remove());
-  const passage=doc.querySelector('.passage')||doc.querySelector('.passage-content')||doc.body;
-  const text=(passage?.textContent||'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+  // Tyndale returns verse_export elements with headers, footnote bodies and verse markers.
+  // Extract the actual verse bodies instead of concatenating the whole HTML document.
+  const verses=[...doc.querySelectorAll('verse_export')];
+  function cleanNode(node){
+    const clone=node.cloneNode(true);
+    clone.querySelectorAll('.bk_ch_vs_header,.vn,.tn,.a-tn,.tn-ref,.chapter-number,.cw,.cw_ch,.subhead,.footnote,.footnotes,.xref,.cross-ref,.f,.a-f').forEach(el=>el.remove());
+    return (clone.textContent||'').replace(/\s+/g,' ').trim();
+  }
+  const text=(verses.length?verses.map(cleanNode).filter(Boolean).join('\n\n'):cleanNode(doc.querySelector('#bibletext')||doc.body)).trim();
   if(!text||text.length<8)throw new Error('Empty passage');
   if(requestVersion!==passageRequestVersion)return;
   output.textContent=text;output.classList.remove('loading');
-  try{sessionStorage.setItem(cacheKey,text)}catch(e){}
+  try{sessionStorage.setItem(cacheKey+':clean-v2',text)}catch(e){}
 }catch(e){
  if(requestVersion!==passageRequestVersion)return;
  output.classList.remove('loading');
