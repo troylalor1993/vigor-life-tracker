@@ -23,6 +23,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 let user=null, linked=false, choiceNeeded=false, writing=false, uploadAgain=false, timer=null;
+const linkedEvent=()=>window.dispatchEvent(new CustomEvent("vigor-cloud-linked",{detail:{uid:user?.uid}}));
+const unlinkedEvent=()=>window.dispatchEvent(new Event("vigor-cloud-unlinked"));
 const bridge=()=>window.vigorCloudBridge;
 const read=()=>bridge()?.read();
 const valid=data=>data&&typeof data==="object"&&typeof data.anchor==="string"&&Array.isArray(data.activities)&&Array.isArray(data.measurements);
@@ -87,7 +89,7 @@ async function firstUpload(){
   if(!confirm("Upload the current progress from this device? Save a backup export first if this is important data."))return;
   status("Syncing","Creating your first private cloud backup…");
   await setDoc(cloudDoc(),{payload:local,format:1,updatedAt:serverTimestamp()});
-  linked=true;localStorage.setItem(linkedKey,user.uid);hideChoice();
+  linked=true;localStorage.setItem(linkedKey,user.uid);hideChoice();linkedEvent();
   const unchanged=JSON.stringify(local)===JSON.stringify(read());
   markPending(!unchanged);
   status(unchanged?"Saved to cloud":"Sync pending",unchanged?"Cloud backup created. Automatic saving is active.":"Backup created. Recent edits will sync next.");
@@ -102,7 +104,7 @@ async function restoreCloud(){
   status("Restoring","Loading your existing cloud record…");
   const remote=await remoteData();if(!remote)throw new Error("No existing cloud record found.");
   if(!confirm("Replace the progress on THIS device with the cloud copy? Please export local progress first if needed."))return;
-  linked=true;localStorage.setItem(linkedKey,user.uid);markPending(false);hideChoice();
+  linked=true;localStorage.setItem(linkedKey,user.uid);markPending(false);hideChoice();linkedEvent();
   bridge().restore(remote);
  }catch(e){status("Restore failed","Local progress remains unchanged. "+(e.code||e.message))}
  finally{writing=false}
@@ -111,7 +113,7 @@ $("cloudActionUpload").onclick=firstUpload;
 $("cloudActionRestore").onclick=restoreCloud;
 async function updateSession(current){
  user=current;
- linked=false;choiceNeeded=false;clearTimeout(timer);
+ linked=false;choiceNeeded=false;clearTimeout(timer);unlinkedEvent();
  $("cloudSignedOut").hidden=!!current;
  $("cloudSignedIn").hidden=!current;
  $("cloudIdentity").textContent=current?"Signed in as "+current.email:"";
@@ -132,8 +134,8 @@ async function updateSession(current){
     // Differences must not overwrite potentially important progress automatically.
     showChoice("Different records found","Your saved cloud data and this device have different content. Choose which copy to keep.",true);
     status("Choose a copy","Review this decision carefully; export the local backup if uncertain.");
-   }else{linked=true;status("Saved to cloud","Your device and cloud data match. Automatic sync is active.")}
-  }else{linked=true;scheduleUpload()}
+   }else{linked=true;linkedEvent();status("Saved to cloud","Your device and cloud data match. Automatic sync is active.")}
+  }else{linked=true;linkedEvent();scheduleUpload()}
  }catch(e){status("Connection issue","Firestore access failed: "+(e.code||e.message)+". Check authentication and security rules.")}
 }
 const authError=e=>({
@@ -167,7 +169,7 @@ $("cloudSignOut").onclick=async()=>{
  try{
   if(pending()&&linked&&navigator.onLine)await upload();
   if(pending()&&!confirm("This device has changes not confirmed in the cloud. Sign out anyway?"))return;
-  clearTimeout(timer);linked=false;await signOut(auth);
+  clearTimeout(timer);linked=false;unlinkedEvent();await signOut(auth);
   // Local data remains intact for recovery; users sharing this device should use different browser profiles.
   localStorage.removeItem(linkedKey);
  }catch(e){status("Sign-out failed",e.message)}
