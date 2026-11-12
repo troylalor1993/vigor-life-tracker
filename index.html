@@ -115,9 +115,9 @@
  content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
  border:solid #101010;border-width:0 2px 2px 0;transform:rotate(45deg)
 }
-</style></head><body><main>
+#daily .daily-date-control #dailyDate{text-align:center!important;text-align-last:center!important;padding:0 38px!important}#daily #dailyDate::-webkit-date-and-time-value{text-align:center!important;width:100%!important}#daily #dailyDate::-webkit-datetime-edit{display:block!important;text-align:center!important;width:100%!important}#daily .daily-date-control{position:relative}#daily #dailyDate::-webkit-calendar-picker-indicator{position:absolute;right:10px;top:50%;transform:translateY(-50%)}.reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.reward-tile{background:#1b1b1b;border:1px solid #5b4826;padding:15px;border-radius:12px}.reward-tile h3{margin:0 0 9px;font-size:15px}.reward-tile .secondary{width:100%}.reward-balance{color:#d4af37;font-weight:800;font-size:31px}.reward-edit-row{display:grid;grid-template-columns:minmax(0,1fr) 76px auto;gap:8px;margin:8px 0}.reward-edit-row input{min-width:0}@media(max-width:650px){.reward-grid{grid-template-columns:1fr}}</style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
-<nav class="quick-links" aria-label="Jump to section"><a href="#daily">Daily habits</a><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
+<nav class="quick-links" aria-label="Jump to section"><a href="#daily">Daily habits</a><a href="#rewards">Rewards</a><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
 <section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
 <div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Devotional</h2></div><small id="verseDate"></small></div>
 <div id="verseRef" class="scripture-ref"></div><h3 class="scripture-title" id="devotionalTitle"></h3>
@@ -127,7 +127,7 @@
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
 <p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
 <div class="card" id="daily"><div class="row"><h2>Daily habits & recovery</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Unrecorded days are not scored as failures.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div id="habitGrid" class="habit-grid" style="margin-top:14px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><h3>Recovery check-in</h3><div class="recovery-grid"><label>Sleep (hours)<input id="sleepInput" type="number" min="0" max="24" step=".5" placeholder="e.g. 7"></label><label>Energy<select id="energyInput"><option value="">Not rated</option><option value="low">Low</option><option value="moderate">Moderate</option><option value="high">High</option></select></label><label>Recovery<select id="recoveryInput"><option value="">Not rated</option><option value="poor">Poor</option><option value="okay">Okay</option><option value="good">Good</option></select></label></div><div class="row" style="margin-top:16px"><button id="saveDaily" class="primary">Save check-in</button><span id="dailySaveStatus" class="subtle" aria-live="polite"></span></div></div>
-<div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
+<div class="card" id="rewards"><div class="row"><h2>Earned rewards</h2><button id="editRewards" class="secondary tiny">Edit rewards</button></div><div class="row"><div><div id="rewardBalance" class="reward-balance">0 pts</div><small>Available points</small></div><div><b id="rewardEarned" class="accent">0 earned</b><div id="rewardSpent" class="subtle">0 redeemed</div></div></div><p class="subtle">Earn 5 points per daily habit and 15 per completed workout. Points change if you undo an activity. Missed days have no penalties. Rest counts as a habit, too.</p><div id="rewardGrid" class="reward-grid"></div><div id="rewardEditor" class="hidden"><h3>Customize rewards</h3><div id="rewardEditList"></div><div class="reward-edit-row"><input id="newRewardName" maxlength="75" placeholder="Add reward" aria-label="New reward"><input id="newRewardCost" type="number" min="1" value="100" aria-label="Point cost"><button id="addReward" class="secondary tiny">Add</button></div></div><p id="rewardWarning" class="subtle" aria-live="polite"></p></div><div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
@@ -258,8 +258,36 @@ state.dailyCheckins ||= {};
 state.habitLabels ||= ['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];
 state.readDays ||= {};
 state.rotationNotes ||= {};
+state.rewards ||= [{id:'r1',name:'Extra recovery / relaxation time',cost:100},{id:'r2',name:'Fun outing or experience',cost:250},{id:'r3',name:'Fitness gear savings goal',cost:500}];
+state.rewardRedemptions ||= [];
 // Existing per-day checkmarks remain in the saved legacy data, without altering or deleting them.
-let offset=0,edit=false,habitEdit=false;
+let offset=0,edit=false,habitEdit=false,rewardEdit=false;
+function rewardStats(){
+ const habits=Object.entries(state.dailyCheckins||{}).filter(([date])=>date<=today).reduce((sum,[date,c])=>sum+(Array.isArray(c?.habits)?c.habits.filter(Boolean).length:0),0);
+ const workouts=state.completions.filter(c=>c.date<=today).length;
+ const earned=habits*5+workouts*15,spent=state.rewardRedemptions.reduce((sum,r)=>sum+Number(r.cost||0),0);
+ return {earned,spent,balance:earned-spent};
+}
+function renderRewards(){
+ const score=rewardStats();$('rewardBalance').textContent=score.balance+' pts';$('rewardEarned').textContent=score.earned+' earned';$('rewardSpent').textContent=score.spent+' redeemed';
+ $('rewardWarning').textContent=score.balance<0?'Your balance is temporarily negative because an earlier activity was undone.':'';
+ $('rewardGrid').replaceChildren();
+ state.rewards.forEach(reward=>{
+  const item=element('div',undefined,'reward-tile'),title=element('h3',reward.name),cost=element('p',reward.cost+' points'),button=element('button',score.balance>=reward.cost?'Redeem':'Need '+(reward.cost-score.balance)+' more','secondary tiny');
+  button.disabled=score.balance<reward.cost;button.style.opacity=button.disabled?'.5':'1';
+  button.onclick=()=>{if(rewardStats().balance<reward.cost)return;if(!confirm('Redeem '+reward.cost+' points for '+reward.name+'?'))return;state.rewardRedemptions.push({id:'redeem-'+Date.now(),rewardId:reward.id,name:reward.name,cost:reward.cost,date:today});save();renderRewards()};
+  item.append(title,cost,button);$('rewardGrid').append(item);
+ });
+ $('rewardEditor').classList.toggle('hidden',!rewardEdit);$('editRewards').textContent=rewardEdit?'Close editor':'Edit rewards';$('rewardEditList').replaceChildren();
+ if(rewardEdit)state.rewards.forEach(reward=>{
+  const row=element('div',undefined,'reward-edit-row'),name=element('input'),cost=element('input'),del=element('button','Remove','secondary tiny');
+  name.value=reward.name;name.maxLength=75;cost.value=reward.cost;cost.type='number';cost.min=1;cost.max=100000;
+  name.onchange=()=>{reward.name=name.value.trim()||reward.name;save();renderRewards()};cost.onchange=()=>{reward.cost=Math.max(1,Math.min(100000,Math.floor(Number(cost.value)||1)));save();renderRewards()};
+  del.onclick=()=>{if(confirm('Remove this reward?')){state.rewards=state.rewards.filter(x=>x.id!==reward.id);save();renderRewards()}};
+  row.append(name,cost,del);$('rewardEditList').append(row);
+ });
+}
+
 const todayCheck=()=>$('dailyDate').value||today;
 function cleanCheck(v){v=v||{};return {habits:Array.from({length:4},(_,i)=>!!v.habits?.[i]),sleep:v.sleep??'',energy:v.energy??'',recovery:v.recovery??'',saved:!!v.saved}}
 function renderDaily(){
@@ -341,7 +369,10 @@ $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb
 $('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
 $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('tr');[m.date,m.weight??'—',m.waist??'—'].forEach(v=>tr.append(element('td',String(v))));const cell=element('td'),remove=element('button','Delete','secondary tiny');remove.onclick=()=>{if(confirm('Delete this measurement?')){state.measurements=state.measurements.filter(x=>x.date!==m.date);save();render()}};cell.append(remove);tr.append(cell);$('history').append(tr)});
 $('anchor').value=state.anchor;
+renderRewards();
 }
+$('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
+$('addReward').onclick=()=>{const name=$('newRewardName').value.trim(),cost=Math.floor(Number($('newRewardCost').value));if(!name||!Number.isFinite(cost)||cost<1||cost>100000)return alert('Enter a reward name and valid cost');state.rewards.push({id:'reward-'+Date.now(),name,cost});save();renderRewards()};
 $('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=renderDaily;
 $('editHabits').onclick=()=>{habitEdit=!habitEdit;renderDaily()};
 $('saveDaily').onclick=()=>{const date=todayCheck(),item=cleanCheck(state.dailyCheckins[date]),sleep=$('sleepInput').value;if(date>today)return alert('Choose today or an earlier date');if(sleep!==''&&(!Number.isFinite(Number(sleep))||Number(sleep)<0||Number(sleep)>24))return alert('Enter valid sleep hours from 0 to 24');item.sleep=sleep;item.energy=$('energyInput').value;item.recovery=$('recoveryInput').value;item.saved=true;state.dailyCheckins[date]=item;save();renderDaily();render()};
@@ -351,7 +382,7 @@ $('add').onclick=()=>{const name=$('newName').value.trim(),target=Math.max(1,Mat
 $('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this 8-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
 $('anchor').onchange=()=>{if(!$('anchor').value)return;state.anchor=$('anchor').value;state.shiftConfirmed=true;offset=0;save();render()};
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace your saved tracker data with this backup?')){state=v;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards||=[{id:'r1',name:'Extra recovery / relaxation time',cost:100},{id:'r2',name:'Fun outing or experience',cost:250},{id:'r3',name:'Fitness gear savings goal',cost:500}];state.rewardRedemptions||=[];state.dailyCheckins||={};state.habitLabels||=['Followed nutrition plan','Met protein goal','Reached step target','Prioritized sleep/recovery'];if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 save();render();renderDaily();renderDailyVerse();
 })();
 </script></body>
