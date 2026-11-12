@@ -65,7 +65,7 @@ function mergeObject(before={},local={},remote={}){
   if(json(mine)===json(earlier))continue;
   if(mine===undefined){delete result[key];continue}
   const theirs=remote?.[key];
-  if(key==="messages"&&Array.isArray(mine)){
+  if(Array.isArray(mine)&&mine.every(x=>x&&typeof x==="object"&&typeof x.id==="string")){
    result[key]=mergeList(Array.isArray(earlier)?earlier:[],mine,Array.isArray(theirs)?theirs:[]);
   }else if(mine&&typeof mine==="object"&&!Array.isArray(mine)&&theirs&&typeof theirs==="object"&&!Array.isArray(theirs)){
    result[key]=mergeObject(earlier&&typeof earlier==="object"?earlier:{},mine,theirs);
