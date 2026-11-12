@@ -1244,11 +1244,12 @@ $('editActivityGoals').onclick=()=>{$('activityGoalDetails').open=!$('activityGo
 $('editZoneGoal').onclick=()=>{$('zoneGoalDetails').open=!$('zoneGoalDetails').open;if($('zoneGoalDetails').open)$('zoneGoalInput').focus()};
 function saveActivityGoals(){
  const steps=Number($('activityStepsGoal').value),calories=Number($('activityCaloriesGoal').value);
- if(!Number.isInteger(steps)||steps<1||steps>150000||!Number.isInteger(calories)||calories<1||calories>10000)return alert('Enter positive whole-number goals');
+ if(!Number.isInteger(steps)||steps<1||steps>150000||!Number.isInteger(calories)||calories<1||calories>10000){alert('Enter positive whole-number goals');return false}
  state.activityGoals={steps,calories};
- if(save()){updateActivityMeters();$('activityStatus').textContent='✓ Goals saved on this device'}
+ if(save()){updateActivityMeters();$('activityStatus').textContent='✓ Targets saved and queued for cloud sync';return true}
+ return false;
 }
-$('saveActivityGoals').onclick=()=>{saveActivityGoals();$('activityGoalDetails').open=false};
+$('saveActivityGoals').onclick=()=>{if(saveActivityGoals())$('activityGoalDetails').open=false};
 $('editHabits').onclick=()=>{habitEdit=!habitEdit;renderDaily()};
 
 $('prev').onclick=()=>{offset--;render()};$('next').onclick=()=>{offset++;render()};$('current').onclick=()=>{offset=0;render()};
