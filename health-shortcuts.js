@@ -71,21 +71,33 @@ function parsePastedLink(input){
  if(!data)throw Error("The link is missing its Health measurements.");
  return data;
 }
-$("healthPasteImport").onclick=()=>{
+function importText(input){
  let sample;
- try{sample=parsePastedLink($("healthPasteLink").value)}
+ try{sample=parsePastedLink(input)}
  catch(e){feedback("Could not read link: "+e.message);return}
  if(!current||localStorage.getItem(linked)!==current.uid){
-  feedback("First sign into your personal Firebase account under Settings and complete cloud backup on this device. No health data was changed.");
+  feedback("Sign in and connect Firebase under Settings first. Your health data was not changed.");
   return;
  }
  const who=current.email||"this account";
- if(!confirm("Import "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal on "+sample.date+" into "+who+"? This replaces that day's recorded step and calorie totals."))return;
+ if(!confirm("Import "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal for "+sample.date+" into "+who+"? Existing totals for that date will be replaced."))return;
  try{
   window.vigorCloudBridge.importHealth(sample);
   $("healthPasteLink").value="";
-  feedback("✓ Imported "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal for "+sample.date+". Automatic Firebase saving is enabled.");
+  feedback("✓ Imported "+sample.steps.toLocaleString()+" steps and "+sample.calories+" active kcal for "+sample.date+". Check Settings for the Firebase cloud status.");
  }catch(e){feedback("Import failed: "+e.message)}
+}
+$("healthPasteImport").onclick=()=>importText($("healthPasteLink").value);
+$("healthClipboardImport").onclick=async()=>{
+ if(!navigator.clipboard?.readText){
+  feedback("Clipboard access isn't supported here. Use Paste link manually below.");
+  return;
+ }
+ let value;
+ try{value=await navigator.clipboard.readText()}
+ catch(e){feedback("Clipboard access was blocked. Expand Paste link manually, then long-press and select Paste.");return}
+ if(!value.trim()){feedback("The clipboard is empty. Copy the finished Shortcut link in Quick Look first.");return}
+ importText(value);
 };
 window.addEventListener("hashchange",ingestUrl);
 window.addEventListener("vigor-cloud-linked",maybeImport);
