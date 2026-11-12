@@ -48,16 +48,39 @@
   .cards .metric{overflow-wrap:anywhere}
   .daystrip{gap:6px}
 }
+
+/* iPhone layout fixes: contained form controls and a compact backup section */
+#measurements .fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#measurements .field{display:block;min-width:0;max-width:100%}
+#measurements input[type=date],#measurements input[type=number],#shiftSettings input[type=date]{box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;overflow:hidden}
+#measurements input[type=date],#shiftSettings input[type=date]{text-align:left;font-size:16px}
+#measurements .field input{margin-top:9px}
+#shiftSettings .field{display:block;min-width:0}
+.backup-actions{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.backup-actions .secondary{display:inline-flex;align-items:center;justify-content:center;min-height:43px;cursor:pointer}
+#history{width:100%}
+#measurements{overflow:hidden}
+#scriptureFull{margin:12px 0 0;line-height:1.75;font-size:17px;color:#f4e8d0;white-space:pre-wrap;overflow-wrap:anywhere}
+#scriptureFull.loading{opacity:.65}
+#scriptureSource{font-size:11px;line-height:1.6}
+@media(max-width:700px){
+ #measurements .fields{grid-template-columns:minmax(0,1fr)}
+ #measurements .field input{width:100%;max-width:100%;min-width:0;font-size:16px;min-height:50px}
+ #shiftSettings input[type=date]{font-size:16px;min-height:50px}
+ #measurements #saveMeasure{width:100%;min-height:48px}
+ .backup-actions>*{flex:1;min-width:0}
+}
 </style></head><body><main>
 <div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent">8 days.</span></h1><p>Choose when you train. Check off your goals as life happens.</p>
 <nav class="quick-links" aria-label="Jump to section"><a href="#training">Workouts</a><a href="#measurements">Measurements</a><a href="#summary">Rotation summary</a><a href="#devotional">Daily devotional</a></nav>
 <section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
 <div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Devotional</h2></div><small id="verseDate"></small></div>
 <div id="verseRef" class="scripture-ref"></div><h3 class="scripture-title" id="devotionalTitle"></h3>
+<div class="devotional-block"><strong>Today's full NLT passage</strong><div id="scriptureFull" role="status" aria-live="polite">Loading today's NLT passage…</div></div>
 <div class="devotional-block"><strong>Understanding the passage</strong><p id="verseMeaning"></p></div>
 <div class="devotional-block"><strong>Today’s application</strong><p id="verseApplication"></p></div>
 <div class="scripture-actions"><a id="verseNLTLink" class="goldlink" href="https://www.biblegateway.com/versions/New-Living-Translation-NLT-Bible/" target="_blank" rel="noopener noreferrer">Read in NLT ↗</a><button id="markDevotional" class="secondary">✓ Mark as read</button></div>
-<p class="subtle" style="margin-bottom:0">Original devotional reflections, not Bible quotations. NLT text opens in Bible Gateway.</p></section>
+<p id="scriptureSource" class="subtle" style="margin-bottom:0">NLT text is retrieved from Tyndale’s official API when available. Scripture quotations taken from the Holy Bible, New Living Translation, copyright © 1996, 2004, 2015 by Tyndale House Ministries. Used by permission. All rights reserved. Original reflections are not Bible quotations.</p></section>
 <div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small>Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small>Goal: 38 in</small></div></div>
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small>Starting 370 lb · Goal 240 lb</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p></div>
@@ -65,8 +88,8 @@
 <div class="card" id="training"><div class="row"><h2>Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle">Your shift cycle is shown for reference. Complete any workout on any day of this 8-day cycle.</p><div id="tasks"></div></div>
 <div class="card" id="summary"><div class="row"><h2>8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename activities, choose how many times to complete each one, add new tasks, or remove ones you no longer need. Changes save automatically.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New activity<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="primary">Add</button></div></div></div>
-<div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p class="subtle">Enter your own measurements. Both fields start blank until you save a check-in.</p><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Record both your weight and waist once during each 8-day rotation. You can correct an entry later.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
-<div class="card" id="shiftSettings"><h2>Shift calendar & backup</h2><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="row"><button id="export" class="secondary">Export backup</button><label class="secondary">Import backup<input id="import" type="file" accept=".json" hidden></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly. If you clear browser storage, progress may be lost.</p><p id="backupFeedback" class="status-line" aria-live="polite"></p></div></main>
+<div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Log weight and waist once each rotation. Save again to correct your entry.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
+<div class="card" id="shiftSettings"><h2>Shift calendar & backup</h2><label class="field">Date of Day 1 (your first day shift)<input id="anchor" type="date"></label><p>Your pattern repeats: 2 day shifts, 2 night shifts, and 4 days off. Moving your cycle start won't erase previous activity dates.</p><div class="backup-actions"><button id="export" class="secondary">Export backup</button><label class="secondary" for="import">Import backup<input id="import" type="file" accept=".json" style="display:none"></label></div><p class="subtle">Progress is saved in this browser, not synced to the cloud yet. Export a backup regularly. If you clear browser storage, progress may be lost.</p><p id="backupFeedback" class="status-line" aria-live="polite"></p></div></main>
 <script>
 (function(){
 const $=id=>document.getElementById(id);
@@ -126,6 +149,33 @@ const devotionalLibrary=[
 ["Hebrews 10:24-25","Spur one another on","Hebrews urges believers to encourage each other toward love and good works.","Find a constructive way to encourage others today."],
 ["Psalm 103:2","Remember God's benefits","The psalmist calls himself to remember the Lord's goodness.","Write down something you're thankful for beyond the scale."]
 ];
+
+let passageRequestVersion=0;
+async function loadNltPassage(reference){
+const output=$('scriptureFull'),requestVersion=++passageRequestVersion,cacheKey='vigor-nlt-passage:'+reference;
+output.classList.add('loading');output.textContent='Loading the complete passage in NLT…';
+try{
+  const cached=sessionStorage.getItem(cacheKey);
+  if(cached){output.textContent=cached;output.classList.remove('loading');return}
+  const url='https://api.nlt.to/api/passages?ref='+encodeURIComponent(reference)+'&key=TEST&version=NLT';
+  const response=await fetch(url,{method:'GET',mode:'cors',credentials:'omit'});
+  if(!response.ok)throw new Error('NLT service error');
+  const markup=await response.text();
+  const doc=new DOMParser().parseFromString(markup,'text/html');
+  doc.querySelectorAll('script,style,nav,header,footer').forEach(el=>el.remove());
+  const passage=doc.querySelector('.passage')||doc.querySelector('.passage-content')||doc.body;
+  const text=(passage?.textContent||'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+  if(!text||text.length<8)throw new Error('Empty passage');
+  if(requestVersion!==passageRequestVersion)return;
+  output.textContent=text;output.classList.remove('loading');
+  try{sessionStorage.setItem(cacheKey,text)}catch(e){}
+}catch(e){
+ if(requestVersion!==passageRequestVersion)return;
+ output.classList.remove('loading');
+ output.textContent='The complete NLT passage could not load in this browser. Tap “Read in NLT” to see the full passage on Bible Gateway.';
+}
+}
+
 function renderDailyVerse(){
 const now=new Date(),date=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
 const day=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86400000),verse=devotionalLibrary[((day%devotionalLibrary.length)+devotionalLibrary.length)%devotionalLibrary.length];
@@ -134,6 +184,7 @@ $('verseRef').textContent=verse[0]+' · NLT reading';
 $('devotionalTitle').textContent=verse[1];
 $('verseMeaning').textContent=verse[2];$('verseApplication').textContent=verse[3];
 $('verseNLTLink').href='https://www.biblegateway.com/passage/?search='+encodeURIComponent(verse[0])+'&version=NLT';
+loadNltPassage(verse[0]);
 const seen=!!state.readDays[date];$('markDevotional').textContent=seen?'✓ Read today · Undo':'✓ Mark as read';
 $('markDevotional').onclick=()=>{state.readDays[date]=!state.readDays[date];save();renderDailyVerse()};
 }
