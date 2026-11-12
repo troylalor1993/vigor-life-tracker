@@ -339,6 +339,39 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
  #training .task-compact-date-row input[type=date]{flex-basis:100%}
 }
 @media(max-width:320px){#training .task-grid{grid-template-columns:1fr}}
+
+.couple-hero{display:flex;justify-content:space-between;align-items:start;gap:10px;margin:8px 0 12px}.couple-hero h2{margin:0 0 4px}.couple-hero .tag{white-space:nowrap}
+.couple-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:13px 0}
+.couple-summary-grid>div{padding:12px 8px;background:var(--panel-alt);border:1px solid var(--border);border-radius:12px;min-width:0}
+.couple-summary-grid strong{display:block;color:var(--accent);font-size:23px;font-weight:800}
+.couple-summary-grid small{font-size:11px;line-height:1.4}
+.couple-sync-note{font-size:12px;color:var(--muted);line-height:1.5}
+.couple-verse{padding:13px;background:var(--panel-alt);border:1px solid var(--border);border-radius:12px;margin:14px 0}
+.couple-verse strong{display:block;margin:8px 0;color:var(--accent-soft)}
+.couple-verse p{font-size:13px;line-height:1.5;margin:5px 0 8px}.couple-verse a{color:var(--accent);font-size:13px}
+.couple-goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.couple-goal-card{padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel-alt);min-width:0}
+.couple-goal-card strong{font-size:13px;line-height:1.3;overflow-wrap:anywhere}.couple-goal-card .bar{margin:10px 0}
+.couple-goal-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.couple-goal-actions .primary{flex:1;font-size:12px;min-height:40px}
+.couple-goal-detail summary{font-size:12px;cursor:pointer;color:var(--accent)}
+.couple-goal-detail-body{padding:12px 0;display:grid;gap:8px;font-size:12px}
+.couple-goal-detail-body input{margin:5px 0}
+.couple-goal-log{display:flex;justify-content:space-between;align-items:center}
+.couple-editor{border:1px solid var(--border);border-radius:12px;margin:13px 0;padding:12px}
+.couple-editor>summary{cursor:pointer;color:var(--accent-soft);font-weight:700}
+.couple-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:13px}
+.couple-mini-card{padding:12px;border:1px solid var(--border);border-radius:12px;min-width:0}
+.couple-mini-card h3{font-size:15px;margin:0 0 10px}
+.couple-mini-card textarea{min-height:80px;margin:8px 0}
+.couple-mini-card select{font-size:14px}
+.couple-quick-messages{display:flex;gap:5px;flex-wrap:wrap}
+.couple-quick-messages button{font-size:11px}
+.couple-message{border-bottom:1px solid var(--border);padding:8px 0}.couple-message p{margin:0 0 4px}
+.couple-reward{border:1px solid var(--border-strong);border-radius:13px;padding:13px;background:var(--panel-alt);margin-top:13px}
+.couple-reward h3{margin:0;font-size:17px}.couple-reward .field{display:block;margin:10px 0}
+.couple-reward .field input{margin-top:6px}.couple-reward .primary{min-height:42px}
+@media(max-width:570px){.couple-mini-grid{grid-template-columns:1fr}.couple-summary-grid strong{font-size:20px}.couple-goal-grid{gap:7px}.couple-goal-card{padding:10px}.couple-goal-card strong{font-size:12px}.couple-hero{flex-wrap:wrap}}
 </style></head><body><main>
 <div class="app-header"><div class="brand">THE VIGOR LIFE</div><h1>Own your <span class="accent" id="scheduleHeadline">8 days.</span></h1><p>Faith · Fitness · Consistency</p>
 <div class="manual-save"><button id="saveProgress" class="primary" type="button">Save progress</button><span id="saveProgressStatus" class="subtle" aria-live="polite">Automatically saved on this device</span></div></div>
@@ -428,7 +461,7 @@ relocate('rewards',document.querySelector('#rewards'));
 relocate('faith',document.querySelector('#devotional'));
 const couplesCard=document.createElement('section');
 couplesCard.id='couplesCard';couplesCard.className='card couples-card';
-couplesCard.innerHTML='<div class="dashboard-label">GROW TOGETHER</div><h2>Couples Accountability</h2><p class="couples-meta">A shared intention for you and Taleeba, without comparing weight or revealing private measurements.</p><p class="couples-meta"><strong>Local-only for now:</strong> These goals are saved on this iPhone, not visible on Taleeba’s device. Two-way syncing requires the separate accounts and Firebase setup.</p><div class="row"><strong id="coupleGoalsHeading">Our 8-day goals</strong><small id="coupleWindow"></small></div><div id="coupleGoals"></div><div class="couples-fields"><input id="newCoupleGoal" type="text" maxlength="75" placeholder="Add a goal you can do together" aria-label="New couples goal"><button id="addCoupleGoal" class="primary">Add goal</button></div><p id="coupleScore" class="couples-status" aria-live="polite"></p><label class="field">Encouragement or prayer intention<textarea id="coupleNote" class="couples-note" placeholder="Something to encourage each other with this rotation..."></textarea></label><p id="coupleSaveStatus" class="couples-status" aria-live="polite"></p>';
+couplesCard.innerHTML="<div class=\"dashboard-label\">GROW TOGETHER</div>\n<div class=\"couple-hero\"><div><h2>Our Rotation Together</h2><p class=\"couples-meta\">Faith, health and marriage — one meaningful rotation at a time.</p></div><span class=\"tag\" id=\"coupleWindow\"></span></div>\n<div class=\"couple-summary-grid\"><div><strong id=\"coupleGoalsMet\">0/5</strong><small>Goals achieved</small></div><div><strong id=\"coupleSessions\">0</strong><small>Moments together</small></div><div><strong id=\"coupleStreak\">0</strong><small>Rotation streak</small></div></div>\n<p class=\"couple-sync-note\">Private local preview: This page saves only on this device. Taleeba cannot see it until Firebase accounts and shared syncing are connected.</p>\n<div class=\"couple-verse\"><div class=\"dashboard-label\">SCRIPTURE TO REFLECT ON</div><strong>Ecclesiastes 4:9–10</strong><p>Growing together means supporting one another through hard seasons and celebrating progress together.</p><a href=\"https://www.biblegateway.com/passage/?search=Ecclesiastes%204%3A9-10&version=NLT\" target=\"_blank\" rel=\"noopener noreferrer\">Read in NLT ↗</a></div>\n<div class=\"row\"><h3 style=\"margin:12px 0\">Our Shared Commitments</h3><small id=\"coupleScore\"></small></div>\n<div id=\"coupleGoals\" class=\"couple-goal-grid\"></div>\n<details class=\"couple-editor\"><summary>Edit shared goals</summary><div class=\"couples-fields\"><input id=\"newCoupleGoal\" type=\"text\" maxlength=\"75\" placeholder=\"New shared goal\"><button type=\"button\" id=\"addCoupleGoal\" class=\"primary\">Add goal</button></div><p class=\"subtle\">Choose a target for each goal. You can complete a goal more than once per rotation.</p></details>\n<div class=\"couple-mini-grid\"><section class=\"couple-mini-card\"><h3>Prayer focus</h3><select id=\"couplePrayerCategory\" aria-label=\"Prayer focus category\"><option value=\"Family\">Family</option><option value=\"Marriage\">Marriage</option><option value=\"Health\">Health</option><option value=\"Peace\">Peace</option><option value=\"Finances\">Finances</option><option value=\"Parenting\">Parenting</option><option value=\"Other\">Other</option></select><textarea id=\"couplePrayer\" rows=\"2\" placeholder=\"What are we praying for?\"></textarea></section>\n<section class=\"couple-mini-card\"><h3>Encourage Taleeba</h3><div class=\"couple-quick-messages\" id=\"coupleQuickMessages\"></div><textarea id=\"coupleEncouragement\" rows=\"2\" placeholder=\"Write a personal encouragement...\"></textarea><button id=\"sendCoupleEncouragement\" type=\"button\" class=\"secondary\">Save encouragement</button></section></div>\n<details class=\"couple-editor\"><summary>Encouragement history</summary><div id=\"coupleMessages\"></div></details>\n<div class=\"couple-reward\"><div class=\"row\"><h3>Our Shared Reward</h3><span class=\"tag\" id=\"coupleRewardStatus\">In progress</span></div><label class=\"field\">Reward to celebrate together<input id=\"coupleRewardName\" type=\"text\" maxlength=\"90\" placeholder=\"e.g. Coffee date\"></label><label class=\"field\">Goals to achieve<input id=\"coupleRewardThreshold\" type=\"number\" min=\"1\" max=\"20\" step=\"1\"></label><div class=\"bar\"><div id=\"coupleRewardBar\" style=\"width:0%\"></div></div><p id=\"coupleRewardProgress\" class=\"subtle\"></p><button id=\"coupleClaimReward\" type=\"button\" class=\"primary\">Claim reward</button></div>\n<details class=\"couple-editor\"><summary>Our 8-day reflection</summary><label class=\"field\">What went well?<textarea id=\"coupleWin\" rows=\"2\" placeholder=\"One thing we're thankful for...\"></textarea></label><label class=\"field\">What can we improve?<textarea id=\"coupleImprove\" rows=\"2\" placeholder=\"One thing to improve together...\"></textarea></label><label class=\"field\">What are we thanking God for?<textarea id=\"coupleGratitude\" rows=\"2\" placeholder=\"Something God has done...\"></textarea></label></details>\n<p id=\"coupleSaveStatus\" class=\"couples-status\" aria-live=\"polite\"></p>";
 panels.couples.append(couplesCard);
 relocate('settings',document.querySelector('#themeSettings'));
 relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
@@ -642,20 +675,88 @@ function renderMilestoneRewards(){
  });
 }
 
+function coupleInit(){
+ const c=state.couples;
+ c.goals ||= [];
+ c.completed ||= {};
+ c.notes ||= {};
+ c.goalLogs ||= [];
+ c.prayer ||= {};
+ c.messages ||= {};
+ c.reward ||= {};
+ c.reflections ||= {};
+ // Migrate previous single checkboxes once while preserving past rotation records.
+ if(!c.goalsMigratedV2){
+  const defaults={'cg-pray':2,'cg-walk':2,'cg-check':4};
+  c.goals.forEach(g=>{g.target ||= defaults[g.id]||1});
+  const extra=[{id:'cg-scripture',name:'Read Scripture together',target:2},{id:'cg-time',name:'Intentional time together',target:1}];
+  extra.forEach(g=>{if(!c.goals.some(x=>x.id===g.id||x.name.toLowerCase()===g.name.toLowerCase()))c.goals.push(g)});
+  Object.entries(c.completed).forEach(([key,done])=>{
+   if(!done||c.goalLogs.some(x=>x.legacyKey===key))return;
+   const bar=key.indexOf('|');
+   if(bar<0)return;
+   c.goalLogs.push({id:'legacy-'+key,date:key.slice(0,bar),goalId:key.slice(bar+1),legacyKey:key});
+  });
+  c.goalsMigratedV2=true;
+ }
+}
 function renderCouples(){
- const shared=state.couples,startDate=start(),endDate=endFor(startDate),key=startDate;
- $('coupleWindow').textContent=startDate+'–'+endDate;
+ coupleInit();
+ const c=state.couples,s=start(),end=endFor(s),countGoal=g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=end).length;
+ const goalsMet=c.goals.filter(g=>countGoal(g)>=Math.max(1,Number(g.target)||1)).length;
+ const countTotal=c.goals.reduce((n,g)=>n+countGoal(g),0);
+ $('coupleWindow').textContent=s.slice(5)+' – '+end.slice(5);
+ $('coupleGoalsMet').textContent=goalsMet+'/'+c.goals.length;
+ $('coupleSessions').textContent=countTotal;
+ const rotationStarts=Array.from({length:24},(_,i)=>plus(s,-i*cycleDays()));
+ let streak=0;
+ for(const begin of rotationStarts){
+  const last=endFor(begin);
+  const met=c.goals.filter(g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=begin&&x.date<=last).length>=Math.max(1,Number(g.target)||1)).length;
+  if(met>=Math.min(c.goals.length,3)&&c.goals.length){streak++}else break;
+ }
+ $('coupleStreak').textContent=streak;
+ $('coupleScore').textContent=goalsMet+' of '+c.goals.length+' achieved';
  $('coupleGoals').replaceChildren();
- let count=0;
- shared.goals.forEach(goal=>{
-  const token=key+'|'+goal.id,checked=!!shared.completed[token];if(checked)count++;
-  const row=element('label',undefined,'couple-goal'),checkbox=element('input'),name=element('span',goal.name),remove=element('button','Remove','secondary tiny');
-  checkbox.type='checkbox';checkbox.checked=checked;checkbox.onchange=()=>{shared.completed[token]=checkbox.checked;if(save()){renderCouples();$('coupleSaveStatus').textContent='✓ Saved on this device'}};
-  remove.type='button';remove.onclick=e=>{e.preventDefault();if(!confirm('Remove this couples goal?'))return;shared.goals=shared.goals.filter(g=>g.id!==goal.id);if(save()){renderCouples();$('coupleSaveStatus').textContent='✓ Goal removed'}};
-  row.append(checkbox,name,remove);$('coupleGoals').append(row);
+ c.goals.forEach(g=>{
+  const n=countGoal(g),target=Math.max(1,Number(g.target)||1),tile=element('div',undefined,'couple-goal-card');
+  const head=element('div',undefined,'row'),title=element('strong',g.name),score=element('span',n+'/'+target,'tag');head.append(title,score);
+  const meter=element('div',undefined,'bar'),fill=element('div');fill.style.width=Math.min(100,100*n/target)+'%';meter.append(fill);
+  const controls=element('div',undefined,'couple-goal-actions'),add=element('button','+ Done together','primary tiny'),detail=element('details',undefined,'couple-goal-detail');
+  add.type='button';add.onclick=()=>{c.goalLogs.push({id:'cglog-'+Date.now()+'-'+Math.random().toString(36).slice(2),goalId:g.id,date:today});if(save())renderCouples()};
+  const summary=element('summary','Details');detail.append(summary);
+  const inside=element('div',undefined,'couple-goal-detail-body'),input=element('input');input.type='number';input.min='1';input.max='30';input.value=target;input.setAttribute('aria-label','Target for '+g.name);
+  const label=element('label','Target per rotation');label.append(input);
+  input.onchange=()=>{g.target=Math.max(1,Math.min(30,Math.floor(Number(input.value)||1)));if(save())renderCouples()};
+  inside.append(label);
+  c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=end).forEach(log=>{
+   const row=element('div',undefined,'couple-goal-log'),txt=element('small',log.date),undo=element('button','Undo','secondary tiny');
+   undo.onclick=()=>{c.goalLogs=c.goalLogs.filter(x=>x.id!==log.id);if(save())renderCouples()};row.append(txt,undo);inside.append(row);
+  });
+  const remove=element('button','Remove goal','secondary tiny');remove.onclick=()=>{if(!confirm('Remove this shared goal?'))return;c.goals=c.goals.filter(x=>x.id!==g.id);if(save())renderCouples()};inside.append(remove);detail.append(inside);
+  controls.append(add,detail);tile.append(head,meter,controls);$('coupleGoals').append(tile);
  });
- $('coupleScore').textContent=count+' of '+shared.goals.length+' shared intentions completed this rotation';
- $('coupleNote').value=shared.notes[key]||'';
+ const prayer=c.prayer[s]||{category:'Family',text:''};
+ $('couplePrayerCategory').value=prayer.category||'Family';$('couplePrayer').value=prayer.text||'';
+ const messages=c.messages[s]||[];$('coupleMessages').replaceChildren();
+ if(!messages.length)$('coupleMessages').append(element('p','No encouragements saved this rotation yet.','subtle'));
+ else messages.forEach(m=>{const row=element('div',undefined,'couple-message'),txt=element('p',m.text),meta=element('small','Saved '+m.date);row.append(txt,meta);$('coupleMessages').append(row)});
+ $('coupleQuickMessages').replaceChildren();
+ ['Praying for you','Proud of you','Thank you'].forEach(msg=>{
+  const button=element('button',msg,'secondary tiny');button.type='button';button.onclick=()=>{$('coupleEncouragement').value=msg+'. ';$('coupleEncouragement').focus()};
+  $('coupleQuickMessages').append(button);
+ });
+ const reward=c.reward[s]||{name:'Coffee date',threshold:Math.min(4,c.goals.length),claimed:false};
+ $('coupleRewardName').value=reward.name||'';
+ $('coupleRewardThreshold').value=reward.threshold||1;
+ const needed=Math.max(1,Math.min(c.goals.length,Number(reward.threshold)||1)),ready=goalsMet>=needed;
+ $('coupleRewardBar').style.width=(100*Math.min(1,goalsMet/needed))+'%';
+ $('coupleRewardProgress').textContent=goalsMet+'/'+needed+' goals achieved toward your shared reward';
+ $('coupleRewardStatus').textContent=reward.claimed?'✓ Claimed':ready?'✓ Unlocked':'In progress';
+ $('coupleClaimReward').disabled=reward.claimed||!ready;
+ $('coupleClaimReward').textContent=reward.claimed?'✓ Claimed':ready?'Claim shared reward':'Keep going';
+ const reflection=c.reflections[s]||{};
+ ['Win','Improve','Gratitude'].forEach(k=>{$('couple'+k).value=reflection[k.toLowerCase()]||''});
 }
 
 function renderInsights(){
@@ -1036,11 +1137,42 @@ $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('
 $('anchor').value=state.anchor;
 renderRewards();renderCouples();renderInsights();
 }
-$('addCoupleGoal').onclick=()=>{const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a goal');
- if(state.couples.goals.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert('That goal already exists');
- state.couples.goals.push({id:'cg-'+Date.now(),name});if(save()){renderCouples();$('newCoupleGoal').value='';$('coupleSaveStatus').textContent='✓ Goal saved on this device'};
+$('addCoupleGoal').onclick=()=>{
+ const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a shared goal.');
+ const c=state.couples;if(c.goals.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert('That shared goal already exists.');
+ c.goals.push({id:'cg-'+Date.now(),name,target:1});if(save()){$('newCoupleGoal').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Shared goal saved on this device'}
 };
-$('coupleNote').oninput=()=>{state.couples.notes[start()]=$('coupleNote').value;if(save())$('coupleSaveStatus').textContent='✓ Note saved on this device'};
+function savePrayer(){
+ const s=start(),c=state.couples;c.prayer[s]={category:$('couplePrayerCategory').value,text:$('couplePrayer').value};
+ if(save())$('coupleSaveStatus').textContent='✓ Prayer focus saved on this device';
+}
+$('couplePrayerCategory').onchange=savePrayer;$('couplePrayer').oninput=savePrayer;
+$('sendCoupleEncouragement').onclick=()=>{
+ const text=$('coupleEncouragement').value.trim();if(!text)return alert('Write an encouragement first.');
+ const s=start(),c=state.couples;c.messages[s]||=[];
+ c.messages[s].push({id:'cmsg-'+Date.now(),date:today,text,author:'local'});
+ if(save()){$('coupleEncouragement').value='';renderCouples();$('coupleSaveStatus').textContent='✓ Encouragement saved on this device'}
+};
+function saveCoupleReward(){
+ const s=start(),c=state.couples,existing=c.reward[s]||{};
+ c.reward[s]={...existing,name:$('coupleRewardName').value.trim(),threshold:Math.max(1,Math.min(c.goals.length,Math.floor(Number($('coupleRewardThreshold').value)||1)))};
+ if(save()){$('coupleSaveStatus').textContent='✓ Reward saved on this device';renderCouples()}
+}
+$('coupleRewardName').onchange=saveCoupleReward;$('coupleRewardThreshold').onchange=saveCoupleReward;
+$('coupleClaimReward').onclick=()=>{
+ const s=start(),c=state.couples,reward=c.reward[s]||{name:'Coffee date',threshold:Math.min(4,c.goals.length)};
+ const met=c.goals.filter(g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=endFor(s)).length>=Math.max(1,Number(g.target)||1)).length;
+ if(met<Math.max(1,reward.threshold)||reward.claimed)return;
+ if(!confirm('Mark "'+(reward.name||'Shared reward')+'" as claimed?'))return;
+ c.reward[s]={...reward,claimed:true,claimedOn:today};if(save())renderCouples();
+};
+['Win','Improve','Gratitude'].forEach(k=>{
+ $('couple'+k).oninput=()=>{
+  const s=start(),c=state.couples;c.reflections[s]||={};
+  c.reflections[s][k.toLowerCase()]=$('couple'+k).value;
+  if(save())$('coupleSaveStatus').textContent='✓ Reflection saved on this device';
+ };
+});
 $('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
 $('addReward').onclick=()=>{const name=$('newRewardName').value.trim(),cost=Math.floor(Number($('newRewardCost').value));if(!name||!Number.isFinite(cost)||cost<1||cost>100000)return alert('Enter a reward name and valid cost');state.rewards.push({id:'reward-'+Date.now(),name,cost});save();renderRewards()};
 $('saveProgress').onclick=()=>{
