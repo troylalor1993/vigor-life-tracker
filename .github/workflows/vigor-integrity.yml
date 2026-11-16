@@ -1,0 +1,35 @@
+name: Vigor Life integrity checks
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, release/whole-life-habit-coach-2026]
+permissions:
+  contents: read
+jobs:
+  logic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript syntax
+        run: |
+          node --check adaptive-coach.js
+          node --check growth-dashboard.js
+          node --check premium-navigation.js
+          node --check firebase-sync.js
+          node --check couples-sync.js
+      - name: Test coaching and habit journey
+        run: node tests/adaptive-coach.test.cjs
+      - name: Test personal growth dashboard
+        run: node tests/growth-dashboard.test.cjs
+      - name: Verify interface assets
+        run: |
+          test -s modern-theme.css
+          test -s vigor-mark.svg
+          grep -q 'premium-navigation.js' index.html
+          grep -q 'adaptive-coach.js' index.html
+          grep -q 'growth-dashboard.js' index.html
