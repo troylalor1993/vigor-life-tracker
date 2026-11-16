@@ -92,6 +92,35 @@
    const next=items.find(x=>x.remaining>0&&!/fast/i.test(x.name))||null;
    return {begin,end,length,daysRemaining:remaining,completed,target,previous,minimumEfforts,items,next,message};
  }
+ function progressionGuidance(data,day){
+   const current=workoutReview(data,day);
+   const priorEnd=shiftDate(current.begin,-1);
+   const prior=workoutReview(data,priorEnd);
+   const before=workoutReview(data,shiftDate(prior.begin,-1));
+   const shift=shiftType(data,day);
+   const log=data.dailyCheckins?.[day]||{};
+   const energy=String(log.energy??'').trim().toLowerCase();
+   const sleep=String(log.sleep??'').trim().toLowerCase();
+   const tired=['low','very low','poor','tired','exhausted','1','2'].includes(energy)||['poor','very poor','low','1','2'].includes(sleep);
+   const recentMinimums=current.minimumEfforts;
+   const priorComplete=prior.target>0&&prior.completed>=prior.target;
+   const beforeComplete=before.target>0&&before.completed>=before.target;
+   const completedAtLeastTwo=priorComplete&&beforeComplete;
+   const outcomes={
+     recover:{label:'Recovery first',detail:'Keep movement optional and gentle. Prioritize adequate sleep and your existing recovery habits. No extra training is recommended today.'},
+     rebuild:{label:'Build consistency',detail:'Stay with the current workout targets. Choose one manageable session or minimum effort before considering more volume.'},
+     maintain:{label:'Maintain your plan',detail:'Continue your existing workout targets and check how they feel. Session counts alone cannot tell us whether intensity should increase.'},
+     review:{label:'Ready to review progression',detail:'You met your planned session counts in two completed rotations. If training felt manageable and recovery is good, consider a small, optional change to one exercise; track reps, load or effort first.'}
+   };
+   let status='maintain',basis='Current and prior workout records';
+   if(shift==='Recovery day'||tired){status='recover';basis=tired?'Your recorded energy or sleep':'Your recovery day after night shifts';}
+   else if(!prior.completed&&!before.completed){status='rebuild';basis='No completed workouts in the previous two rotations';}
+   else if(!priorComplete||recentMinimums>0){status='maintain';basis='Your recent completed sessions and minimum-effort records';}
+   else if(completedAtLeastTwo){status='review';basis='Two fully completed prior rotations';}
+   const selected=outcomes[status];
+   return {...selected,status,basis,priorCompleted:prior.completed,priorTarget:prior.target,
+     beforeCompleted:before.completed,beforeTarget:before.target};
+ }
  function roadmap(data,day){
    const s=summary(data,day),goal=data.bodyGoals||{},start=Number(goal.startWeight),target=Number(goal.goalWeight);
    const valid=Number.isFinite(start)&&Number.isFinite(target)&&start>target&&target>0;
@@ -105,7 +134,7 @@
    };
  }
  const style=document.createElement('style');
- style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions .vc-nav{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px;border:0;cursor:pointer}.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach .vc-stage ul{padding-left:20px;margin:9px 0 0;color:var(--text-primary);font-size:12px;line-height:1.65}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}.vigor-coach .vc-workout{border-top:1px solid var(--border);padding-top:12px;margin:14px 0}.vigor-coach .vc-workout h3{margin:0 0 7px;font-size:16px}.vigor-coach .vc-meter{height:8px;background:var(--border);border-radius:20px;overflow:hidden}.vigor-coach .vc-meter span{display:block;height:100%;background:var(--accent)}.vigor-coach .vc-workout-list>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}.vigor-coach .vc-workout-list span{color:var(--muted)}.vigor-coach .vc-shift{border-left:3px solid var(--accent);padding:7px 10px;background:var(--panel-alt);border-radius:5px}.vigor-coach .vc-next{margin:5px 0;font-size:13px}`;
+ style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions .vc-nav{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px;border:0;cursor:pointer}.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach .vc-stage ul{padding-left:20px;margin:9px 0 0;color:var(--text-primary);font-size:12px;line-height:1.65}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}.vigor-coach .vc-workout{border-top:1px solid var(--border);padding-top:12px;margin:14px 0}.vigor-coach .vc-workout h3{margin:0 0 7px;font-size:16px}.vigor-coach .vc-meter{height:8px;background:var(--border);border-radius:20px;overflow:hidden}.vigor-coach .vc-meter span{display:block;height:100%;background:var(--accent)}.vigor-coach .vc-workout-list>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}.vigor-coach .vc-workout-list span{color:var(--muted)}.vigor-coach .vc-shift{border-left:3px solid var(--accent);padding:7px 10px;background:var(--panel-alt);border-radius:5px}.vigor-coach .vc-next{margin:5px 0;font-size:13px}.vigor-coach .vc-progression{margin:10px 0 14px;background:var(--panel-alt);border:1px solid var(--border-strong);border-radius:12px;padding:12px}.vigor-coach .vc-progression h3{margin:6px 0;font-size:16px}`;
  document.head.append(style);
  const root=document.createElement('section');root.className='vigor-coach';root.id='vigorCoach';root.setAttribute('aria-label','Your adaptive coach and 90-day roadmap');
  const target=$('big3Panel')||$('daily')||document.querySelector('main > .card');
@@ -116,7 +145,7 @@
    let data;try{data=bridge.read()}catch(e){root.hidden=true;return}
    if(!data||!Array.isArray(data.habitLabels)){root.hidden=true;return}
    root.hidden=false;
-   const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day),w=workoutReview(data,day);
+   const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day),w=workoutReview(data,day),p=progressionGuidance(data,day);
    const comeback=c.missedYesterday||(c.rate!==null&&c.rate<50);
    const expanded=root.querySelector('.vc-roadmap')?.open||false;
    const workoutExpanded=root.querySelector('.vc-workout details')?.open||false;
@@ -139,6 +168,12 @@
       <div class="vc-workout-list">${w.items.map(x=>'<div><strong>'+escape(x.name)+'</strong><span>'+x.current+'/'+x.target+' logged'+(x.effort?' · '+x.effort+' minimum':'')+'</span></div>').join('')}</div>
       <p class="vc-note">These are completed-session counts, not measurements of fitness gains. Targets never increase automatically.</p></details>
     </section>
+    <div class="vc-progression" aria-label="Training progression guidance">
+      <span class="vc-eyebrow">TRAINING GUIDANCE</span>
+      <h3>${escape(p.label)}</h3>
+      <p>${escape(p.detail)}</p>
+      <p class="vc-note">Why: ${escape(p.basis)}. Previous rotations: ${p.priorCompleted}/${p.priorTarget} and ${p.beforeCompleted}/${p.beforeTarget} planned sessions. No workout targets have been changed.</p>
+    </div>
     <details class="vc-roadmap" ${expanded?'open':''}><summary>My 30 / 60 / 90-day transformation roadmap</summary>
     <div class="vc-stages">${r.stages.map(x=>`<div class="vc-stage"><strong>Day ${x.day}: ${escape(x.title)}</strong><p>${escape(x.detail)}</p><ul>${x.actions.map(a=>`<li>${escape(a)}</li>`).join('')}</ul></div>`).join('')}</div>
     <p class="vc-note">${r.progress===null?'Log your weight and set body goals to track weight progress.':escape('Weight goal progress: '+r.progress+'%'+(r.target!==null?' toward '+r.target+' lb':''))}. Your roadmap is flexible and has no required weight-loss deadline.</p>
@@ -157,5 +192,5 @@
  document.addEventListener('change',()=>queueMicrotask(render));
  // The original app saves via click handlers; recalculate after those handlers finish.
  document.addEventListener('click',()=>queueMicrotask(render));
- window.VigorCoaching={summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,refresh:render};
+ window.VigorCoaching={summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance,refresh:render};
 })();
