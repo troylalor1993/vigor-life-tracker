@@ -26,6 +26,12 @@ jobs:
         run: node tests/adaptive-coach.test.cjs
       - name: Test personal growth dashboard
         run: node tests/growth-dashboard.test.cjs
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Mobile and desktop UI smoke test
+        run: node tests/ui-smoke.test.cjs
       - name: Verify interface assets
         run: |
           test -s modern-theme.css
