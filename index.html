@@ -1119,6 +1119,11 @@ function renderDisciplineReview(){
   if(m.small>0)note('Your minimums count:',m.small+' occasions when you took a smaller action instead of doing nothing.');
  }
  note('Next improvement:',m.rate===null?'Choose a cue for one habit, then start with its minimum version.':m.rate<70?'Reduce friction: prepare your environment and choose achievable minimums.':'Protect what is working. Make one small improvement next rotation.');
+ const miniWorkouts=(state.discipline.workoutMinimums||[]).filter(x=>x.date<=today&&x.date>=plus(cycleStartFor(today),-cycleDays()*3)).length;
+ if(miniWorkouts)note('Workout starts:',miniWorkouts+' minimum workout starts recorded. These support consistency without counting as full training sessions.');
+ const shift=disciplineShiftFor(today);
+ note('Shift-aware plan:',shift==='Night shift'?'Keep habits anchored to waking and recovery; choose shorter minimums on demanding nights.':shift==='Day shift'?'Prepare the night before and aim for predictable cues after your shift.':shift==='Recovery day'?'Prioritize recovery and a smaller commitment after night shifts.':'Use extra flexibility to schedule longer sessions and prepare your environment.');
+
  const key=cycleStartFor(today),review=state.discipline.reviews[key]||{};
  $('disciplineObstacle').value=review.obstacle||'';
  $('disciplineAdjustment').value=review.adjustment||'';
@@ -1323,7 +1328,17 @@ state.activities.forEach(a=>{
  addBtn.type='button';addBtn.setAttribute('aria-label','Log '+a.name+' for '+defaultDate);
  addBtn.onclick=()=>{
    state.completions.push({id:'c'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:a.id,date:defaultDate});
+   state.discipline.workoutMinimums=state.discipline.workoutMinimums.filter(x=>!(x.activityId===a.id&&x.date===defaultDate));
    if(save())render();
+ };
+ const existingMinimum=state.discipline.workoutMinimums.some(x=>x.activityId===a.id&&x.date===defaultDate);
+ const smallBtn=element('button',existingMinimum?'✓ Minimum':'Start small',existingMinimum?'secondary tiny chosen':'secondary tiny');
+ smallBtn.type='button';smallBtn.setAttribute('aria-label','Record minimum effort for '+a.name);
+ smallBtn.onclick=()=>{
+  const has=state.discipline.workoutMinimums.some(x=>x.activityId===a.id&&x.date===defaultDate);
+  if(has)state.discipline.workoutMinimums=state.discipline.workoutMinimums.filter(x=>!(x.activityId===a.id&&x.date===defaultDate));
+  else state.discipline.workoutMinimums.push({id:'wmin-'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:a.id,date:defaultDate});
+  if(save())render();
  };
  const detail=element('details',undefined,'task-compact-details');
  const summary=element('summary','Details','task-compact-toggle');
@@ -1349,7 +1364,7 @@ state.activities.forEach(a=>{
    };row.append(date,undo);inner.append(row);
  });
  detail.append(inner);
- controls.append(addBtn,detail);
+ controls.append(addBtn,smallBtn,detail);
  item.append(head,meter,controls);
  if(count>a.target)item.append(element('div','+'+(count-a.target)+' bonus session'+(count-a.target===1?'':'s'),'task-compact-bonus'));
  $('tasks').append(item);
@@ -1434,6 +1449,14 @@ function saveCoupleReward(){
  if(save()){$('coupleSaveStatus').textContent='✓ Reward saved locally · syncing to your partner';renderCouples()}
 }
 $('coupleRewardName').onchange=saveCoupleReward;$('coupleRewardThreshold').onchange=saveCoupleReward;
+$('shareDisciplineEncouragement').onclick=()=>{
+ const metrics=disciplineCounts(today);
+ if(!metrics.full&&!metrics.small)return $('shareDisciplineFeedback').textContent='Complete a full or minimum habit first to share a win.';
+ if(!confirm('Share today\'s habit consistency with your connected partner? No weight, waist or workout details will be shared.'))return;
+ const date=coupleStart(),c=state.couples;c.messages[date]||=[];
+ c.messages[date].push({id:'discipline-msg-'+Date.now(),date:today,text:'Small win today: I showed up for '+(metrics.full+metrics.small)+' habits ('+metrics.full+' full, '+metrics.small+' minimum). Keep going together!',author:'local'});
+ if(save()){$('shareDisciplineFeedback').textContent='✓ Encouragement saved · syncing to your connected partner';renderCouples()}
+};
 $('coupleClaimReward').onclick=()=>{
  const s=coupleStart(),c=state.couples,reward=c.reward[s]||{name:'Coffee date',threshold:Math.min(4,c.goals.length)};
  const met=c.goals.filter(g=>c.goalLogs.filter(x=>x.goalId===g.id&&x.date>=s&&x.date<=coupleEnd(s)).length>=Math.max(1,Number(g.target)||1)).length;
