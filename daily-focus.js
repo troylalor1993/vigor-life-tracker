@@ -14,9 +14,14 @@
     ...workouts.filter(w=>w?.id&&w?.name).map(w=>({key:'w:'+w.id,type:'workout',name:w.name,id:w.id,done:doneWorkouts.has(w.id),started:minWorkouts.has(w.id)}))
   ];
   const configured=Array.isArray(data.discipline?.big3)?data.discipline.big3:[];
+  const prayer=habits.findIndex(x=>/pray/i.test(x));
+  const scripture=habits.findIndex(x=>/bible|scripture/i.test(x));
+  const nutrition=habits.findIndex(x=>/nutrition|meal|protein/i.test(x));
+  const defaults=[prayer>=0?'h:'+prayer:scripture>=0?'h:'+scripture:'h:0',
+    workouts[0]?'w:'+workouts[0].id:'h:1',nutrition>=0?'h:'+nutrition:'h:2'];
+  const priorities=[...configured,...defaults,...possible.map(x=>x.key)];
   const ordered=[];
-  for(const key of configured){const item=possible.find(x=>x.key===key);if(item&&!ordered.includes(item))ordered.push(item)}
-  for(const item of possible){if(ordered.length>=3)break;if(!ordered.includes(item))ordered.push(item)}
+  for(const key of priorities){if(ordered.length>=Math.min(3,possible.length))break;const item=possible.find(x=>x.key===key);if(item&&!ordered.includes(item))ordered.push(item)}
   const completed=ordered.filter(x=>x.done||x.started).length;
   const remaining=ordered.filter(x=>!x.done&&!x.started);
   const next=remaining.find(x=>x.type==='habit')||remaining[0]||null;
