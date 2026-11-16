@@ -768,11 +768,18 @@ function rewardStats(){
  return {earned,spent,balance:earned-spent,rotation:rotationHabits*5+rotationWorkouts*20,rotationStart,rotationEnd};
 }
 
+// Ten personalized weight milestones (every 13 lb when starting at 370, finishing at 240).
+function weightMilestones(){
+ const b=state.bodyGoals||{startWeight:370,goalWeight:240};
+ const start=Number(b.startWeight),goal=Number(b.goalWeight);
+ if(!Number.isFinite(start)||!Number.isFinite(goal)||start<=goal)return [357,344,331,318,305,292,279,266,253,240];
+ return [...new Set(Array.from({length:10},(_,i)=>Math.round((start-(start-goal)*(i+1)/10)*10)/10))];
+}
 function renderMilestoneRewards(){
  const holder=$('milestoneRewards');holder.replaceChildren();
  const weights=state.measurements.map(m=>Number(m.weight)).filter(n=>Number.isFinite(n)&&n>0);
  const best=weights.length?Math.min(...weights):null;
- [344,318,292,266,240].forEach(mark=>{
+ weightMilestones().forEach(mark=>{
   const id=String(mark),unlocked=best!==null&&best<=mark,claimed=state.milestoneClaims[id];
   const tile=element('div',undefined,'milestone-reward'+(claimed?' claimed':''));
   const heading=element('h3',mark+' lb milestone');
@@ -1679,14 +1686,14 @@ const weightDiff=latestWeight==null?null:body.startWeight-Number(latestWeight),w
 $('weightGoalCaption').textContent='Goal '+body.goalWeight+' lb';
 $('waistGoalCaption').textContent='Goal '+body.goalWaist+' in';
 $('bodyGoalSummary').textContent=body.startWeight+' → '+body.goalWeight+' lb · '+body.startWaist+' → '+body.goalWaist+' in waist';
-$('milestoneRangeCaption').textContent='Existing reward milestones';
+$('milestoneRangeCaption').textContent='10 milestones · '+state.bodyGoals.startWeight+' to '+state.bodyGoals.goalWeight+' lb';
 ['bodyStartWeight','bodyGoalWeight','bodyStartWaist','bodyGoalWaist'].forEach((id,i)=>{$(id).value=[body.startWeight,body.goalWeight,body.startWaist,body.goalWaist][i]});
 $('transformationSummary').append(element('span',weightDiff==null?'Weight: log first check-in':(weightDiff>=0?weightDiff.toFixed(1)+' lb lost':Math.abs(weightDiff).toFixed(1)+' lb above start'),'tag'));
 $('transformationSummary').append(element('span',waistDiff==null?'Waist: log first check-in':(waistDiff>=0?waistDiff.toFixed(1)+' in reduced':Math.abs(waistDiff).toFixed(1)+' in above start'),'tag'));
 $('weightChart').innerHTML=metricChart(sorted,'weight','lb');$('waistChart').innerHTML=metricChart(sorted,'waist','in');
-$('milestones').replaceChildren();const marks=[344,318,292,266,240],next=marks.find(v=>latestWeight==null||latestWeight>v);
+$('milestones').replaceChildren();const marks=weightMilestones(),next=marks.find(v=>latestWeight==null||Number(latestWeight)>v);
 marks.forEach(mark=>{const reached=latestWeight!=null&&latestWeight<=mark,chip=element('div',undefined,'milestone-item'+(reached?' reached':mark===next?' next':''));chip.append(element('strong',mark+' lb'));chip.append(element('small',reached?'✓ Reached':mark===next?'Next goal':'Upcoming'));$('milestones').append(chip)});
-$('nextMilestone').textContent=latestWeight==null?'Log your first rotation check-in to begin tracking milestones.':next?Math.max(0,Number(latestWeight)-next).toFixed(1)+' lb to the next milestone ('+next+' lb).':'Your 240 lb milestone is reached.';
+$('nextMilestone').textContent=latestWeight==null?'Log your first rotation check-in to begin tracking milestones.':next?Math.max(0,Number(latestWeight)-next).toFixed(1)+' lb to the next milestone ('+next+' lb).':'Your '+state.bodyGoals.goalWeight+' lb milestone is reached.';
 renderMilestoneRewards();
 const previous=plus(s,-cycleDays()),prevEnd=endFor(previous),previousCounts={};state.completions.forEach(c=>{if(inRange(c.date,previous))previousCounts[c.activityId]=(previousCounts[c.activityId]||0)+1});
 const previousTotal=state.activities.reduce((sum,a)=>sum+Math.min(a.target,previousCounts[a.id]||0),0);
