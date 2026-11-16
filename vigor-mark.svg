@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+<title id="title">The Vigor Life V emblem</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0b1"/><stop offset=".38" stop-color="#e6bc61"/><stop offset=".72" stop-color="#b57b25"/><stop offset="1" stop-color="#f3d88a"/></linearGradient><linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#22201d"/><stop offset="1" stop-color="#090a0c"/></linearGradient></defs>
+<rect width="128" height="128" rx="27" fill="url(#dark)"/>
+<path d="M64 10 107 27v37c0 29-19 45-43 56C40 109 21 93 21 64V27Z" fill="none" stroke="url(#gold)" stroke-width="4"/>
+<path d="m32 36 18 0 14 41 15-41h18L70 97H57Z" fill="url(#gold)"/>
+<path d="M65 16c-1 10-11 18-9 27 5-3 10-9 11-15 3 7 7 14 2 23 15-11 12-28-4-35Z" fill="#efc46f"/>
+<path d="M64 45v18M55 54h18" stroke="#fff0b1" stroke-width="3" stroke-linecap="round"/>
+<path d="M52 100c9-16 22-26 41-31-9 11-20 21-35 32Z" fill="#12120f" stroke="#e8bf67" stroke-width="2"/>
+</svg>
