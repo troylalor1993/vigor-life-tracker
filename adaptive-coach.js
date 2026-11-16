@@ -24,7 +24,7 @@
  }
  function shiftType(data,day){
    if(data.cycleLength===7)return 'Flexible daily routine';
-   if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(data.anchor||''))return 'Flexible daily routine';
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(data.anchor||''))return 'Flexible daily routine';
    const difference=Math.round((Date.parse(day+'T12:00:00Z')-Date.parse(data.anchor+'T12:00:00Z'))/86400000);
    const i=((difference%8)+8)%8;
    return i<2?'Day shift':i<4?'Night shift':i===4?'Recovery day':'Day off';
