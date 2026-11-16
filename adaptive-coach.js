@@ -82,12 +82,12 @@
       'Day off':'Use flexible time for a planned session and preparing for your next workday.',
       'Flexible daily routine':'Fit your actions around an existing part of your day.'
    };
-   let lead='Start with one manageable action today. Progress comes from repeating it.';
+   let lead='Start with one meaningful habit today. Consistency grows through repetition.';
    let reason='A small action is easier to repeat than a perfect plan.';
    if(!habits.recordedDays){lead='Begin with the smallest version of one important habit.';reason='No recent, non-rest check-ins are available for a meaningful habit trend.';}
    else if(habits.missedYesterday){lead='Return to one missed habit today. A minimum effort counts as returning.';reason='At least one habit was missed in yesterday’s recorded check-in. No catch-up required.';}
    else if(lowerEnergy){lead='Choose a lighter activity and simple habits. Protect recovery today.';reason='Your recorded energy or sleep suggests a lighter approach may be helpful.';}
-   else if(shift==='Recovery day'){lead='Let recovery lead today. Light movement and manageable habits are enough.';reason='Your rotating schedule places today after your night shifts.';}
+   else if(shift==='Recovery day'){lead='Let recovery lead today. Your minimum habits can still fit around rest.';reason='Your rotating schedule places today after your night shifts.';}
    else if(habits.rate!==null&&habits.rate<50){lead='Make one meaningful habit easier to repeat today.';reason='Fewer than half of habit opportunities on recent recorded days were completed.';}
    else if(habits.allDone){lead='You followed through on every listed habit today. Celebrate the effort.';reason='Today’s full and minimum habit commitments have all been recorded.';}
    else if(s.todayDone>0){lead='You have already started today. Choose one more useful action.';reason='Your check-in shows progress today.';}
@@ -160,9 +160,9 @@
    const progress=valid&&s.weight!==null?Math.max(0,Math.min(100,Math.round((start-s.weight)/(start-target)*100))):null;
    return {
      stages:[
-      {day:30,title:'Build the foundation',detail:'Establish realistic workouts, one reliable food-prep habit, and a minimum routine for hard days.',actions:['Complete one priority habit on four days this week.','Prepare at least one meal or snack ahead of a busy day.','Choose a manageable workout or mobility session.']},
-      {day:60,title:'Improve consistency',detail:'Review logged habits, adjust the schedule to your life, and progress training safely.',actions:['Review the last rotation and identify one barrier.','Adjust the next rotation to protect recovery and workout time.','Increase training only when your current routine feels manageable.']},
-      {day:90,title:'Review and grow',detail:'Compare real trends, celebrate non-scale wins, and choose the next sustainable goal.',actions:['Check recorded waist, weight and fitness trends without fixating on a day.','Celebrate one meaningful non-scale improvement.','Choose one realistic goal for the next month.']}
+      {day:30,title:'Build the habit foundation',detail:'Choose meaningful habits across the areas of life you want to improve; anchor them to existing routines.',actions:['Choose one keystone habit and its two-minute minimum.','Pair it with a cue such as after waking or after a meal.','Record full effort, minimum effort, or a rest day without guilt.']},
+      {day:60,title:'Make consistency easier',detail:'Identify obstacles and improve your environment rather than relying on motivation alone.',actions:['Review which habits are hardest on recorded days.','Make one cue, minimum action, or preparation routine simpler.','Protect sleep, relationships, spiritual growth and physical activity in a realistic rhythm.']},
+      {day:90,title:'Reflect and keep growing',detail:'Review what is becoming automatic and choose the next meaningful area of personal growth.',actions:['Celebrate consistency, recovery and non-fitness wins.','Retain habits that are sustainable and revise those that are not.','Choose one next identity-based habit or goal.']}
      ],progress,weight:s.weight,target:valid?target:null
    };
  }
@@ -179,7 +179,7 @@
    if(!data||!Array.isArray(data.habitLabels)){root.hidden=true;return}
    root.hidden=false;
    const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day),w=workoutReview(data,day),p=progressionGuidance(data,day),h=c.habits;
-   const comeback=c.missedYesterday||(c.rate!==null&&c.rate<50);
+   const comeback=h.missedYesterday||(h.rate!==null&&h.rate<50);
    const expanded=root.querySelector('.vc-roadmap')?.open||false;
    const workoutExpanded=root.querySelector('.vc-workout details')?.open||false;
    const trainingExpanded=root.querySelector('.vc-training-details')?.open||false;
