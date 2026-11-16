@@ -420,7 +420,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <p id="disciplineFocus" class="discipline-focus">Choose one small action to start.</p><button type="button" id="disciplineRestart" class="secondary tiny" hidden>Restart with a minimum</button>
 </section>
 <section class="big3-card" id="big3Panel">
-<div class="big3-top"><div><div class="dashboard-label">YOUR DAILY BIG 3</div><h2>Three things that matter.</h2><p>Choose three priorities. Complete the full action or show up with a minimum.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
+<div class="big3-top"><div><div class="dashboard-label">YOUR DAILY BIG 3</div><h2>Three things that matter.</h2><p>Focus on three priorities, not everything at once. Tap Done or Minimum to record progress.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
 <div id="big3List" class="big3-list"></div><p id="big3Status" class="subtle" aria-live="polite"></p>
 <details class="discipline-secondary" id="big3Editor"><summary>Choose my Big 3</summary><div id="big3Selectors" class="big3-selectors"></div><button type="button" id="saveBig3" class="primary">Save priorities</button></details>
 </section>
@@ -490,7 +490,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="row"><h2>Make Vigor Life yours</h2><span class="tag" id="setupProgress">Optional setup</span></div>
 <p class="subtle">A simple starting point. Your existing habits and progress stay as they are.</p>
 <details id="setupDetails"><summary>Personalize my habit system</summary>
-<label class="field" for="setupTopHabit">Most important habit<input id="setupTopHabit" type="text" placeholder="e.g. Pray, Stretch or Read"></label>
+<label class="field" for="setupTopHabit">Choose an existing habit<select id="setupTopHabit"></select></label>
 <label class="field" for="setupCue">When will you do it?<input id="setupCue" type="text" placeholder="e.g. After waking up"></label>
 <label class="field" for="setupMinimum">What's the smallest version?<input id="setupMinimum" type="text" placeholder="e.g. One minute"></label>
 <button id="finishSetup" type="button" class="primary">Save habit setup</button><p id="setupFeedback" class="subtle" aria-live="polite"></p>
@@ -1401,7 +1401,11 @@ function renderHabitCalendar(){
   cell.setAttribute('aria-pressed',String(date===today));
   cell.setAttribute('aria-label',date+': '+counts.full+' full, '+counts.small+' minimum habits');
   cell.append(element('strong',date.slice(5)),element('span',date>today?'·':symbol),element('small',date>today?'Upcoming':has?counts.full+' full · '+counts.small+' min':'Not logged'));
-  cell.onclick=()=>{$('habitCalendarDetail').textContent=date+': '+(has?counts.full+' full and '+counts.small+' minimum actions.':'No habit entry recorded.');};
+  cell.onclick=()=>{
+   for(const other of Array.from(grid.children))other.setAttribute('aria-pressed','false');
+   cell.setAttribute('aria-pressed','true');
+   $('habitCalendarDetail').textContent=date+': '+(has?counts.full+' full and '+counts.small+' minimum actions.':'No habit entry recorded.');
+  };
   grid.append(cell);
  }
  $('habitCalendarDetail').textContent=startDate+' to '+end+' · Blank days are not failures.';
@@ -1425,12 +1429,16 @@ $('saveShiftRoutines').onclick=()=>{
 };
 function renderSetup(){
  $('setupProgress').textContent=state.discipline.setupDone?'Personalized':'Optional setup';
+ const select=$('setupTopHabit'),previous=select.value;
+ select.replaceChildren();
+ state.habitLabels.forEach(name=>{const option=element('option',name);option.value=name;select.append(option)});
+ if(state.habitLabels.includes(previous))select.value=previous;
 }
 $('finishSetup').onclick=()=>{
  const text=$('setupTopHabit').value.trim(),cue=$('setupCue').value.trim(),minimum=$('setupMinimum').value.trim();
  if(!text||!cue||!minimum)return alert('Enter your habit, cue and minimum version.');
  const index=state.habitLabels.findIndex(x=>x.toLowerCase()===text.toLowerCase());
- if(index<0)return alert('Choose the exact name of a habit already on your Today list. You can add new habits there.');
+ if(index<0)return alert('Choose a habit from the list.');
  state.discipline.settings[index]={...disciplineConfig(index),cue,minimum};
  state.discipline.setupDone=true;
  if(save()){renderSetup();renderDaily();$('setupFeedback').textContent='✓ Your habit system is personalized and saved.';$('setupDetails').open=false}
@@ -1451,7 +1459,9 @@ function snapshotBeforeChange(nextState){
   if(history[0]?.data===older)return;
   history.unshift({at:new Date().toISOString(),data:older});
   localStorage.setItem(storageKey,JSON.stringify(history.slice(0,3)));
+  return true;
  }catch(e){/* Recovery history is best-effort and must never prevent saving. */}
+ return false;
 }
 function renderRecovery(){
  const parent=$('recoveryList');parent.replaceChildren();
@@ -1516,8 +1526,9 @@ function applyTheme(){
 
 const save=()=>{try{
   const serialized=JSON.stringify(state);
-  snapshotBeforeChange(state);
+  const createdRecovery=snapshotBeforeChange(state);
   localStorage.setItem(key,serialized);
+  if(createdRecovery)renderRecovery();
   if($('globalSaveStatus'))$('globalSaveStatus').textContent=localStorage.getItem('vigor-cloud-linked-user')?'Saved on device · syncing…':'Saved on this device';
   if(localStorage.getItem(key)!==serialized)throw Error('Storage verification failed');
   window.dispatchEvent(new Event('vigor-local-changed'));
