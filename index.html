@@ -1209,7 +1209,7 @@ function renderDaily(){
    }
    const button=element('button','Save habit setup','secondary tiny');button.type='button';
    button.onclick=()=>{
-    const values={};details.children.forEach(node=>{const field=node.children?.[0];if(field?.dataset?.key)values[field.dataset.key]=field.value.trim()});
+    const values={};Array.from(details.children).forEach(node=>{const field=node.children?.[0];if(field?.dataset?.key)values[field.dataset.key]=field.value.trim()});
     if(!values.cue||!values.minimum||!values.identity)return alert('Complete the cue, minimum and identity fields.');
     state.discipline.settings[i]=values;
     if(save()){renderDaily();$('habitSaveFeedback').textContent='✓ Habit cue and minimum saved'}
