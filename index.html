@@ -1371,6 +1371,51 @@ function updatePriority(value,date,mode){
  }
  if(save()){renderDaily();render();$('big3Status').textContent='✓ Saved locally · cloud syncing automatically'}
 }
+// Never Miss Twice is based only on days actually recorded. An unlogged day
+// or a planned recovery day is not silently classified as a failed habit.
+function recoveryCandidates(date){
+ if(date!==today)return [];
+ const yesterday=plus(date,-1),prior=state.dailyCheckins[yesterday];
+ if(!prior?.saved||state.discipline.restDays[yesterday])return [];
+ const previous=cleanCheck(prior),small=state.discipline.minimums[yesterday]||{};
+ const before=plus(yesterday,-1),older=state.dailyCheckins[before],olderSmall=state.discipline.minimums[before]||{};
+ return state.habitLabels.map((name,i)=>{
+  if(previous.habits[i]||small[i])return null;
+  const current=cleanCheck(state.dailyCheckins[date]);
+  if(current.habits[i]||state.discipline.minimums[date]?.[i])return null;
+  const twice=older?.saved&&!state.discipline.restDays[before]&&!older.habits?.[i]&&!olderSmall[i];
+  return {name,index:i,twice:!!twice,minimum:disciplineConfig(i).minimum};
+ }).filter(Boolean).sort((a,b)=>Number(b.twice)-Number(a.twice));
+}
+function renderNeverTwice(){
+ const panel=$('neverTwice'),list=$('neverTwiceActions');
+ const date=todayCheck(),items=recoveryCandidates(date);
+ panel.hidden=!items.length;list.replaceChildren();
+ if(!items.length)return;
+ $('neverTwiceCount').textContent=items.length+' to restart';
+ for(const item of items.slice(0,3)){
+  const line=element('div',undefined,'never-twice-row'),info=element('div'),
+   heading=element('strong',item.name),detail=element('small','Your minimum: '+item.minimum),
+   btn=element('button','Log minimum done','secondary tiny');
+  if(item.twice)info.append(element('small','Two recorded misses · restart today','discipline-status'));
+  info.append(heading,detail);
+  btn.type='button';btn.setAttribute('aria-label','Log minimum completed for '+item.name);
+  btn.onclick=()=>{
+   const current=cleanCheck(state.dailyCheckins[date]);
+   if(current.habits[item.index])return;
+   state.discipline.minimums[date]||={};
+   state.discipline.minimums[date][item.index]=true;
+   current.saved=true;state.dailyCheckins[date]=current;
+   if(save()){renderDaily();render();$('neverTwiceFeedback').textContent='✓ Minimum completed. You returned to your habit today.'}
+  };
+  line.append(info,btn);list.append(line);
+ }
+ if(items.length>3){
+  const show=element('button','See the other '+(items.length-3)+' habits','secondary tiny');
+  show.onclick=()=>{const details=$('daily').closest('details');if(details)details.open=true;$('daily').scrollIntoView({behavior:'smooth',block:'start'})};
+  list.append(show);
+ }
+}
 function renderBig3(){
  const date=todayCheck(),selected=big3Selected(),names=new Map(big3Choices().map(x=>[x.value,x.label]));
  const list=$('big3List');list.replaceChildren();
@@ -1391,6 +1436,7 @@ function renderBig3(){
  }
  $('big3Shift').textContent=disciplineShiftFor(date);
  $('big3Status').textContent=total+' of '+selected.length+' priorities started · '+currentShiftPlan(date);
+ renderNeverTwice();
  const selectors=$('big3Selectors');selectors.replaceChildren();
  const choices=big3Choices();
  selected.forEach((selectedValue,index)=>{
