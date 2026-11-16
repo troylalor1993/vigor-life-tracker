@@ -61,6 +61,37 @@
    else if(s.rate!==null&&s.rate>=80){lead='Your recent consistency is strong. Follow your plan and protect recovery.';reason='Most habits on recently logged days were completed.';}
    return {...s,lead,reason,shift,shiftAdvice:cues[shift],workout,nextHabit};
  }
+ function workoutReview(data,day){
+   const activities=Array.isArray(data.activities)?data.activities.filter(x=>x&&x.id&&x.name):[];
+   const length=data.cycleLength===7?7:8;
+   const anchor=typeof data.anchor==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(data.anchor)?data.anchor:day;
+   const delta=Math.round((Date.parse(day+'T12:00:00Z')-Date.parse(anchor+'T12:00:00Z'))/86400000);
+   const begin=shiftDate(anchor,Math.floor(delta/length)*length);
+   const end=shiftDate(begin,length-1);
+   const prevBegin=shiftDate(begin,-length),prevEnd=shiftDate(begin,-1);
+   const completions=Array.isArray(data.completions)?data.completions:[];
+   const minimums=Array.isArray(data.discipline?.workoutMinimums)?data.discipline.workoutMinimums:[];
+   const count=(id,a,b)=>completions.filter(x=>x.activityId===id&&x.date>=a&&x.date<=b&&x.date<=day).length;
+   const todayIndex=Math.max(0,Math.min(length-1,delta-Math.floor(delta/length)*length));
+   const remaining=length-1-todayIndex;
+   const items=activities.map(a=>{
+     const target=Number.isFinite(Number(a.target))?Math.max(1,Math.round(Number(a.target))):1;
+     const current=count(a.id,begin,end),previous=count(a.id,prevBegin,prevEnd);
+     const effort=minimums.filter(x=>x.activityId===a.id&&x.date>=begin&&x.date<=day).length;
+     return {id:a.id,name:a.name,target,current,previous,effort,remaining:Math.max(0,target-current)};
+   });
+   const completed=items.reduce((n,a)=>n+a.current,0),target=items.reduce((n,a)=>n+a.target,0);
+   const previous=items.reduce((n,a)=>n+a.previous,0);
+   const minimumEfforts=items.reduce((n,a)=>n+a.effort,0);
+   let message='Start with one manageable workout this rotation.';
+   if(!items.length)message='Add a workout in your existing workout checklist to begin.';
+   else if(completed>=target)message='You reached your planned session count. Review recovery before adding more.';
+   else if(remaining===0)message='The rotation ends today. Record what you completed; adjust the next plan if needed.';
+   else if(completed>0)message='You have workouts recorded. Choose an unfinished target that fits your energy and schedule.';
+   else if(minimumEfforts>0)message='Your minimum-effort sessions count as showing up. Build from there when ready.';
+   const next=items.find(x=>x.remaining>0&&!/fast/i.test(x.name))||null;
+   return {begin,end,length,daysRemaining:remaining,completed,target,previous,minimumEfforts,items,next,message};
+ }
  function roadmap(data,day){
    const s=summary(data,day),goal=data.bodyGoals||{},start=Number(goal.startWeight),target=Number(goal.goalWeight);
    const valid=Number.isFinite(start)&&Number.isFinite(target)&&start>target&&target>0;
@@ -74,7 +105,7 @@
    };
  }
  const style=document.createElement('style');
- style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions .vc-nav{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px;border:0;cursor:pointer}.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach .vc-stage ul{padding-left:20px;margin:9px 0 0;color:var(--text-primary);font-size:12px;line-height:1.65}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}.vigor-coach .vc-shift{border-left:3px solid var(--accent);padding:7px 10px;background:var(--panel-alt);border-radius:5px}.vigor-coach .vc-next{margin:5px 0;font-size:13px}`;
+ style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions .vc-nav{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px;border:0;cursor:pointer}.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach .vc-stage ul{padding-left:20px;margin:9px 0 0;color:var(--text-primary);font-size:12px;line-height:1.65}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}.vigor-coach .vc-workout{border-top:1px solid var(--border);padding-top:12px;margin:14px 0}.vigor-coach .vc-workout h3{margin:0 0 7px;font-size:16px}.vigor-coach .vc-meter{height:8px;background:var(--border);border-radius:20px;overflow:hidden}.vigor-coach .vc-meter span{display:block;height:100%;background:var(--accent)}.vigor-coach .vc-workout-list>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}.vigor-coach .vc-workout-list span{color:var(--muted)}.vigor-coach .vc-shift{border-left:3px solid var(--accent);padding:7px 10px;background:var(--panel-alt);border-radius:5px}.vigor-coach .vc-next{margin:5px 0;font-size:13px}`;
  document.head.append(style);
  const root=document.createElement('section');root.className='vigor-coach';root.id='vigorCoach';root.setAttribute('aria-label','Your adaptive coach and 90-day roadmap');
  const target=$('big3Panel')||$('daily')||document.querySelector('main > .card');
@@ -85,9 +116,10 @@
    let data;try{data=bridge.read()}catch(e){root.hidden=true;return}
    if(!data||!Array.isArray(data.habitLabels)){root.hidden=true;return}
    root.hidden=false;
-   const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day);
+   const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day),w=workoutReview(data,day);
    const comeback=c.missedYesterday||(c.rate!==null&&c.rate<50);
    const expanded=root.querySelector('details')?.open||false;
+   const workoutExpanded=root.querySelector('.vc-workout details')?.open||false;
    root.innerHTML=`<div class="vc-eyebrow">YOUR DAILY COACH · BASED ON YOUR TRACKER</div>
     <h2>${comeback?'Your comeback starts today':'Your next best step'}</h2>
     <p class="vc-lead">${escape(c.lead)}</p>
@@ -96,6 +128,17 @@
     ${c.workout?'<p class="vc-next"><strong>Workout option:</strong> '+escape(c.workout)+'</p>':''}
     <p class="vc-note">${c.rate===null?'No recent completion trend yet':escape(c.rate+'% completion across '+c.activeDays+' logged day(s) in the past week')} · These are supportive suggestions, not medical advice.</p>
     <div class="vc-actions"><button type="button" class="vc-nav" data-vc-target="daily">Log one habit</button><button type="button" class="vc-nav alt" data-vc-target="training">View workouts</button></div>
+    <section class="vc-workout" aria-label="Your workout rotation review">
+      <h3>Workout progress this rotation</h3>
+      <p class="vc-lead">${w.completed} of ${w.target} planned sessions logged</p>
+      <p>${escape(w.message)}</p>
+      <div class="vc-meter" role="progressbar" aria-label="Workout sessions logged" aria-valuemin="0" aria-valuenow="${Math.min(w.target,w.completed)}" aria-valuemax="${Math.max(1,w.target)}"><span style="width:${w.target?Math.min(100,Math.round(w.completed/w.target*100)):0}%"></span></div>
+      <p class="vc-note">${w.minimumEfforts} minimum-effort session(s) · ${w.daysRemaining} day(s) left in the ${w.length}-day rotation. Previous full rotation: ${w.previous} session(s).</p>
+      ${w.next?'<p class="vc-next"><strong>Next planned option:</strong> '+escape(w.next.name)+' ('+w.next.current+'/'+w.next.target+' completed)</p>':''}
+      <details ${workoutExpanded?'open':''}><summary>Review all workout targets</summary>
+      <div class="vc-workout-list">${w.items.map(x=>'<div><strong>'+escape(x.name)+'</strong><span>'+x.current+'/'+x.target+' logged'+(x.effort?' · '+x.effort+' minimum':'')+'</span></div>').join('')}</div>
+      <p class="vc-note">These are completed-session counts, not measurements of fitness gains. Targets never increase automatically.</p></details>
+    </section>
     <details ${expanded?'open':''}><summary>My 30 / 60 / 90-day transformation roadmap</summary>
     <div class="vc-stages">${r.stages.map(x=>`<div class="vc-stage"><strong>Day ${x.day}: ${escape(x.title)}</strong><p>${escape(x.detail)}</p><ul>${x.actions.map(a=>`<li>${escape(a)}</li>`).join('')}</ul></div>`).join('')}</div>
     <p class="vc-note">${r.progress===null?'Log your weight and set body goals to track weight progress.':escape('Weight goal progress: '+r.progress+'%'+(r.target!==null?' toward '+r.target+' lb':''))}. Your roadmap is flexible and has no required weight-loss deadline.</p>
@@ -114,5 +157,5 @@
  document.addEventListener('change',()=>queueMicrotask(render));
  // The original app saves via click handlers; recalculate after those handlers finish.
  document.addEventListener('click',()=>queueMicrotask(render));
- window.VigorCoaching={summary,coaching,roadmap,refresh:render};
+ window.VigorCoaching={summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,refresh:render};
 })();
