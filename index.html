@@ -1183,6 +1183,9 @@ function saveDisciplineReview(){
  if(save())$('disciplineReviewFeedback').textContent='✓ Rotation review saved · Firebase syncing';
 }
 $('saveDisciplineReview').onclick=saveDisciplineReview;
+$('disciplineWin').onchange=saveDisciplineReview;
+$('disciplineObstacle').onchange=saveDisciplineReview;
+$('disciplineAdjustment').onchange=saveDisciplineReview;
 function renderDaily(){
  const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);
  $('habitGrid').replaceChildren();
@@ -1244,6 +1247,12 @@ function renderDaily(){
     const old=state.discipline.settings,newSettings={};
     state.habitLabels.forEach((_,j)=>{const oldIndex=j>=i?j+1:j;if(old[oldIndex])newSettings[j]=old[oldIndex]});
     state.discipline.settings=newSettings;
+    state.discipline.big3=(state.discipline.big3||[]).map(value=>{
+     if(!value.startsWith('h:'))return value;
+     const index=Number(value.slice(2));
+     if(index===i)return null;
+     return 'h:'+(index>i?index-1:index);
+    }).filter(Boolean);
     for(const [day,minimums] of Object.entries(state.discipline.minimums)){
      const updated={};state.habitLabels.forEach((_,j)=>{const k=j>=i?j+1:j;if(minimums[k])updated[j]=true});
      state.discipline.minimums[day]=updated;
