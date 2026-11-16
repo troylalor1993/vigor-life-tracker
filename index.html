@@ -688,6 +688,14 @@ if(!state.fast36AddedV1){
 }
 state.completions ||= [];
 state.dailyCheckins ||= {};
+// Additive migration: never replace existing habit completion records.
+state.discipline ||= {settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{},obstacles:{}};
+state.discipline.settings ||= {};
+state.discipline.minimums ||= {};
+state.discipline.workoutMinimums ||= [];
+state.discipline.prep ||= {};
+state.discipline.reviews ||= {};
+
 state.dailyActivity ||= {};
 state.activityGoals ||= {steps:8000,calories:500};
 state.zone2Logs ||= [];
@@ -1044,22 +1052,164 @@ function renderActivitySuggestions(){
  }
 }
 
+
+const disciplineConfig=i=>{
+ const defaults=[
+  {cue:'After my first meal',minimum:'Choose one nourishing meal',identity:'I care for my body with wisdom'},
+  {cue:'After I wake up',minimum:'Two minutes of mobility',identity:'I move consistently'},
+  {cue:'After I get dressed',minimum:'One short walk',identity:'I make movement part of life'},
+  {cue:'Before I rest',minimum:'Protect my wind-down routine',identity:'I honour recovery'}
+ ];
+ const name=String(state.habitLabels[i]||'').toLowerCase();
+ const preset=name.includes('pray')?{cue:'After waking',minimum:'One intentional minute of prayer',identity:'I return to God daily'}:
+ name.includes('bible')?{cue:'After brushing my teeth',minimum:'Read one verse',identity:'I make space for Scripture'}:
+ name.includes('book')?{cue:'After my evening meal',minimum:'Read one page',identity:'I am a lifelong learner'}:
+ name.includes('business')?{cue:'After my first planned break',minimum:'One focused five-minute task',identity:'I work with purpose'}:
+ defaults[i]||{cue:'After an existing daily routine',minimum:'Do two minutes',identity:'I follow through'};
+ return {...preset,...(state.discipline.settings[i]||{})};
+};
+const disciplineShiftFor=date=>{
+ if(state.cycleLength===7)return 'Flexible daily routine';
+ const i=((days(date,state.anchor)%8)+8)%8;
+ return i<2?'Day shift':i<4?'Night shift':i===4?'Recovery day':'Day off';
+};
+function disciplineCounts(date){
+ const entry=cleanCheck(state.dailyCheckins[date]),minimum=state.discipline.minimums[date]||{};
+ const full=entry.habits.filter(Boolean).length;
+ const small=state.habitLabels.reduce((n,_,i)=>n+(!entry.habits[i]&&!!minimum[i]?1:0),0);
+ return {full,small,total:state.habitLabels.length,entry};
+}
+function disciplineMetrics(){
+ const current=cycleStartFor(today),windowStart=plus(current,-cycleDays()*3);
+ const recorded=Object.keys(state.dailyCheckins).filter(d=>d>=windowStart&&d<=today&&state.dailyCheckins[d]?.saved);
+ let full=0,small=0,opportunities=0,showed=0;
+ for(const d of recorded){
+  const m=disciplineCounts(d);
+  full+=m.full;small+=m.small;opportunities+=m.total;showed+=m.full+m.small;
+ }
+ return {recorded,full,small,opportunities,showed,rate:opportunities?Math.round(100*showed/opportunities):null};
+}
+function renderDisciplineOverview(date){
+ const m=disciplineCounts(date),meta=disciplineMetrics();
+ $('disciplineDone').textContent=m.full+' / '+m.total;
+ $('disciplineMinimumCount').textContent=m.small;
+ $('disciplineRate').textContent=meta.rate===null?'—':meta.rate+'%';
+ $('disciplineBar').style.width=(m.total?Math.round((m.full+m.small)/m.total*100):0)+'%';
+ $('disciplineShift').textContent=disciplineShiftFor(date);
+ const next=state.habitLabels.find((_,i)=>!m.entry.habits[i]&&!state.discipline.minimums[date]?.[i]);
+ $('disciplineFocus').textContent=next?'Next small win: '+next+'. '+(disciplineShiftFor(date)==='Night shift'?'Anchor it to waking, not the clock.':'Start with the minimum if time is limited.'):'You showed up for each listed habit today. Well done.';
+}
+function renderDisciplineReview(){
+ const m=disciplineMetrics();
+ $('reviewConsistency').textContent=m.rate===null?'—':m.rate+'%';
+ $('reviewFull').textContent=m.opportunities?Math.round(m.full/m.opportunities*100)+'%':'—';
+ $('reviewMinimum').textContent=String(m.small);
+ const out=$('disciplineReviewContent');out.replaceChildren();
+ const note=(label,text)=>{
+  const line=element('div',undefined,'discipline-review-note');
+  line.append(element('b',label+' '),element('span',text));out.append(line);
+ };
+ if(!m.recorded.length)note('Begin with one day.','Your review will grow as you record habits. No penalty for missing entries.');
+ else{
+  note('Showing up:',m.showed+' of '+m.opportunities+' opportunities across '+m.recorded.length+' recorded days.');
+  const current=cycleStartFor(today),previous=plus(current,-cycleDays());
+  const currentDates=m.recorded.filter(x=>x>=current&&x<=endFor(current));
+  const previousDates=m.recorded.filter(x=>x>=previous&&x<current);
+  note('This rotation:',currentDates.length+' recorded days. '+(previousDates.length?'Previous rotation: '+previousDates.length+' recorded days.':'Keep recording to build a useful comparison.'));
+  if(m.small>0)note('Your minimums count:',m.small+' occasions when you took a smaller action instead of doing nothing.');
+ }
+ note('Next improvement:',m.rate===null?'Choose a cue for one habit, then start with its minimum version.':m.rate<70?'Reduce friction: prepare your environment and choose achievable minimums.':'Protect what is working. Make one small improvement next rotation.');
+ const key=cycleStartFor(today),review=state.discipline.reviews[key]||{};
+ $('disciplineObstacle').value=review.obstacle||'';
+ $('disciplineAdjustment').value=review.adjustment||'';
+}
+function saveDisciplineReview(){
+ const key=cycleStartFor(today);
+ state.discipline.reviews[key]={obstacle:$('disciplineObstacle').value,adjustment:$('disciplineAdjustment').value.trim()};
+ if(save())$('disciplineReviewFeedback').textContent='✓ Saved for this rotation';
+}
+$('disciplineObstacle').onchange=saveDisciplineReview;
+$('disciplineAdjustment').onchange=saveDisciplineReview;
 function renderDaily(){
- const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);$('habitGrid').replaceChildren();
- state.habitLabels.forEach((name,i)=>{const label=element('label',undefined,'habit'+(entry.habits[i]?' checked':'')),input=element('input');input.type='checkbox';input.checked=entry.habits[i];input.onchange=()=>{const item=cleanCheck(state.dailyCheckins[date]);item.habits[i]=input.checked;item.saved=true;state.dailyCheckins[date]=item;save();renderDaily();render()};label.append(input,element('span',name));$('habitGrid').append(label)});
- $('habitProgress').textContent=entry.habits.filter(Boolean).length+' of '+state.habitLabels.length+' habits checked';
- $('dailySaveStatus').textContent=entry.saved?'✓ Saved for '+date:'Not recorded';
- $('habitEditor').classList.toggle('hidden',!habitEdit);$('editHabits').textContent=habitEdit?'Close editor':'Edit habits';$('habitEditor').replaceChildren();
+ const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);
+ $('habitGrid').replaceChildren();
+ state.habitLabels.forEach((name,i)=>{
+  const cfg=disciplineConfig(i),small=!!state.discipline.minimums[date]?.[i]&&!entry.habits[i];
+  const item=element('div',undefined,'discipline-habit'),info=element('div'),title=element('strong',name);
+  const cue=element('small','Cue: '+cfg.cue);
+  const minimum=element('small','Minimum: '+cfg.minimum);
+  const identity=element('small','Identity: '+cfg.identity);
+  info.append(title,cue,minimum,identity);
+  if(entry.habits[i]||small)info.append(element('small',entry.habits[i]?'✓ Full commitment complete':'✓ Minimum effort recorded','discipline-status'));
+  const actions=element('div',undefined,'discipline-buttons');
+  const full=element('button','Done',entry.habits[i]?'chosen':'secondary tiny');
+  const min=element('button','Minimum',small?'chosen':'secondary tiny');
+  full.type='button';min.type='button';
+  full.setAttribute('aria-pressed',String(!!entry.habits[i]));
+  min.setAttribute('aria-pressed',String(small));
+  const setMode=mode=>{
+   const previous=cleanCheck(state.dailyCheckins[date]);
+   state.discipline.minimums[date]||={};
+   if(mode==='full'){
+    previous.habits[i]=!previous.habits[i];
+    if(previous.habits[i])delete state.discipline.minimums[date][i];
+   }else{
+    const was=!!state.discipline.minimums[date][i]&&!previous.habits[i];
+    previous.habits[i]=false;
+    if(was)delete state.discipline.minimums[date][i];
+    else state.discipline.minimums[date][i]=true;
+   }
+   previous.saved=true;state.dailyCheckins[date]=previous;
+   if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Saved locally · cloud sync queued'}
+  };
+  full.onclick=()=>setMode('full');min.onclick=()=>setMode('minimum');
+  actions.append(full,min);item.append(info,actions);$('habitGrid').append(item);
+ });
+ const totals=disciplineCounts(date);
+ $('habitProgress').textContent=totals.full+' completed · '+totals.small+' minimums · '+totals.total+' habits';
+ $('dailySaveStatus').textContent=entry.saved?'✓ Saved locally · Firebase syncing automatically':'No habits recorded for this date';
+ renderDisciplineOverview(date);
+ renderDisciplineReview();
+ const preparation=state.discipline.prep[date]||{};
+ $('disciplinePrep').value=preparation.text||'';
+ $('disciplinePrepDone').checked=!!preparation.done;
+ $('habitEditor').classList.toggle('hidden',!habitEdit);
+ $('editHabits').textContent=habitEdit?'Close editor':'Edit habits';
+ $('habitEditor').replaceChildren();
  if(habitEdit){
   state.habitLabels.forEach((name,i)=>{
    const row=element('div',undefined,'habit-add-row'),input=element('input'),remove=element('button','Remove','secondary tiny');
    input.type='text';input.maxLength=70;input.value=name;input.setAttribute('aria-label','Habit '+(i+1));
    input.onchange=()=>{const value=input.value.trim();if(!value){input.value=name;return}state.habitLabels[i]=value;if(save())$('habitSaveFeedback').textContent='✓ Habit name saved';};
-   remove.onclick=()=>{if(!confirm('Remove this habit from your list? Historical checkmarks will be recalculated.'))return;
+   remove.onclick=()=>{
+    if(!confirm('Remove this habit? Previous records for this habit will be removed from the habit checklist history.'))return;
     state.habitLabels.splice(i,1);
     Object.values(state.dailyCheckins).forEach(v=>{if(Array.isArray(v.habits))v.habits.splice(i,1)});
-    if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Habit removed and saved'}};
+    // Keep habit configurations and minimums aligned with the remaining habits.
+    const old=state.discipline.settings,newSettings={};
+    state.habitLabels.forEach((_,j)=>{const oldIndex=j>=i?j+1:j;if(old[oldIndex])newSettings[j]=old[oldIndex]});
+    state.discipline.settings=newSettings;
+    for(const [day,minimums] of Object.entries(state.discipline.minimums)){
+     const updated={};state.habitLabels.forEach((_,j)=>{const k=j>=i?j+1:j;if(minimums[k])updated[j]=true});
+     state.discipline.minimums[day]=updated;
+    }
+    if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Habit removed and saved'}
+   };
    row.append(input,remove);$('habitEditor').append(row);
+   const details=element('details',undefined,'discipline-config'),sum=element('summary','Customize cue & minimum');
+   details.append(sum);
+   const cfg=disciplineConfig(i);
+   for(const [key,caption] of [['cue','After… (habit cue)'],['minimum','Minimum version (2 minutes)'],['identity','Identity statement']]){
+    const label=element('label',caption),field=element('input');field.type='text';field.maxLength=150;field.value=cfg[key];field.setAttribute('aria-label',caption+' for '+name);field.dataset.key=key;label.append(field);details.append(label);
+   }
+   const button=element('button','Save habit setup','secondary tiny');button.type='button';
+   button.onclick=()=>{
+    const values={};details.children.forEach(node=>{const field=node.children?.[0];if(field?.dataset?.key)values[field.dataset.key]=field.value.trim()});
+    if(!values.cue||!values.minimum||!values.identity)return alert('Complete the cue, minimum and identity fields.');
+    state.discipline.settings[i]=values;
+    if(save()){renderDaily();$('habitSaveFeedback').textContent='✓ Habit cue and minimum saved'}
+   };
+   details.append(button);$('habitEditor').append(details);
   });
   const addRow=element('div',undefined,'habit-add-row'),newInput=element('input'),addButton=element('button','Add habit','primary tiny');
   newInput.type='text';newInput.maxLength=70;newInput.placeholder='New daily habit';newInput.setAttribute('aria-label','New daily habit');
@@ -1069,6 +1219,13 @@ function renderDaily(){
   addRow.append(newInput,addButton);$('habitEditor').append(addRow);
  }
 }
+function saveDisciplinePrep(){
+ const date=todayCheck();
+ state.discipline.prep[date]={text:$('disciplinePrep').value.trim(),done:$('disciplinePrepDone').checked};
+ if(save())$('disciplinePrepFeedback').textContent='✓ Preparation saved';
+}
+$('disciplinePrep').onchange=saveDisciplinePrep;
+$('disciplinePrepDone').onchange=saveDisciplinePrep;
 
 const themeChoices=[
  {id:'gold',label:'Black & Gold',swatch:'#d4af37',dark:'#080808'},
