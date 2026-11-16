@@ -47,29 +47,37 @@
    };
  }
  const style=document.createElement('style');
- style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px}.vigor-coach .vc-actions a.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}`;
+ style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions .vc-nav{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px;border:0;cursor:pointer}.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}`;
  document.head.append(style);
  const root=document.createElement('section');root.className='vigor-coach';root.id='vigorCoach';root.setAttribute('aria-label','Your adaptive coach and 90-day roadmap');
- const target=$('daily')||document.querySelector('main > .card')||document.querySelector('main');
+ const target=$('big3Panel')||$('daily')||document.querySelector('main > .card');
  if(!target)return;
- target.before(root);
+ target.after(root);
  function render(){
    const bridge=window.vigorCloudBridge;if(!bridge?.read){root.hidden=true;return}
    let data;try{data=bridge.read()}catch(e){root.hidden=true;return}
    if(!data||!Array.isArray(data.habitLabels)){root.hidden=true;return}
    root.hidden=false;
    const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day);
-   const comeback=c.missedYesterday||c.rate!==null&&c.rate<50;
+   const comeback=c.missedYesterday||(c.rate!==null&&c.rate<50);
+   const expanded=root.querySelector('details')?.open||false;
    root.innerHTML=`<div class="vc-eyebrow">YOUR DAILY COACH · BASED ON YOUR TRACKER</div>
     <h2>${comeback?'Your comeback starts today':'Your next best step'}</h2>
     <p class="vc-lead">${escape(c.lead)}</p>
     <p>${escape(c.reason)}</p>
     <p class="vc-note">${c.rate===null?'No recent completion trend yet':escape(c.rate+'% completion across '+c.activeDays+' logged day(s) in the past week')} · These are supportive suggestions, not medical advice.</p>
-    <div class="vc-actions"><a href="#daily">Log one habit</a><a class="alt" href="#training">View workouts</a></div>
-    <details><summary>My 30 / 60 / 90-day transformation roadmap</summary>
+    <div class="vc-actions"><button type="button" class="vc-nav" data-vc-target="daily">Log one habit</button><button type="button" class="vc-nav alt" data-vc-target="training">View workouts</button></div>
+    <details ${expanded?'open':''}><summary>My 30 / 60 / 90-day transformation roadmap</summary>
     <div class="vc-stages">${r.stages.map(x=>`<div class="vc-stage"><strong>Day ${x.day}: ${escape(x.title)}</strong><p>${escape(x.detail)}</p></div>`).join('')}</div>
     <p class="vc-note">${r.progress===null?'Log your weight and set body goals to track weight progress.':escape('Weight goal progress: '+r.progress+'%'+(r.target!==null?' toward '+r.target+' lb':''))}. Your roadmap is flexible and has no required weight-loss deadline.</p>
     </details>`;
+   root.querySelectorAll('[data-vc-target]').forEach(button=>button.onclick=()=>{
+     const id=button.dataset.vcTarget;
+     document.querySelector('[data-panel="today"]')?.click();
+     const destination=$(id);
+     const parent=destination?.closest('details');if(parent)parent.open=true;
+     destination?.scrollIntoView({behavior:'smooth',block:'start'});
+   });
  }
  render();
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
