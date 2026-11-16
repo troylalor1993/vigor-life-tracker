@@ -417,7 +417,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="discipline-head"><div><h2>Show up today.</h2><p>Small faithful actions. Lasting transformation.</p></div><span id="disciplineShift" class="discipline-chip">Today's rhythm</span></div>
 <div class="discipline-metrics"><div><strong id="disciplineDone">0 / 0</strong><small>Full habits</small></div><div><strong id="disciplineMinimumCount">0</strong><small>Minimums done</small></div><div><strong id="disciplineRate">—</strong><small>Recent consistency</small></div></div>
 <div class="discipline-track"><div id="disciplineBar"></div></div>
-<p id="disciplineFocus" class="discipline-focus">Choose one small action to start.</p>
+<p id="disciplineFocus" class="discipline-focus">Choose one small action to start.</p><button type="button" id="disciplineRestart" class="secondary tiny" hidden>Restart with a minimum</button>
 </section>
 <section class="big3-card" id="big3Panel">
 <div class="big3-top"><div><div class="dashboard-label">YOUR DAILY BIG 3</div><h2>Three things that matter.</h2><p>Choose three priorities. Complete the full action or show up with a minimum.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
@@ -533,7 +533,7 @@ insightsCard.innerHTML='<div class="dashboard-label">YOUR HISTORY, MADE USEFUL</
 panels.progress.append(insightsCard);
 const disciplineReview=document.createElement('section');
 disciplineReview.id='disciplineReview';disciplineReview.className='insight-card';
-disciplineReview.innerHTML='<div class="dashboard-label">SYSTEMS OVER MOTIVATION</div><h2>Discipline review</h2><p class="subtle">Based on recorded days only. A minimum counts as showing up, not completing the full goal.</p><div class="discipline-review-metrics"><div><strong id="reviewConsistency">—</strong><small>Showed up</small></div><div><strong id="reviewFull">—</strong><small>Fully completed</small></div><div><strong id="reviewMinimum">—</strong><small>Minimum actions</small></div></div><div id="disciplineReviewContent"></div><details class="discipline-secondary"><summary>Improve your habit system this rotation</summary><label class="field" for="disciplineObstacle">What most often got in your way?</label><select id="disciplineObstacle"><option value="">Select if useful</option><option>Fatigue / recovery</option><option>Not enough time</option><option>Forgot</option><option>Environment / distractions</option><option>Plan was too difficult</option><option>Other</option></select><label class="field" for="disciplineAdjustment">One change for next rotation</label><textarea id="disciplineAdjustment" rows="2" maxlength="300" placeholder="Make the next action easier…"></textarea><p id="disciplineReviewFeedback" class="subtle"></p></details></section>';
+disciplineReview.innerHTML='<div class="dashboard-label">SYSTEMS OVER MOTIVATION</div><h2>Discipline review</h2><p class="subtle">Based on recorded days only. A minimum counts as showing up, not completing the full goal.</p><div class="discipline-review-metrics"><div><strong id="reviewConsistency">—</strong><small>Showed up</small></div><div><strong id="reviewFull">—</strong><small>Fully completed</small></div><div><strong id="reviewMinimum">—</strong><small>Minimum actions</small></div></div><div id="disciplineReviewContent"></div><details class="discipline-secondary"><summary>Improve your habit system this rotation</summary><label class="field" for="disciplineWin">What worked well this rotation?</label><textarea id="disciplineWin" rows="2" maxlength="240" placeholder="One small win worth repeating…"></textarea><label class="field" for="disciplineObstacle">What most often got in your way?</label><select id="disciplineObstacle"><option value="">Select if useful</option><option>Fatigue / recovery</option><option>Not enough time</option><option>Forgot</option><option>Environment / distractions</option><option>Plan was too difficult</option><option>Other</option></select><label class="field" for="disciplineAdjustment">One change for next rotation</label><textarea id="disciplineAdjustment" rows="2" maxlength="300" placeholder="Make the next action easier…"></textarea><button type="button" id="saveDisciplineReview" class="primary">Save rotation review</button><p id="disciplineReviewFeedback" class="subtle"></p></details></section>';
 panels.progress.append(disciplineReview);
 const habitCalendar=document.createElement('section');habitCalendar.className='insight-card';habitCalendar.id='habitCalendar';
 habitCalendar.innerHTML='<div class="dashboard-label">YOUR EIGHT-DAY RHYTHM</div><h2>Habit calendar</h2><p class="subtle">Full, minimum, and unrecorded days are different. A blank day is not a failure.</p><div class="habit-calendar-legend"><span>● Full</span><span>◐ Minimum</span><span>○ Unrecorded</span></div><div id="habitCalendarGrid" class="habit-calendar-grid"></div><div id="habitCalendarDetail" class="subtle"></div>';
@@ -1080,6 +1080,8 @@ function renderActivitySuggestions(){
 
 
 const disciplineConfig=i=>{
+ const shift=disciplineShiftFor(todayCheck());
+ const adaptiveCue=shift==='Night shift'?'After waking for my night shift':shift==='Day shift'?'After my shift':shift==='Recovery day'?'After recovering from my shift':shift==='Day off'?'After my first meal':'After my first daily routine';
  const defaults=[
   {cue:'After my first meal',minimum:'Choose one nourishing meal',identity:'I care for my body with wisdom'},
   {cue:'After I wake up',minimum:'Two minutes of mobility',identity:'I move consistently'},
@@ -1092,7 +1094,10 @@ const disciplineConfig=i=>{
  name.includes('book')?{cue:'After my evening meal',minimum:'Read one page',identity:'I am a lifelong learner'}:
  name.includes('business')?{cue:'After my first planned break',minimum:'One focused five-minute task',identity:'I work with purpose'}:
  defaults[i]||{cue:'After an existing daily routine',minimum:'Do two minutes',identity:'I follow through'};
- return {...preset,...(state.discipline.settings[i]||{})};
+ const adjusted={...preset};
+ if(!state.discipline.settings[i]?.cue)adjusted.cue=adaptiveCue;
+ if(!state.discipline.settings[i]?.minimum&&shift==='Recovery day'&&!name.includes('pray')&&!name.includes('bible'))adjusted.minimum='Two minutes of the easiest version';
+ return {...adjusted,...(state.discipline.settings[i]||{})};
 };
 const disciplineShiftFor=date=>{
  if(state.cycleLength===7)return 'Flexible daily routine';
@@ -1128,6 +1133,18 @@ function renderDisciplineOverview(date){
  const focusConfig=next?disciplineConfig(state.habitLabels.indexOf(next)):null;
  $('disciplineFocus').textContent=next?(recover?'A fresh start today: ':'Next small win: ')+next+'. '+(recover?'Try '+focusConfig.minimum.toLowerCase()+'. ':disciplineShiftFor(date)==='Night shift'?'Anchor it to waking, not the clock. ':'Start with the minimum if time is limited. '):'You showed up for each listed habit today. Well done.';
  $('disciplineFocus').textContent+=' '+currentShiftPlan(date);
+ const restart=$('disciplineRestart');
+ restart.hidden=!recover||!next||date!==today;
+ restart.onclick=()=>{
+  const priorityIndex=state.habitLabels.indexOf(next);
+  if(priorityIndex<0)return;
+  const entry=cleanCheck(state.dailyCheckins[date]);
+  if(entry.habits[priorityIndex])return;
+  state.discipline.minimums[date]||={};
+  state.discipline.minimums[date][priorityIndex]=true;
+  entry.saved=true;state.dailyCheckins[date]=entry;
+  if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Restart recorded · cloud syncing'}
+ };
 }
 function renderDisciplineReview(){
  const m=disciplineMetrics();
@@ -1155,16 +1172,16 @@ function renderDisciplineReview(){
  note('Shift-aware plan:',shift==='Night shift'?'Keep habits anchored to waking and recovery; choose shorter minimums on demanding nights.':shift==='Day shift'?'Prepare the night before and aim for predictable cues after your shift.':shift==='Recovery day'?'Prioritize recovery and a smaller commitment after night shifts.':'Use extra flexibility to schedule longer sessions and prepare your environment.');
 
  const key=cycleStartFor(today),review=state.discipline.reviews[key]||{};
+ $('disciplineWin').value=review.win||'';
  $('disciplineObstacle').value=review.obstacle||'';
  $('disciplineAdjustment').value=review.adjustment||'';
 }
 function saveDisciplineReview(){
  const key=cycleStartFor(today);
- state.discipline.reviews[key]={obstacle:$('disciplineObstacle').value,adjustment:$('disciplineAdjustment').value.trim()};
- if(save())$('disciplineReviewFeedback').textContent='✓ Saved for this rotation';
+ state.discipline.reviews[key]={win:$('disciplineWin').value.trim(),obstacle:$('disciplineObstacle').value,adjustment:$('disciplineAdjustment').value.trim()};
+ if(save())$('disciplineReviewFeedback').textContent='✓ Rotation review saved · Firebase syncing';
 }
-$('disciplineObstacle').onchange=saveDisciplineReview;
-$('disciplineAdjustment').onchange=saveDisciplineReview;
+$('saveDisciplineReview').onclick=saveDisciplineReview;
 function renderDaily(){
  const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);
  $('habitGrid').replaceChildren();
@@ -1501,7 +1518,7 @@ const save=()=>{try{
   const serialized=JSON.stringify(state);
   snapshotBeforeChange(state);
   localStorage.setItem(key,serialized);
-  if($('globalSaveStatus'))$('globalSaveStatus').textContent='Saved on device · syncing…';
+  if($('globalSaveStatus'))$('globalSaveStatus').textContent=localStorage.getItem('vigor-cloud-linked-user')?'Saved on device · syncing…':'Saved on this device';
   if(localStorage.getItem(key)!==serialized)throw Error('Storage verification failed');
   window.dispatchEvent(new Event('vigor-local-changed'));
   return true;
@@ -1653,7 +1670,7 @@ $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb
 $('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
 $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('tr');[m.date,m.weight??'—',m.waist??'—'].forEach(v=>tr.append(element('td',String(v))));const cell=element('td'),remove=element('button','Delete','secondary tiny');remove.onclick=()=>{if(confirm('Delete this measurement?')){state.measurements=state.measurements.filter(x=>x.date!==m.date);save();render()}};cell.append(remove);tr.append(cell);$('history').append(tr)});
 $('anchor').value=state.anchor;
-renderRewards();renderCouples();renderInsights();
+renderRewards();renderCouples();renderInsights();renderBig3();
 }
 $('addCoupleGoal').onclick=()=>{
  const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a shared goal.');
@@ -1816,6 +1833,11 @@ $('themeAccent').onchange=()=>{
 $('resetAccent').onclick=()=>{state.accentOverride=null;if(save()){applyTheme();$('themeMessage').textContent='✓ Theme accent restored'}};
 applyTheme();
 save();renderShiftRoutines();renderSetup();renderRecovery();render();renderDaily();renderActivity();renderZone2();renderDailyVerse();
+window.addEventListener('vigor-sync-status',e=>{
+ const label=e.detail?.label||'';
+ if($('globalSaveStatus'))$('globalSaveStatus').textContent=label||'Saved on this device';
+});
+
 // Refresh the day when returning after midnight, without discarding unsynced changes.
 document.addEventListener('visibilitychange',()=>{
  if(document.hidden||iso(new Date())===today)return;
