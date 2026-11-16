@@ -10,7 +10,7 @@ new vm.Script(src);
 const from = src.indexOf(' const iso=');
 const to = src.indexOf(' const style=');
 assert(from >= 0 && to > from, 'Could not locate the pure coaching functions');
-const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,coaching,roadmap,shiftType,suggestedWorkout})');
+const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview})');
 const data = {
   cycleLength:8, anchor:'2026-11-12',
   habitLabels:['Pray','Nutrition'],
@@ -45,4 +45,40 @@ check('blank previous day does not count as failure',()=>{
  const d={...data,dailyCheckins:{}};
  assert.equal(logic.coaching(d,'2026-11-16').missedYesterday,false);
 });
+
+const workouts = {
+  cycleLength:8, anchor:'2026-11-12',
+  activities:[{id:'strength',name:'Full-body strength',target:3},{id:'cardio',name:'Zone 2 cardio',target:2},{id:'fast',name:'36-hour fast',target:1}],
+  habitLabels:['Pray'], dailyCheckins:{}, discipline:{minimums:{},workoutMinimums:[]}, completions:[]
+};
+check('fasting excluded from workout sessions',()=>{
+ const r=logic.workoutReview(workouts,'2026-11-16');
+ assert.equal(r.target,5);assert.equal(r.items.length,2);
+});
+check('rotation remaining days',()=>assert.equal(logic.workoutReview(workouts,'2026-11-16').daysRemaining,3));
+check('completed sessions and previous rotation',()=>{
+ const d={...workouts,completions:[
+  {activityId:'strength',date:'2026-11-12'},
+  {activityId:'strength',date:'2026-11-14'},
+  {activityId:'cardio',date:'2026-11-15'},
+  {activityId:'strength',date:'2026-11-04'}
+ ]};
+ const r=logic.workoutReview(d,'2026-11-16');
+ assert.equal(r.completed,3);assert.equal(r.previous,1);
+});
+check('minimum effort is tracked without inflating full sessions',()=>{
+ const d={...workouts,discipline:{minimums:{},workoutMinimums:[{activityId:'cardio',date:'2026-11-16'}]}};
+ const r=logic.workoutReview(d,'2026-11-16');
+ assert.equal(r.completed,0);assert.equal(r.minimumEfforts,1);
+});
+check('future dated workout does not inflate totals',()=>{
+ const d={...workouts,completions:[{activityId:'strength',date:'2026-11-17'}]};
+ assert.equal(logic.workoutReview(d,'2026-11-16').completed,0);
+});
+check('no automatic adjustment of targets',()=>{
+ const before=JSON.stringify(workouts);
+ logic.workoutReview(workouts,'2026-11-16');
+ assert.equal(JSON.stringify(workouts),before);
+});
+
 console.log('Adaptive coaching regression checks passed.');
