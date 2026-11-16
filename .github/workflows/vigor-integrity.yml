@@ -21,12 +21,16 @@ jobs:
           node --check growth-dashboard.js
           node --check premium-navigation.js
           node --check daily-focus.js
+          node --check onboarding-guide.js
+          node --check rotation-recap.js
           node --check firebase-sync.js
           node --check couples-sync.js
       - name: Test coaching and habit journey
         run: node tests/adaptive-coach.test.cjs
       - name: Test daily habit focus
         run: node tests/daily-focus.test.cjs
+      - name: Test onboarding and completed rotation review
+        run: node tests/onboarding-rotation.test.cjs
       - name: Test personal growth dashboard
         run: node tests/growth-dashboard.test.cjs
       - name: Install browser test dependencies
@@ -41,5 +45,7 @@ jobs:
           test -s vigor-mark.svg
           grep -q 'premium-navigation.js' index.html
           grep -q 'daily-focus.js' index.html
+          grep -q 'onboarding-guide.js' index.html
+          grep -q 'rotation-recap.js' index.html
           grep -q 'adaptive-coach.js' index.html
           grep -q 'growth-dashboard.js' index.html
