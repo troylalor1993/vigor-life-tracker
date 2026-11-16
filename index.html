@@ -1097,7 +1097,9 @@ function renderDisciplineOverview(date){
  $('disciplineBar').style.width=(m.total?Math.round((m.full+m.small)/m.total*100):0)+'%';
  $('disciplineShift').textContent=disciplineShiftFor(date);
  const next=state.habitLabels.find((_,i)=>!m.entry.habits[i]&&!state.discipline.minimums[date]?.[i]);
- $('disciplineFocus').textContent=next?'Next small win: '+next+'. '+(disciplineShiftFor(date)==='Night shift'?'Anchor it to waking, not the clock.':'Start with the minimum if time is limited.'):'You showed up for each listed habit today. Well done.';
+ const previous=plus(date,-1),prior=state.dailyCheckins[previous],recover=prior?.saved&&disciplineCounts(previous).full<state.habitLabels.length;
+ const focusConfig=next?disciplineConfig(state.habitLabels.indexOf(next)):null;
+ $('disciplineFocus').textContent=next?(recover?'A fresh start today: ':'Next small win: ')+next+'. '+(recover?'Try '+focusConfig.minimum.toLowerCase()+'. ':disciplineShiftFor(date)==='Night shift'?'Anchor it to waking, not the clock. ':'Start with the minimum if time is limited. '):'You showed up for each listed habit today. Well done.';
 }
 function renderDisciplineReview(){
  const m=disciplineMetrics();
