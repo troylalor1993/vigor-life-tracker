@@ -32,7 +32,7 @@ const cloudDoc=()=>doc(db,"users",user.uid,"data","tracker");
 function status(label,details){
  $("cloudStatus").textContent=label;
  $("cloudMessage").textContent=details;
-
+ window.dispatchEvent(new CustomEvent("vigor-sync-status",{detail:{label,details}}));
 }
 function markPending(value){
  try {if(value)localStorage.setItem(pendingKey,"yes");else localStorage.removeItem(pendingKey)}catch(e){}
