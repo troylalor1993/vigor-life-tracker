@@ -733,6 +733,9 @@ state.discipline.big3 ||= [];
 state.discipline.shiftPlans ||= {};
 state.discipline.setupDone ||= false;
 state.discipline.restDays ||= {};
+state.discipline.nutrition ||= {plans:{},resets:{}};
+state.discipline.nutrition.plans ||= {};
+state.discipline.nutrition.resets ||= {};
 
 state.dailyActivity ||= {};
 state.activityGoals ||= {steps:8000,calories:500};
@@ -1111,7 +1114,8 @@ const disciplineConfig=i=>{
  const preset=name.includes('pray')?{cue:'After waking',minimum:'One intentional minute of prayer',identity:'I return to God daily'}:
  name.includes('bible')?{cue:'After brushing my teeth',minimum:'Read one verse',identity:'I make space for Scripture'}:
  name.includes('book')?{cue:'After my evening meal',minimum:'Read one page',identity:'I am a lifelong learner'}:
- name.includes('business')?{cue:'After my first planned break',minimum:'One focused five-minute task',identity:'I work with purpose'}:
+ name.includes('nutrition')||name.includes('food plan')?{cue:'Before leaving for my shift',minimum:'Make one intentional meal or drink choice',identity:'I eat intentionally to support my energy and training'}:
+  name.includes('business')?{cue:'After my first planned break',minimum:'One focused five-minute task',identity:'I work with purpose'}:
  defaults[i]||{cue:'After an existing daily routine',minimum:'Do two minutes',identity:'I follow through'};
  const adjusted={...preset};
  if(!state.discipline.settings[i]?.cue)adjusted.cue=adaptiveCue;
@@ -1204,6 +1208,73 @@ $('saveDisciplineReview').onclick=saveDisciplineReview;
 $('disciplineWin').onchange=saveDisciplineReview;
 $('disciplineObstacle').onchange=saveDisciplineReview;
 $('disciplineAdjustment').onchange=saveDisciplineReview;
+// Nutrition is one connected habit, not a second competing checklist.
+function nutritionIndex(){
+ return state.habitLabels.findIndex(name=>/nutrition|food plan|healthy eat|meal plan/i.test(name));
+}
+function nutritionCravingAdvice(reason){
+ const advice={
+  hungry:'Have a satisfying prepared meal or snack with protein and fibre. Being hungry is a reason to eat, not a failure.',
+  sweet:'Try a planned sweet choice, such as fruit with yogurt, or an intentional portion of something you enjoy.',
+  tired:'Take a short rest or break if possible, then decide whether food or recovery is what you need.',
+  convenience:'Use your packed meal or backup snack if available. If you buy food, choose something satisfying and move on.'
+ };
+ return advice[reason]||advice.hungry;
+}
+function nutritionShiftHint(date){
+ const shift=disciplineShiftFor(date);
+ return shift==='Day shift'||shift==='Night shift'?'Before your 12-hour shift, pack a meal and an easy backup snack.':
+ shift==='Recovery day'?'Choose easy, satisfying meals and prioritize rest after night shifts.':
+ 'Plan one simple meal or snack for when your next busy day arrives.';
+}
+function renderNutrition(){
+ const date=todayCheck(),index=nutritionIndex(),has=index>=0;
+ const entry=cleanCheck(state.dailyCheckins[date]);
+ const full=has&&entry.habits[index],minimum=has&&!full&&!!state.discipline.minimums[date]?.[index];
+ $('nutritionShiftBadge').textContent=disciplineShiftFor(date);
+ $('nutritionPlanHint').textContent=nutritionShiftHint(date);
+ $('nutritionPlan').value=state.discipline.nutrition.plans[date]||'';
+ $('nutritionHabitState').textContent=!has?'Create a nutrition habit in All habits to link tracking.':full?'✓ Nutrition plan followed':minimum?'◐ Intentional choice completed':'One nutrition habit · full or minimum';
+ $('nutritionMinimum').disabled=!has;
+ $('nutritionFull').disabled=!has;
+ $('nutritionMinimum').classList.toggle('chosen',!!minimum);
+ $('nutritionFull').classList.toggle('chosen',!!full);
+ $('nutritionResponse').textContent=nutritionCravingAdvice($('nutritionCravingReason').value);
+ const reset=state.discipline.nutrition.resets[date];
+ $('nutritionResetStatus').textContent=reset?'✓ You chose to restart at your next meal. No day was erased or marked as failed.':'';
+}
+function nutritionLog(mode){
+ const index=nutritionIndex(),date=todayCheck();
+ if(index<0)return alert('Add a nutrition habit in All habits first.');
+ const entry=cleanCheck(state.dailyCheckins[date]);
+ state.discipline.minimums[date]||={};
+ if(mode==='full'){
+  const removing=!!entry.habits[index];
+  entry.habits[index]=!removing;
+  if(!removing)delete state.discipline.minimums[date][index];
+ }else{
+  const removing=!!state.discipline.minimums[date][index]&&!entry.habits[index];
+  entry.habits[index]=false;
+  if(removing)delete state.discipline.minimums[date][index];
+  else state.discipline.minimums[date][index]=true;
+ }
+ entry.saved=true;state.dailyCheckins[date]=entry;
+ if(save()){renderDaily();render();$('nutritionHabitState').textContent+=' · saved locally'}
+}
+$('nutritionFull').onclick=()=>nutritionLog('full');
+$('nutritionMinimum').onclick=()=>nutritionLog('minimum');
+$('nutritionCravingReason').onchange=()=>{$('nutritionResponse').textContent=nutritionCravingAdvice($('nutritionCravingReason').value)};
+$('nutritionPlan').onchange=()=>{
+ const date=todayCheck(),value=$('nutritionPlan').value.trim();
+ if(value)state.discipline.nutrition.plans[date]=value;
+ else delete state.discipline.nutrition.plans[date];
+ if(save())$('nutritionPlanStatus').textContent='✓ Your meal preparation plan is saved.';
+};
+$('nutritionReset').onclick=()=>{
+ const date=todayCheck();
+ state.discipline.nutrition.resets[date]={at:new Date().toISOString(),message:'Return to my plan at the next meal'};
+ if(save()){renderNutrition();$('nutritionResetStatus').textContent='✓ Fresh start at your next meal. One choice does not undo your progress.'}
+};
 function renderDaily(){
  const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);
  $('habitGrid').replaceChildren();
@@ -1246,6 +1317,7 @@ function renderDaily(){
  renderDisciplineReview();
  renderBig3();
  renderHabitCalendar();
+ renderNutrition();
  const preparation=state.discipline.prep[date]||{};
  $('disciplinePrep').value=preparation.text||'';
  $('disciplinePrepDone').checked=!!preparation.done;
@@ -1926,7 +1998,7 @@ $('anchor').onchange=()=>{
  if(save()){render();renderZone2();$('scheduleSaveStatus').textContent='✓ Start date saved'}
 };
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.discipline||={settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{}};state.discipline.settings||={};state.discipline.minimums||={};state.discipline.workoutMinimums||=[];state.discipline.prep||={};state.discipline.reviews||={};state.discipline.big3||=[];state.discipline.shiftPlans||={};state.discipline.setupDone||=false;state.discipline.restDays||={};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.discipline||={settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{}};state.discipline.settings||={};state.discipline.minimums||={};state.discipline.workoutMinimums||=[];state.discipline.prep||={};state.discipline.reviews||={};state.discipline.big3||=[];state.discipline.shiftPlans||={};state.discipline.setupDone||=false;state.discipline.restDays||={};state.discipline.nutrition||={plans:{},resets:{}};state.discipline.nutrition.plans||={};state.discipline.nutrition.resets||={};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 $('themeAccent').onchange=()=>{
  const color=$('themeAccent').value;
  if(relativeLuminance(color)<.22){$('themeMessage').textContent='Please choose a brighter accent for readable text and controls.';applyTheme();return;}
@@ -2019,7 +2091,8 @@ window.vigorCloudBridge={
     big3:Array.isArray(payload.discipline?.big3)?payload.discipline.big3:[],
     shiftPlans:payload.discipline?.shiftPlans||{},
     setupDone:!!payload.discipline?.setupDone,
-    restDays:payload.discipline?.restDays||{}
+    restDays:payload.discipline?.restDays||{},
+    nutrition:{plans:payload.discipline?.nutrition?.plans||{},resets:payload.discipline?.nutrition?.resets||{}}
    },
    couples:window.vigorCouplesSharedActive?previousCouples:(payload.couples||previousCouples)
   };
@@ -2034,7 +2107,7 @@ window.vigorCloudBridge={
  },
  restore:payload=>{
   if(!payload||typeof payload!=='object'||!Array.isArray(payload.activities)||!Array.isArray(payload.measurements)||typeof payload.anchor!=='string')throw Error('Invalid cloud backup.');
-  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})},discipline:{settings:payload.discipline?.settings||{},minimums:payload.discipline?.minimums||{},workoutMinimums:payload.discipline?.workoutMinimums||[],prep:payload.discipline?.prep||{},reviews:payload.discipline?.reviews||{},big3:payload.discipline?.big3||[],shiftPlans:payload.discipline?.shiftPlans||{},setupDone:!!payload.discipline?.setupDone,restDays:payload.discipline?.restDays||{}}}));
+  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})},discipline:{settings:payload.discipline?.settings||{},minimums:payload.discipline?.minimums||{},workoutMinimums:payload.discipline?.workoutMinimums||[],prep:payload.discipline?.prep||{},reviews:payload.discipline?.reviews||{},big3:payload.discipline?.big3||[],shiftPlans:payload.discipline?.shiftPlans||{},setupDone:!!payload.discipline?.setupDone,restDays:payload.discipline?.restDays||{},nutrition:{plans:payload.discipline?.nutrition?.plans||{},resets:payload.discipline?.nutrition?.resets||{}}}}));
   window.location.reload();
  }
 };
