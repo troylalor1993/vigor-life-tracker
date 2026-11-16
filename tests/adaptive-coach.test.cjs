@@ -10,7 +10,7 @@ new vm.Script(src);
 const from = src.indexOf(' const iso=');
 const to = src.indexOf(' const style=');
 assert(from >= 0 && to > from, 'Could not locate the pure coaching functions');
-const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance})');
+const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,habitIntelligence,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance})');
 const data = {
   cycleLength:8, anchor:'2026-11-12',
   habitLabels:['Pray','Nutrition'],
@@ -108,6 +108,35 @@ check('minimum-effort sessions do not trigger progression',()=>{
   {activityId:'strength',date:'2026-11-05'},{activityId:'strength',date:'2026-11-06'}],
   discipline:{minimums:{},workoutMinimums:[{activityId:'strength',date:'2026-11-17'}]}};
  assert.equal(logic.progressionGuidance(d,'2026-11-17').status,'maintain');
+});
+
+
+check('habit priorities favor a configured Big 3 habit',()=>{
+ const d={...data,habitLabels:['Read Bible','Pray','Nutrition'],discipline:{minimums:{},restDays:{},settings:{1:{cue:'After waking',minimum:'Pray one minute'}},big3:['h:1']}};
+ const x=logic.habitIntelligence(d,'2026-11-16');
+ assert.equal(x.chosen.name,'Pray');assert.equal(x.cue,'After waking');
+});
+check('missed individual habit triggers supportive comeback',()=>{
+ const d={...data,habitLabels:['Read Bible','Pray'],dailyCheckins:{'2026-11-15':{saved:true,habits:[true,false]}},discipline:{minimums:{},restDays:{}}};
+ assert.equal(logic.habitIntelligence(d,'2026-11-16').missedYesterday,true);
+ assert(logic.coaching(d,'2026-11-16').lead.includes('Return to one missed habit'));
+});
+check('rest days are neither missed nor scored',()=>{
+ const d={...data,habitLabels:['Read Bible','Pray'],dailyCheckins:{'2026-11-15':{saved:true,habits:[false,false]}},discipline:{minimums:{},restDays:{'2026-11-15':true}}};
+ const x=logic.habitIntelligence(d,'2026-11-16');
+ assert.equal(x.missedYesterday,false);assert.equal(x.rate,null);
+});
+check('unrecorded days are not failures',()=>{
+ const d={...data,dailyCheckins:{'2026-11-15':{saved:false,habits:[]}},discipline:{minimums:{},restDays:{}}};
+ assert.equal(logic.habitIntelligence(d,'2026-11-16').missedYesterday,false);
+});
+check('minimum effort counts separately from full habit completion',()=>{
+ const d={...data,habitLabels:['Bible','Pray'],dailyCheckins:{'2026-11-15':{saved:true,habits:[true,false]}},discipline:{minimums:{'2026-11-15':{1:true}},restDays:{}}};
+ const x=logic.habitIntelligence(d,'2026-11-16');
+ assert.equal(x.totalFull,1);assert.equal(x.totalMinimum,1);assert.equal(x.rate,100);
+});
+check('90 day roadmap prioritizes whole-life habit formation',()=>{
+ assert.equal(logic.roadmap(data,'2026-11-16').stages[0].title,'Build the habit foundation');
 });
 
 console.log('Adaptive coaching regression checks passed.');
