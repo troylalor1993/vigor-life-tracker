@@ -718,6 +718,9 @@ state.discipline.minimums ||= {};
 state.discipline.workoutMinimums ||= [];
 state.discipline.prep ||= {};
 state.discipline.reviews ||= {};
+state.discipline.big3 ||= [];
+state.discipline.shiftPlans ||= {};
+state.discipline.setupDone ||= false;
 
 state.dailyActivity ||= {};
 state.activityGoals ||= {steps:8000,calories:500};
@@ -1604,7 +1607,7 @@ $('anchor').onchange=()=>{
  if(save()){render();renderZone2();$('scheduleSaveStatus').textContent='✓ Start date saved'}
 };
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.discipline||={settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{}};state.discipline.settings||={};state.discipline.minimums||={};state.discipline.workoutMinimums||=[];state.discipline.prep||={};state.discipline.reviews||={};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.discipline||={settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{}};state.discipline.settings||={};state.discipline.minimums||={};state.discipline.workoutMinimums||=[];state.discipline.prep||={};state.discipline.reviews||={};state.discipline.big3||=[];state.discipline.shiftPlans||={};state.discipline.setupDone||=false;state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 $('themeAccent').onchange=()=>{
  const color=$('themeAccent').value;
  if(relativeLuminance(color)<.22){$('themeMessage').textContent='Please choose a brighter accent for readable text and controls.';applyTheme();return;}
@@ -1688,7 +1691,10 @@ window.vigorCloudBridge={
     minimums:payload.discipline?.minimums||{},
     workoutMinimums:Array.isArray(payload.discipline?.workoutMinimums)?payload.discipline.workoutMinimums:[],
     prep:payload.discipline?.prep||{},
-    reviews:payload.discipline?.reviews||{}
+    reviews:payload.discipline?.reviews||{},
+    big3:Array.isArray(payload.discipline?.big3)?payload.discipline.big3:[],
+    shiftPlans:payload.discipline?.shiftPlans||{},
+    setupDone:!!payload.discipline?.setupDone
    },
    couples:window.vigorCouplesSharedActive?previousCouples:(payload.couples||previousCouples)
   };
@@ -1703,7 +1709,7 @@ window.vigorCloudBridge={
  },
  restore:payload=>{
   if(!payload||typeof payload!=='object'||!Array.isArray(payload.activities)||!Array.isArray(payload.measurements)||typeof payload.anchor!=='string')throw Error('Invalid cloud backup.');
-  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})},discipline:{settings:payload.discipline?.settings||{},minimums:payload.discipline?.minimums||{},workoutMinimums:payload.discipline?.workoutMinimums||[],prep:payload.discipline?.prep||{},reviews:payload.discipline?.reviews||{}}}));
+  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})},discipline:{settings:payload.discipline?.settings||{},minimums:payload.discipline?.minimums||{},workoutMinimums:payload.discipline?.workoutMinimums||[],prep:payload.discipline?.prep||{},reviews:payload.discipline?.reviews||{},big3:payload.discipline?.big3||[],shiftPlans:payload.discipline?.shiftPlans||{},setupDone:!!payload.discipline?.setupDone}}));
   window.location.reload();
  }
 };
