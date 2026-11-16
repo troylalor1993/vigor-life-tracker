@@ -10,7 +10,7 @@ new vm.Script(src);
 const from = src.indexOf(' const iso=');
 const to = src.indexOf(' const style=');
 assert(from >= 0 && to > from, 'Could not locate the pure coaching functions');
-const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,habitIntelligence,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance})');
+const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,habitIntelligence,habitJourney,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance})');
 const data = {
   cycleLength:8, anchor:'2026-11-12',
   habitLabels:['Pray','Nutrition'],
@@ -137,6 +137,44 @@ check('minimum effort counts separately from full habit completion',()=>{
 });
 check('90 day roadmap prioritizes whole-life habit formation',()=>{
  assert.equal(logic.roadmap(data,'2026-11-16').stages[0].title,'Build the habit foundation');
+});
+
+
+check('habit journey begins with setup',()=>{
+ const d={...data,habitLabels:['Read'],discipline:{settings:{},minimums:{},restDays:{}},dailyCheckins:{}};
+ assert.equal(logic.habitJourney(d,'2026-11-16',0).phase,'setup');
+ assert.equal(logic.habitJourney(d,'2026-11-16',99),null);
+});
+check('configured habit moves into practice',()=>{
+ const d={...data,habitLabels:['Read'],discipline:{settings:{0:{cue:'After breakfast',minimum:'Read one page',identity:'I am a reader'}},minimums:{},restDays:{}},dailyCheckins:{}};
+ const h=logic.habitJourney(d,'2026-11-16',0);
+ assert.equal(h.phase,'practice');assert.equal(h.minimum,'Read one page');
+});
+check('habit journey moves to reflection after recorded practice',()=>{
+ const d={...data,habitLabels:['Read'],discipline:{settings:{0:{cue:'After breakfast',minimum:'Read one page',identity:'I am a reader'}},minimums:{},restDays:{}},
+ dailyCheckins:{'2026-11-10':{saved:true,habits:[true]},'2026-11-11':{saved:true,habits:[false]},'2026-11-12':{saved:true,habits:[true]}}};
+ assert.equal(logic.habitJourney(d,'2026-11-16',0).phase,'review');
+});
+check('habit journey strengthens after six of eight recorded opportunities',()=>{
+ const records=Object.fromEntries(Array.from({length:8},(_,i)=>{
+  const day=new Date(Date.UTC(2026,10,8+i)).toISOString().slice(0,10);
+  return [day,{saved:true,habits:[i<6]}];
+ }));
+ const d={...data,habitLabels:['Read'],discipline:{settings:{0:{cue:'After breakfast',minimum:'Read one page',identity:'I am a reader'}},minimums:{},restDays:{}},dailyCheckins:records};
+ assert.equal(logic.habitJourney(d,'2026-11-16',0).phase,'strengthen');
+});
+check('habit journey adjusts rather than punishes after difficult recorded period',()=>{
+ const records=Object.fromEntries(Array.from({length:8},(_,i)=>{
+  const day=new Date(Date.UTC(2026,10,8+i)).toISOString().slice(0,10);
+  return [day,{saved:true,habits:[false]}];
+ }));
+ const d={...data,habitLabels:['Read'],discipline:{settings:{0:{cue:'After breakfast',minimum:'Read one page',identity:'I am a reader'}},minimums:{},restDays:{}},dailyCheckins:records};
+ assert.equal(logic.habitJourney(d,'2026-11-16',0).phase,'adjust');
+});
+check('habit journey never treats a designated rest day as a missed opportunity',()=>{
+ const d={...data,habitLabels:['Read'],discipline:{settings:{0:{cue:'After breakfast',minimum:'Read one page',identity:'I am a reader'}},minimums:{},restDays:{'2026-11-15':true}},
+ dailyCheckins:{'2026-11-15':{saved:true,habits:[false]}}};
+ assert.equal(logic.habitJourney(d,'2026-11-16',0).recordedDays,0);
 });
 
 console.log('Adaptive coaching regression checks passed.');
