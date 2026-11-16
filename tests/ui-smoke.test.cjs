@@ -30,12 +30,14 @@ async function main(){
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Today priorities visible');
      assert.equal(await page.locator('#vigorDailyFocus').isVisible(),true,'Next Small Win hero visible');
+     assert.equal(await page.locator('#vigorStartGuide').isVisible(),true,'First-run guide visible without saved history');
      await page.locator('#vigorDailyFocus button').click();
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Next Small Win action leads to priorities');
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      assert.equal(await page.locator('#vigorCoach .vc-journey').isVisible(),true,'Journey visible');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
      assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth visible');
+     assert.equal(await page.locator('#vigorRotationRecap').isVisible(),true,'Rotation recap visible in Growth');
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#training').isVisible(),true,'Fitness visible');
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
