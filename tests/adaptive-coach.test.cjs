@@ -10,7 +10,7 @@ new vm.Script(src);
 const from = src.indexOf(' const iso=');
 const to = src.indexOf(' const style=');
 assert(from >= 0 && to > from, 'Could not locate the pure coaching functions');
-const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview})');
+const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance})');
 const data = {
   cycleLength:8, anchor:'2026-11-12',
   habitLabels:['Pray','Nutrition'],
@@ -79,6 +79,35 @@ check('no automatic adjustment of targets',()=>{
  const before=JSON.stringify(workouts);
  logic.workoutReview(workouts,'2026-11-16');
  assert.equal(JSON.stringify(workouts),before);
+});
+
+
+check('progression recommends rebuilding when no previous workouts exist',()=>{
+ const d={...workouts,activities:[{id:'strength',name:'Strength',target:2}]};
+ assert.equal(logic.progressionGuidance(d,'2026-11-17').status,'rebuild');
+});
+check('progression review only after two complete prior rotations',()=>{
+ const d={...workouts,activities:[{id:'strength',name:'Strength',target:2}],completions:[
+  {activityId:'strength',date:'2026-10-29'},{activityId:'strength',date:'2026-10-30'},
+  {activityId:'strength',date:'2026-11-05'},{activityId:'strength',date:'2026-11-06'}]};
+ assert.equal(logic.progressionGuidance(d,'2026-11-17').status,'review');
+ assert.equal(logic.progressionGuidance({...d,completions:d.completions.slice(2)},'2026-11-17').status,'maintain');
+});
+check('low-energy recovery guidance takes precedence',()=>{
+ const d={...workouts,activities:[{id:'strength',name:'Strength',target:2}],
+  dailyCheckins:{'2026-11-17':{energy:'low'}}};
+ assert.equal(logic.progressionGuidance(d,'2026-11-17').status,'recover');
+});
+check('shift-based recovery overrides progression recommendation',()=>{
+ const d={...workouts,activities:[{id:'strength',name:'Strength',target:2}]};
+ assert.equal(logic.progressionGuidance(d,'2026-11-16').status,'recover');
+});
+check('minimum-effort sessions do not trigger progression',()=>{
+ const d={...workouts,activities:[{id:'strength',name:'Strength',target:2}],completions:[
+  {activityId:'strength',date:'2026-10-29'},{activityId:'strength',date:'2026-10-30'},
+  {activityId:'strength',date:'2026-11-05'},{activityId:'strength',date:'2026-11-06'}],
+  discipline:{minimums:{},workoutMinimums:[{activityId:'strength',date:'2026-11-17'}]}};
+ assert.equal(logic.progressionGuidance(d,'2026-11-17').status,'maintain');
 });
 
 console.log('Adaptive coaching regression checks passed.');
