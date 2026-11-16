@@ -421,7 +421,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 </section>
 <section class="big3-card" id="big3Panel">
 <div class="big3-top"><div><div class="dashboard-label">YOUR DAILY BIG 3</div><h2>Three things that matter.</h2><p>Focus on three priorities, not everything at once. Tap Done or Minimum to record progress.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
-<div id="big3List" class="big3-list"></div><p id="big3Status" class="subtle" aria-live="polite"></p>
+<div id="big3List" class="big3-list"></div><button type="button" id="openSetup" class="secondary tiny" hidden>Personalize my routine</button><p id="big3Status" class="subtle" aria-live="polite"></p>
 <details class="discipline-secondary" id="big3Editor"><summary>Choose my Big 3</summary><div id="big3Selectors" class="big3-selectors"></div><button type="button" id="saveBig3" class="primary">Save priorities</button></details>
 </section>
 <div class="card" id="daily"><div class="row"><h2>Daily habits</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Check a habit whenever you complete it. Changes save automatically.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div class="habit-workflow-caption">Tap <strong>Done</strong> when you complete a habit, or <strong>Minimum</strong> when you take the smaller first step. Both save automatically; only full completions earn the usual habit points.</div><div id="habitGrid" class="discipline-habit-grid" style="margin-top:12px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><details class="discipline-secondary"><summary>Prepare for your next opportunity</summary><label class="field" for="disciplinePrep">Make tomorrow easier</label><input type="text" id="disciplinePrep" maxlength="160" placeholder="e.g. Put gym clothes beside the door"><label class="discipline-prepare-check"><input type="checkbox" id="disciplinePrepDone"><span>Preparation completed</span></label><p id="disciplinePrepFeedback" class="subtle"></p></details><div id="habitSaveFeedback" class="subtle" aria-live="polite"></div><p class="subtle" id="dailySaveStatus" aria-live="polite">Checkmarks save automatically.</p></div>
@@ -536,7 +536,7 @@ disciplineReview.id='disciplineReview';disciplineReview.className='insight-card'
 disciplineReview.innerHTML='<div class="dashboard-label">SYSTEMS OVER MOTIVATION</div><h2>Discipline review</h2><p class="subtle">Based on recorded days only. A minimum counts as showing up, not completing the full goal.</p><div class="discipline-review-metrics"><div><strong id="reviewConsistency">—</strong><small>Showed up</small></div><div><strong id="reviewFull">—</strong><small>Fully completed</small></div><div><strong id="reviewMinimum">—</strong><small>Minimum actions</small></div></div><div id="disciplineReviewContent"></div><details class="discipline-secondary"><summary>Improve your habit system this rotation</summary><label class="field" for="disciplineWin">What worked well this rotation?</label><textarea id="disciplineWin" rows="2" maxlength="240" placeholder="One small win worth repeating…"></textarea><label class="field" for="disciplineObstacle">What most often got in your way?</label><select id="disciplineObstacle"><option value="">Select if useful</option><option>Fatigue / recovery</option><option>Not enough time</option><option>Forgot</option><option>Environment / distractions</option><option>Plan was too difficult</option><option>Other</option></select><label class="field" for="disciplineAdjustment">One change for next rotation</label><textarea id="disciplineAdjustment" rows="2" maxlength="300" placeholder="Make the next action easier…"></textarea><button type="button" id="saveDisciplineReview" class="primary">Save rotation review</button><p id="disciplineReviewFeedback" class="subtle"></p></details></section>';
 panels.progress.append(disciplineReview);
 const habitCalendar=document.createElement('section');habitCalendar.className='insight-card';habitCalendar.id='habitCalendar';
-habitCalendar.innerHTML='<div class="dashboard-label">YOUR EIGHT-DAY RHYTHM</div><h2>Habit calendar</h2><p class="subtle">Full, minimum, and unrecorded days are different. A blank day is not a failure.</p><div class="habit-calendar-legend"><span>● Full</span><span>◐ Minimum</span><span>○ Unrecorded</span></div><div id="habitCalendarGrid" class="habit-calendar-grid"></div><div id="habitCalendarDetail" class="subtle"></div>';
+habitCalendar.innerHTML='<div class="dashboard-label">YOUR EIGHT-DAY RHYTHM</div><h2>Habit calendar</h2><p class="subtle">Full, minimum, and unrecorded days are different. A blank day is not a failure.</p><div class="habit-calendar-legend"><span>● Full</span><span>◐ Minimum</span><span>☾ Recovery</span><span>○ Unrecorded</span></div><div id="habitCalendarGrid" class="habit-calendar-grid"></div><div id="habitCalendarDetail" class="subtle"></div><button id="markRecoveryDay" type="button" class="secondary tiny">Mark today as recovery</button>';
 panels.progress.append(habitCalendar);
 collapsible('progress',document.querySelector('#transformationSummary').closest('.card'),'Weight & waist charts',false);
 collapsible('progress',document.querySelector('#milestones').closest('.card'),'Weight milestones & rewards',false);
@@ -721,6 +721,7 @@ state.discipline.reviews ||= {};
 state.discipline.big3 ||= [];
 state.discipline.shiftPlans ||= {};
 state.discipline.setupDone ||= false;
+state.discipline.restDays ||= {};
 
 state.dailyActivity ||= {};
 state.activityGoals ||= {steps:8000,calories:500};
@@ -1389,27 +1390,43 @@ $('saveBig3').onclick=()=>{
  state.discipline.big3=choices;
  if(save()){renderBig3();$('big3Editor').open=false;$('big3Status').textContent='✓ Your Daily Big 3 are saved.'}
 };
+let chosenHabitCalendarDate=today;
 function renderHabitCalendar(){
  const startDate=cycleStartFor(today),end=endFor(startDate),grid=$('habitCalendarGrid');
  grid.replaceChildren();
  for(let i=0;i<cycleDays();i++){
   const date=plus(startDate,i),counts=disciplineCounts(date);
   const has=state.dailyCheckins[date]?.saved;
-  const symbol=!has?'○':counts.full===counts.total?'●':counts.full||counts.small?'◐':'○';
+  const resting=!!state.discipline.restDays[date];
+  const symbol=resting?'☾':!has?'○':counts.full===counts.total?'●':counts.full||counts.small?'◐':'○';
   const cell=element('button',undefined,'habit-day');
   cell.type='button';cell.disabled=date>today;
-  cell.setAttribute('aria-pressed',String(date===today));
+  cell.setAttribute('aria-pressed',String(date===chosenHabitCalendarDate));
   cell.setAttribute('aria-label',date+': '+counts.full+' full, '+counts.small+' minimum habits');
-  cell.append(element('strong',date.slice(5)),element('span',date>today?'·':symbol),element('small',date>today?'Upcoming':has?counts.full+' full · '+counts.small+' min':'Not logged'));
+  cell.append(element('strong',date.slice(5)),element('span',date>today?'·':symbol),element('small',date>today?'Upcoming':resting?'Recovery':has?counts.full+' full · '+counts.small+' min':'Not logged'));
   cell.onclick=()=>{
+   chosenHabitCalendarDate=date;
    for(const other of Array.from(grid.children))other.setAttribute('aria-pressed','false');
    cell.setAttribute('aria-pressed','true');
-   $('habitCalendarDetail').textContent=date+': '+(has?counts.full+' full and '+counts.small+' minimum actions.':'No habit entry recorded.');
+   $('habitCalendarDetail').textContent=date+': '+(resting?'Planned recovery day.':has?counts.full+' full and '+counts.small+' minimum actions.':'No habit entry recorded.');
+   $('markRecoveryDay').textContent=resting?'Undo recovery day':'Mark selected day as recovery';
   };
   grid.append(cell);
  }
  $('habitCalendarDetail').textContent=startDate+' to '+end+' · Blank days are not failures.';
+ $('markRecoveryDay').textContent=state.discipline.restDays[chosenHabitCalendarDate]?'Undo recovery day':'Mark selected day as recovery';
+ $('markRecoveryDay').disabled=chosenHabitCalendarDate>today||chosenHabitCalendarDate<startDate||chosenHabitCalendarDate>end;
 }
+$('markRecoveryDay').onclick=()=>{
+ const date=chosenHabitCalendarDate;
+ if(date>today)return;
+ if(state.discipline.restDays[date])delete state.discipline.restDays[date];
+ else state.discipline.restDays[date]=true;
+ if(save()){renderHabitCalendar();$('habitCalendarDetail').textContent=date+': '+(state.discipline.restDays[date]?'Recovery day recorded.':'Recovery marker removed.')}
+};
+$('openSetup').onclick=()=>{
+ showPanel('settings');$('setupDetails').open=true;$('vigorSetup').scrollIntoView({behavior:'smooth',block:'start'});
+};
 function renderShiftRoutines(){
  const editor=$('shiftRoutineEditor');editor.replaceChildren();
  for(const [type,defaultValue] of Object.entries(shiftPlanDefaults)){
@@ -1429,6 +1446,7 @@ $('saveShiftRoutines').onclick=()=>{
 };
 function renderSetup(){
  $('setupProgress').textContent=state.discipline.setupDone?'Personalized':'Optional setup';
+ $('openSetup').hidden=!!state.discipline.setupDone;
  const select=$('setupTopHabit'),previous=select.value;
  select.replaceChildren();
  state.habitLabels.forEach(name=>{const option=element('option',name);option.value=name;select.append(option)});
@@ -1835,7 +1853,7 @@ $('anchor').onchange=()=>{
  if(save()){render();renderZone2();$('scheduleSaveStatus').textContent='✓ Start date saved'}
 };
 $('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=element('a');a.href=url;a.download='vigor-life-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.discipline||={settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{}};state.discipline.settings||={};state.discipline.minimums||={};state.discipline.workoutMinimums||=[];state.discipline.prep||={};state.discipline.reviews||={};state.discipline.big3||=[];state.discipline.shiftPlans||={};state.discipline.setupDone||=false;state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
+$('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const v=JSON.parse(await f.text());if(!Array.isArray(v.measurements)||!v.anchor)throw Error();if(confirm('Replace this device\'s personal tracker data with the backup? Existing cloud data may be updated when synchronization resumes. Your connected Couples shared space will be kept.')){const currentCouples=state.couples;state=v;if(window.vigorCouplesSharedActive)state.couples=currentCouples;state.activities||=base;state.completions||=[];state.readDays||={};state.rotationNotes||={};state.rewards ||= suggestedRewards.map(x=>({...x}));state.rewardRedemptions||=[];state.dailyCheckins||={};state.dailyActivity||={};state.activityGoals||={steps:8000,calories:500};state.bodyGoals||={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38};state.discipline||={settings:{},minimums:{},workoutMinimums:[],prep:{},reviews:{}};state.discipline.settings||={};state.discipline.minimums||={};state.discipline.workoutMinimums||=[];state.discipline.prep||={};state.discipline.reviews||={};state.discipline.big3||=[];state.discipline.shiftPlans||={};state.discipline.setupDone||=false;state.discipline.restDays||={};state.zone2Logs||=[];state.zone2Goal||=150;state.cycleLength=state.cycleLength===7?7:8;state.scheduleAnchors||={8:state.anchor};state.theme||='gold';state.accentOverride||=null;state.habitLabels||=['Followed nutrition plan','Stretching / mobility / flexibility','Reached step target','Prioritized sleep/recovery'];if(!state.habitMigrationV2){state.habitLabels=state.habitLabels.map(label=>label==='Met protein goal'?'Stretching / mobility / flexibility':label);['Read Bible','Pray','Read a book','Work on business'].forEach(label=>{if(!state.habitLabels.includes(label))state.habitLabels.push(label)});state.habitMigrationV2=true}state.milestoneRewards||={};state.milestoneClaims||={};state.couples||={goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name:'Walk or move together'},{id:'cg-check',name:'Encouraging check-in'}],completed:{},notes:{}};if(!Array.isArray(state.activities)||!Array.isArray(state.completions))throw Error('Invalid activities or logs');save();location.reload()}}catch(e){alert('Invalid backup file')}};
 $('themeAccent').onchange=()=>{
  const color=$('themeAccent').value;
  if(relativeLuminance(color)<.22){$('themeMessage').textContent='Please choose a brighter accent for readable text and controls.';applyTheme();return;}
@@ -1927,7 +1945,8 @@ window.vigorCloudBridge={
     reviews:payload.discipline?.reviews||{},
     big3:Array.isArray(payload.discipline?.big3)?payload.discipline.big3:[],
     shiftPlans:payload.discipline?.shiftPlans||{},
-    setupDone:!!payload.discipline?.setupDone
+    setupDone:!!payload.discipline?.setupDone,
+    restDays:payload.discipline?.restDays||{}
    },
    couples:window.vigorCouplesSharedActive?previousCouples:(payload.couples||previousCouples)
   };
@@ -1942,7 +1961,7 @@ window.vigorCloudBridge={
  },
  restore:payload=>{
   if(!payload||typeof payload!=='object'||!Array.isArray(payload.activities)||!Array.isArray(payload.measurements)||typeof payload.anchor!=='string')throw Error('Invalid cloud backup.');
-  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})},discipline:{settings:payload.discipline?.settings||{},minimums:payload.discipline?.minimums||{},workoutMinimums:payload.discipline?.workoutMinimums||[],prep:payload.discipline?.prep||{},reviews:payload.discipline?.reviews||{},big3:payload.discipline?.big3||[],shiftPlans:payload.discipline?.shiftPlans||{},setupDone:!!payload.discipline?.setupDone}}));
+  localStorage.setItem(key,JSON.stringify({...payload,bodyGoals:{startWeight:370,goalWeight:240,startWaist:55,goalWaist:38,...(payload.bodyGoals||{})},discipline:{settings:payload.discipline?.settings||{},minimums:payload.discipline?.minimums||{},workoutMinimums:payload.discipline?.workoutMinimums||[],prep:payload.discipline?.prep||{},reviews:payload.discipline?.reviews||{},big3:payload.discipline?.big3||[],shiftPlans:payload.discipline?.shiftPlans||{},setupDone:!!payload.discipline?.setupDone,restDays:payload.discipline?.restDays||{}}}));
   window.location.reload();
  }
 };
