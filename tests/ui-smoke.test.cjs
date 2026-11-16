@@ -29,6 +29,9 @@ async function main(){
      await page.locator('#vigorNav').waitFor({state:'visible',timeout:12000});
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Today priorities visible');
+     assert.equal(await page.locator('#vigorDailyFocus').isVisible(),true,'Next Small Win hero visible');
+     await page.locator('#vigorDailyFocus button').click();
+     assert.equal(await page.locator('#big3Panel').isVisible(),true,'Next Small Win action leads to priorities');
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      assert.equal(await page.locator('#vigorCoach .vc-journey').isVisible(),true,'Journey visible');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
