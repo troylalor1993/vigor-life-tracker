@@ -62,7 +62,7 @@
    return {...s,lead,reason,shift,shiftAdvice:cues[shift],workout,nextHabit};
  }
  function workoutReview(data,day){
-   const activities=Array.isArray(data.activities)?data.activities.filter(x=>x&&x.id&&x.name):[];
+   const activities=Array.isArray(data.activities)?data.activities.filter(x=>x&&x.id&&x.name&&!/fast|weigh|measurement/i.test(x.name)):[];
    const length=data.cycleLength===7?7:8;
    const anchor=typeof data.anchor==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(data.anchor)?data.anchor:day;
    const delta=Math.round((Date.parse(day+'T12:00:00Z')-Date.parse(anchor+'T12:00:00Z'))/86400000);
@@ -118,7 +118,7 @@
    root.hidden=false;
    const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day),w=workoutReview(data,day);
    const comeback=c.missedYesterday||(c.rate!==null&&c.rate<50);
-   const expanded=root.querySelector('details')?.open||false;
+   const expanded=root.querySelector('.vc-roadmap')?.open||false;
    const workoutExpanded=root.querySelector('.vc-workout details')?.open||false;
    root.innerHTML=`<div class="vc-eyebrow">YOUR DAILY COACH · BASED ON YOUR TRACKER</div>
     <h2>${comeback?'Your comeback starts today':'Your next best step'}</h2>
@@ -139,7 +139,7 @@
       <div class="vc-workout-list">${w.items.map(x=>'<div><strong>'+escape(x.name)+'</strong><span>'+x.current+'/'+x.target+' logged'+(x.effort?' · '+x.effort+' minimum':'')+'</span></div>').join('')}</div>
       <p class="vc-note">These are completed-session counts, not measurements of fitness gains. Targets never increase automatically.</p></details>
     </section>
-    <details ${expanded?'open':''}><summary>My 30 / 60 / 90-day transformation roadmap</summary>
+    <details class="vc-roadmap" ${expanded?'open':''}><summary>My 30 / 60 / 90-day transformation roadmap</summary>
     <div class="vc-stages">${r.stages.map(x=>`<div class="vc-stage"><strong>Day ${x.day}: ${escape(x.title)}</strong><p>${escape(x.detail)}</p><ul>${x.actions.map(a=>`<li>${escape(a)}</li>`).join('')}</ul></div>`).join('')}</div>
     <p class="vc-note">${r.progress===null?'Log your weight and set body goals to track weight progress.':escape('Weight goal progress: '+r.progress+'%'+(r.target!==null?' toward '+r.target+' lb':''))}. Your roadmap is flexible and has no required weight-loss deadline.</p>
     </details>`;
