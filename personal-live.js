@@ -8,6 +8,7 @@ const status=(heading,detail)=>{
  const badge=document.getElementById("cloudStatus"),message=document.getElementById("cloudMessage");
  if(badge)badge.textContent=heading;
  if(message)message.textContent=detail;
+ window.dispatchEvent(new CustomEvent("vigor-sync-status",{detail:{label:heading,details:detail}}));
 };
 const linkedKey="vigor-cloud-linked-user",pendingKey="vigor-cloud-pending";
 function start(uid){
