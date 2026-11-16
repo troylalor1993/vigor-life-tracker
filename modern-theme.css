@@ -1,0 +1,86 @@
+/* Vigor Life 2026 — premium habit-first visual system.
+   Cosmetics only: existing app IDs, actions and stored data are untouched. */
+:root{
+  --bg:#090a0d;--panel:#161719;--panel-alt:#222121;--input-bg:#121316;
+  --text-primary:#f8f5ee;--muted:#bdb5a6;--accent:#e4bb68;
+  --accent-soft:#f4d995;--accent-contrast:#1b1307;
+  --border:#484038;--border-strong:#766044;
+}
+html{scroll-behavior:smooth}body{background:radial-gradient(ellipse at 80% 0%,#382a1b 0%,transparent 26rem),linear-gradient(180deg,#101113 0%,var(--bg) 32rem);min-height:100vh;line-height:1.45}
+main{max-width:1050px;padding:20px 19px 90px}p{line-height:1.55}
+h1,h2,h3{letter-spacing:-.035em}h1{font-weight:800}h2{font-weight:750}
+.app-header{position:relative;border:1px solid rgba(242,209,146,.31);border-radius:26px;padding:19px 22px 24px;margin:0 0 17px;overflow:hidden;background:radial-gradient(ellipse at 90% 8%,rgba(243,188,102,.2),transparent 58%),linear-gradient(135deg,#262321 0%,#15171a 58%,#101316);box-shadow:0 24px 60px rgba(0,0,0,.28),inset 0 1px rgba(255,245,208,.13)}
+.app-header:after{content:"";pointer-events:none;position:absolute;right:-30px;bottom:-64px;width:260px;height:200px;border:1px solid rgba(232,187,98,.13);border-radius:55% 45% 0 0;transform:rotate(-25deg)}
+.brand{font-weight:850;letter-spacing:.15em;font-size:11px;color:var(--accent-soft)}
+.vigor-identity{display:flex;align-items:center;gap:13px;margin-bottom:14px;min-width:0}
+.vigor-identity img{width:51px;height:51px;border-radius:14px;box-shadow:0 6px 16px #0006;object-fit:contain}
+.vigor-identity .brand{display:block;font-size:14px;letter-spacing:.09em;color:#faf5e8}
+.vigor-identity .brand b{color:var(--accent-soft)}
+.vigor-identity .vigor-caption{font-size:10px;letter-spacing:.1em;color:#ded0af;text-transform:uppercase;line-height:1.35}
+.app-header h1{font-size:clamp(27px,5vw,44px);letter-spacing:-.047em;line-height:1.12;margin:8px 0}
+.app-header h1 .accent{background:linear-gradient(105deg,#f7db91,#c9933f);color:transparent;-webkit-background-clip:text;background-clip:text}
+.app-header>p{font-size:13px;margin-top:9px;color:#ddd1b9}
+#globalSaveStatus{position:absolute;top:24px;right:22px;max-width:42%;font-size:11px;text-align:right;opacity:.9}
+.card,.big3-card,.discipline-overview,.insight-card,.body-goals-card,.activity-card,.zone-card,.nutrition-discipline,.cloud-card,.vigor-coach,.vc-growth-card,details.compact-details{border-radius:21px!important;border:1px solid var(--border)!important;background:linear-gradient(155deg,rgba(255,255,255,.037),transparent 55%),linear-gradient(170deg,var(--panel-alt),var(--panel))!important;box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.055)}
+.big3-card{border-color:var(--border-strong)!important;box-shadow:0 18px 45px rgba(0,0,0,.24),inset 0 1px rgba(247,216,152,.13)}
+.discipline-eyebrow,.dashboard-label,.scripture-label,.vc-eyebrow,.vc-growth-eyebrow{font-weight:800;letter-spacing:.12em;color:var(--accent-soft)}
+button,.app-tab{transition:background .2s ease,color .2s ease,border-color .2s ease,transform .16s ease}
+button:active{transform:scale(.98)}
+button.primary,.app-tab.active{background:linear-gradient(125deg,#f4d993,#d6a451)!important;color:#201508!important;box-shadow:0 5px 14px rgba(221,169,76,.2)}
+button.primary{border-radius:12px;min-height:44px}
+button.secondary{border-radius:12px;background:rgba(255,255,255,.025);border-color:var(--border-strong);min-height:42px}
+button:focus-visible,.app-tab:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent-soft)!important;outline-offset:2px}
+input,textarea,select{background:var(--input-bg);color:var(--text-primary);border-color:var(--border-strong);border-radius:12px}
+.app-tabs{position:sticky;top:8px;max-width:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:0 0 19px;padding:7px;border:1px solid #5e4a31;border-radius:18px;background:rgba(24,24,24,.88);box-shadow:0 14px 30px #0005;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.app-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:12px;font-weight:750;font-size:11px;min-height:53px;padding:7px 2px;color:#ded6c7}
+.app-tab.active{border:1px solid #f1d89d!important}
+.app-tab svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.85;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.app-tab[data-panel=faith] svg{stroke-width:1.7}
+.big3-row,.task-compact,.discipline-habit,.milestone-item,.reward-tile,.couple-goal-card,.vc-stage{background:linear-gradient(125deg,rgba(255,255,255,.035),rgba(255,255,255,.005)),var(--panel-alt)!important;border:1px solid rgba(228,187,104,.22)!important;border-radius:15px!important}
+.big3-row{padding:13px 14px;min-height:72px}
+.big3-row strong{font-size:14px}
+.big3-actions button{border-radius:12px}
+.big3-top h2{font-size:23px}
+.discipline-metrics>div,.summary-grid>div,.discipline-review-metrics>div,.insight-stat{border-radius:14px!important;background:#121316!important}
+.discipline-track,.bar,.task-compact-meter,.zone-meter,.vc-meter{border-radius:999px!important}
+.discipline-track>div,.bar>div,.task-compact-meter>div,.zone-meter>div,.vc-meter>span{background:linear-gradient(90deg,#c69342,#f8d991)!important}
+#panel-today>.big3-card{margin-bottom:14px}
+#panel-today>.vigor-coach{margin-bottom:14px}
+#panel-progress>.vc-growth-card{margin-bottom:17px}
+.vigor-coach .vc-habit-action{background:linear-gradient(120deg,#332718,#201e1a)!important;border-color:#8c6b3d!important;border-radius:17px;padding:17px}
+.vigor-coach .vc-habit-action h3{font-size:20px}
+.vigor-coach .vc-habit-action .vc-eyebrow{color:#f6d38c}
+.vigor-coach .vc-journey{border-radius:16px;background:#20201f}
+.vigor-coach .vc-journey-steps .complete{background:rgba(226,181,94,.12)}
+.vigor-coach .vc-actions .vc-nav{background:linear-gradient(135deg,#f7d991,#d5a24d)!important;color:#1b1408!important;border-radius:12px}
+.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt)!important;color:var(--text-primary)!important;border:1px solid var(--border-strong)!important}
+.vc-growth-card{padding:21px}
+.scripture-card{background:linear-gradient(150deg,#262014,#121619)!important;border-color:#826239!important}
+details.compact-details>summary{font-size:14px;font-weight:750;color:var(--text-primary);padding:15px}
+#panel-progress .metric{color:var(--accent-soft)}
+#panel-rewards>.card,#panel-couples>.card{margin-bottom:14px}
+@media (min-width:720px){
+ .app-header{padding:26px 28px 28px}
+ .app-header h1{max-width:680px}
+ .app-tab{flex-direction:row;gap:8px}
+}
+@media(max-width:650px){
+ main{padding:13px 12px calc(114px + env(safe-area-inset-bottom))}
+ .app-header{padding:17px 17px 23px;margin-bottom:16px;border-radius:22px}
+ .vigor-identity img{width:43px;height:43px}
+ .vigor-identity .brand{font-size:12px}
+ .vigor-caption{max-width:260px}
+ #globalSaveStatus{top:17px;right:15px;font-size:10px;max-width:35%}
+ .app-header h1{font-size:30px;max-width:90%}
+ .app-tabs{position:fixed;top:auto;left:8px;right:8px;bottom:calc(7px + env(safe-area-inset-bottom));z-index:100;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));overflow:visible;margin:0;padding:7px 4px;gap:1px;border-radius:21px;background:rgba(18,18,19,.94)}
+ .app-tab{flex:initial;min-width:0;min-height:59px;font-size:9px;padding:6px 1px;white-space:normal}
+ .app-tab svg{width:18px;height:18px}
+ .app-panel>.card,.app-panel>.cards{margin-bottom:12px}
+ .big3-card,.discipline-overview,.vigor-coach,.vc-growth-card{padding:15px!important}
+ .big3-top{flex-wrap:wrap}
+ .big3-row{padding:10px;gap:5px}
+ .big3-actions button{min-width:54px;padding:8px 6px}
+ .vc-growth-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:365px){.app-tab{font-size:8px}.app-tab svg{width:16px;height:16px}.big3-row{flex-wrap:wrap}.big3-actions{width:100%;justify-content:flex-end}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.app-tab{transition:none}}
