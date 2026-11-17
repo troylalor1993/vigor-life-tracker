@@ -1,0 +1,86 @@
+/* Vigor Life: polished app-shell refinements grounded in the approved mockups.
+   Keeps existing inputs, storage, account security and interactions intact. */
+:root{--vigor-radius:22px;--vigor-gold:#efc878;--vigor-gold-light:#ffe5a8}
+body{background:radial-gradient(ellipse 70% 340px at 82% 0%,rgba(181,113,38,.19),transparent),linear-gradient(180deg,#101114 0%,#090b0f 45%);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1040px}
+.app-header{padding:25px!important;border-radius:25px!important;min-height:180px;box-shadow:0 22px 55px #0007,inset 0 1px #ffe5a81a}
+.app-header:before{content:"";position:absolute;pointer-events:none;width:220px;height:220px;right:-45px;top:-90px;border-radius:50%;border:1px solid #ffe1a522;box-shadow:0 0 0 32px #f5c97408,0 0 0 65px #f5c97405}
+.app-header h1{font-size:clamp(30px,5vw,47px);max-width:530px;line-height:1.1;font-weight:820}
+.app-header>p{font-size:14px;max-width:550px;color:#e7dbc8}
+.vigor-identity img{background:#101111;border:1px solid #d5aa5380}
+.vigor-caption{color:#e8d4aa;letter-spacing:.11em}
+#globalSaveStatus{border:1px solid #d5b47433;border-radius:20px;padding:4px 8px;background:#121315aa;color:#e7d9bd;top:22px;right:20px;line-height:1.25}
+#vigorNav{background:rgba(19,20,23,.95);border:1px solid #806a47a8;box-shadow:0 14px 30px #0009,inset 0 1px #fff2cf15;z-index:150}
+#vigorNav .app-tab{gap:5px;position:relative;font-weight:730;letter-spacing:-.015em}
+#vigorNav .app-tab svg{width:19px;height:19px}
+#vigorNav .app-tab.active:after{content:"";position:absolute;bottom:3px;left:34%;right:34%;height:2px;border-radius:9px;background:#664b1b99}
+#panel-today>.vigor-focus-hero{background:radial-gradient(circle at 88% 5%,#c7923b33,transparent 45%),linear-gradient(128deg,#352718 0%,#1b1d20 70%);border-color:#af8e5b;box-shadow:0 22px 52px #0008,inset 0 1px #fff1cb33;padding:22px;margin:4px 0 16px}
+.vigor-focus-hero h2{font-size:clamp(25px,5vw,34px)!important;font-weight:830;max-width:470px}
+.vigor-focus-hero .vigor-focus-eyebrow{color:#ffe0a1;letter-spacing:.18em}
+.vigor-focus-hero .vigor-focus-note{font-size:13px}
+.vigor-focus-hero button{border-radius:13px;min-height:49px;box-shadow:0 7px 17px #0007}
+#panel-today>.big3-card{background:linear-gradient(142deg,#242323,#151719)!important;border-color:#8a7149!important;padding:19px!important}
+#panel-today>.big3-card .big3-top h2{font-size:23px}
+#panel-today>.big3-card .big3-row{border-color:#5e5342!important;padding:14px 12px;background:linear-gradient(115deg,#30302e,#252525)!important}
+#panel-today>.big3-card .big3-row .big3-actions{gap:7px}
+#panel-today>.big3-card .big3-row button{border-radius:11px}
+#panel-today>.vigor-coach{background:linear-gradient(135deg,#1e2124,#151719)!important;border-color:#534b3c!important}
+#panel-today>.vigor-coach h2{font-size:20px}
+#panel-today>.vigor-coach>.vc-journey,#panel-today>.vigor-coach>.vc-training-details{display:none}
+#panel-today>.vigor-coach>.vc-habit-action{display:none}
+#panel-today>.vigor-coach>.vc-roadmap{margin-top:8px}
+#panel-today>.vigor-coach .vc-actions{margin-top:12px}
+#panel-today>.vigor-coach .vc-habit-history{margin-top:10px}
+#vigorStartGuide{border-color:#947343;border-radius:21px}
+#panel-progress>.vc-growth-card{padding:22px;background:linear-gradient(135deg,#28221b,#15181b)!important;border-color:#796442!important}
+#panel-progress>.vc-growth-card h2{font-size:25px}
+#panel-progress>.vc-growth-card .vc-growth-stats>div{background:#242526;border:1px solid #5c4d38}
+#panel-progress>.vc-growth-card .vc-growth-stats strong{font-size:26px}
+#vigorRotationRecap{padding:20px;background:linear-gradient(120deg,#242018,#181a1d)}
+#vigorRotationRecap h2{font-size:23px}
+.vigor-screen{display:none;border-radius:22px;margin-bottom:15px;padding:18px;background:linear-gradient(155deg,#222324,#151718);border:1px solid #6e5940;box-shadow:0 14px 35px #0006}
+body[data-vigor-view="journey"] #panel-today,body[data-vigor-view="fitness"] #panel-today{display:none!important}
+body[data-vigor-view="journey"] #vigorJourneyScreen,body[data-vigor-view="fitness"] #vigorFitnessScreen{display:block}
+.vigor-screen-header{padding:19px;border-radius:19px;background:radial-gradient(circle at 85% 15%,#d2a25733,transparent 40%),linear-gradient(120deg,#3a2b1c,#1c1e21);border:1px solid #a38551;margin-bottom:15px;min-height:115px}
+.vigor-screen-header .vigor-eyebrow{font-size:10px;font-weight:850;letter-spacing:.17em;color:#f3ce85}
+.vigor-screen-header h2{font-size:clamp(27px,5vw,35px);margin:9px 0 5px;font-weight:820;letter-spacing:-.045em}
+.vigor-screen-header p{font-size:13px;color:#ddceba;margin:0;max-width:560px;line-height:1.55}
+.vigor-screen .vigor-habit-select{display:grid;gap:8px;margin:0 0 16px;font-size:13px;color:#e7d5b5}
+.vigor-screen .vigor-habit-select select{font-size:16px;min-height:49px;padding:10px 12px;background:#131518;color:#f4ebdf;border:1px solid #8d7149;border-radius:12px}
+.vigor-screen .vigor-steps{display:grid;gap:10px}
+.vigor-screen .vigor-step{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:12px;padding:15px 13px;border-radius:16px;border:1px solid #5c5142;background:linear-gradient(120deg,#2b2a28,#202123);min-width:0}
+.vigor-screen .vigor-step.complete{border-color:#9f7b41;background:linear-gradient(125deg,#3a3023,#222325)}
+.vigor-screen .vigor-step .vigor-step-index{display:flex;align-items:center;justify-content:center;background:#4c3a23;color:#f6d792;border:1px solid #ab8b54;width:34px;height:34px;border-radius:12px;font-weight:850;font-size:14px}
+.vigor-screen .vigor-step strong{display:block;font-size:14px;color:#fff2de}
+.vigor-screen .vigor-step small{font-size:12px;color:#cfc3b0;line-height:1.4;display:block;margin-top:3px}
+.vigor-screen .vigor-step .vigor-step-state{color:#edd194;font-size:12px;font-weight:800}
+.vigor-screen .vigor-action-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.vigor-screen .vigor-action-row button{min-height:46px;border:1px solid #8f774c;padding:10px 15px;border-radius:12px;background:linear-gradient(110deg,#f5db9a,#dba953);font-weight:800;color:#1d160b;cursor:pointer}
+.vigor-screen .vigor-action-row button.secondary{background:#292724;color:#f2e8d8}
+.vigor-screen .vigor-summary{background:#28241e;border-radius:15px;border:1px solid #675538;padding:14px;margin-top:13px}
+.vigor-screen .vigor-summary strong{color:#f6d791}
+.vigor-screen .vigor-summary p{margin:7px 0 0;font-size:13px;color:#d6c9b7}
+.vigor-screen .vigor-mini-progress{height:8px;background:#544632;border-radius:20px;overflow:hidden;margin-top:10px}
+.vigor-screen .vigor-mini-progress span{display:block;height:100%;background:linear-gradient(90deg,#c59742,#f5d792)}
+.vigor-screen .vigor-workout-list{display:grid;gap:8px;margin-top:13px}
+.vigor-screen .vigor-workout-row{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid #5f5241;background:#242527;border-radius:13px;padding:13px}
+.vigor-screen .vigor-workout-row strong{font-size:13px}
+.vigor-screen .vigor-workout-row span{color:#e7d3a9;font-size:12px;white-space:nowrap}
+.vigor-screen .vigor-detail-note{font-size:12px;color:#bdb4a7;line-height:1.55;margin-top:12px}
+.vigor-screen button:focus-visible,.vigor-screen select:focus-visible{outline:3px solid #f5d892;outline-offset:2px}
+@media(max-width:650px){
+ .app-header{min-height:175px;padding:16px!important}
+ .app-header h1{font-size:29px;max-width:100%;margin-top:16px}
+ .app-header>p{max-width:100%;font-size:12px}
+ #globalSaveStatus{position:static;display:inline-block;max-width:100%;margin:3px 0 0;padding:3px 8px;text-align:left}
+ .vigor-identity{margin-bottom:7px}
+ #vigorNav{padding:8px 4px;bottom:calc(7px + env(safe-area-inset-bottom))}
+ #vigorNav .app-tab{font-size:10px}
+ #panel-today>.vigor-focus-hero{padding:18px}
+ #panel-today>.big3-card{padding:15px!important}
+ #panel-progress>.vc-growth-card{padding:15px}
+ .vigor-screen{padding:12px;border-radius:19px}
+ .vigor-screen-header{padding:16px}
+ .vigor-screen .vigor-step{padding:12px 10px;gap:9px}
+}
+@media(prefers-reduced-motion:reduce){.vigor-screen *{transition:none!important;scroll-behavior:auto!important}}

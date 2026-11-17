@@ -44,6 +44,7 @@
   if(parent)parent.open=true;
   target.scrollIntoView({behavior:'smooth',block:'start'});
  }
+ document.body.dataset.vigorView='today';
  function navigate(route){
   if(route==='more'){
     const open=menu.hidden;menu.hidden=!open;moreButton.setAttribute('aria-expanded',String(open));
@@ -53,22 +54,34 @@
   if(route==='today'){legacy('today')?.click();window.scrollTo({top:0,behavior:'instant'})}
   else if(route==='journey'){
     legacy('today')?.click();
-    const journey=document.querySelector('#vigorCoach .vc-journey');
-    if(journey){journey.open=true;journey.scrollIntoView({behavior:'smooth',block:'start'})}
-    else openInToday('daily');
+    if(!document.getElementById('vigorJourneyScreen')){
+      const section=document.querySelector('#vigorCoach .vc-journey');if(section)section.open=true;
+    }
+    window.scrollTo({top:0,behavior:'instant'});
   }
-  else if(route==='growth'){legacy('progress')?.click();(document.getElementById('vigorPersonalGrowth')||document.getElementById('progressInsights'))?.scrollIntoView({behavior:'smooth',block:'start'})}
-  else if(route==='fitness')openInToday('training');
+  else if(route==='growth'){
+    legacy('progress')?.click();
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  else if(route==='fitness'){
+    legacy('today')?.click();
+    if(!document.getElementById('vigorFitnessScreen')){
+      const target=document.getElementById('training');const details=target?.closest('details');if(details)details.open=true;
+    }
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  document.body.dataset.vigorView=route;
   setActive(route);
  }
  nav.querySelectorAll('[data-vigor-route]').forEach(button=>button.onclick=()=>navigate(button.dataset.vigorRoute));
  menu.querySelectorAll('[data-vigor-old]').forEach(button=>button.onclick=()=>{
   const original=legacy(button.dataset.vigorOld);
-  closeMenu();original?.click();setActive('more');window.scrollTo({top:0,behavior:'instant'});
+  closeMenu();original?.click();document.body.dataset.vigorView='more';setActive('more');window.scrollTo({top:0,behavior:'instant'});
  });
  // Keep the visible tab selection accurate when existing in-app controls switch sections.
  old.querySelectorAll('[data-panel]').forEach(button=>button.addEventListener('click',()=>{
   const id=button.dataset.panel;
+  document.body.dataset.vigorView=id==='today'?'today':id==='progress'?'growth':'more';
   setActive(id==='today'?'today':id==='progress'?'growth':'more');
   closeMenu();
  }));

@@ -23,6 +23,7 @@ jobs:
           node --check daily-focus.js
           node --check onboarding-guide.js
           node --check rotation-recap.js
+          node --check premium-screens.js
           node --check firebase-sync.js
           node --check couples-sync.js
       - name: Test coaching and habit journey
@@ -42,10 +43,13 @@ jobs:
       - name: Verify interface assets
         run: |
           test -s modern-theme.css
+          test -s premium-screens.css
           test -s vigor-mark.svg
           grep -q 'premium-navigation.js' index.html
           grep -q 'daily-focus.js' index.html
           grep -q 'onboarding-guide.js' index.html
           grep -q 'rotation-recap.js' index.html
+          grep -q 'premium-screens.js' index.html
+          grep -q 'premium-screens.css' index.html
           grep -q 'adaptive-coach.js' index.html
           grep -q 'growth-dashboard.js' index.html
