@@ -1133,8 +1133,10 @@ function isHabitActive(index){
    &&!state.discipline.settings?.[index]?.archivedAt;
 }
 function habitWasTracked(index,date){
- const archived=state.discipline.settings?.[index]?.archivedAt;
- return !archived||date<archived;
+ const config=state.discipline.settings?.[index]||{};
+ const intervals=Array.isArray(config.archivePeriods)?config.archivePeriods:[];
+ if(config.archivedAt&&date>=config.archivedAt)return false;
+ return !intervals.some(period=>period&&date>=period.start&&(!period.end||date<period.end));
 }
 function setHabitArchived(index,archived){
  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)
@@ -1143,10 +1145,20 @@ function setHabitArchived(index,archived){
  const previousPriorities=(state.discipline.big3||[]).slice();
  state.discipline.settings||={};
  state.discipline.settings[index]={...disciplineConfig(index),...before};
- if(archived){
-  state.discipline.settings[index].archivedAt=iso(new Date());
+ const config=state.discipline.settings[index];
+ const now=iso(new Date());
+ const intervals=Array.isArray(config.archivePeriods)?config.archivePeriods.slice():[];
+ if(archived&&!config.archivedAt){
+  config.archivedAt=now;
+  intervals.push({start:now});
+  config.archivePeriods=intervals;
   state.discipline.big3=(state.discipline.big3||[]).filter(key=>key!=='h:'+index);
- }else delete state.discipline.settings[index].archivedAt;
+ }else if(!archived&&config.archivedAt){
+  const openIndex=intervals.findLastIndex(period=>period&&!period.end);
+  if(openIndex>=0)intervals[openIndex]={...intervals[openIndex],end:now};
+  config.archivePeriods=intervals;
+  delete config.archivedAt;
+ }
  if(!save()){
   if(before===undefined)delete state.discipline.settings[index];
   else state.discipline.settings[index]=before;
