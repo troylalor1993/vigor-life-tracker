@@ -29,6 +29,8 @@ jobs:
           node --check couples-sync.js
       - name: Test coaching and habit journey
         run: node tests/adaptive-coach.test.cjs
+      - name: Test reordering data integrity
+        run: node tests/order-integrity.test.cjs
       - name: Test daily habit focus
         run: node tests/daily-focus.test.cjs
       - name: Test saving and cloud-state accuracy
