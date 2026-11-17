@@ -27,6 +27,10 @@ async function main(){
      page.on('pageerror',err=>errors.push(err.message));
      await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav').waitFor({state:'visible',timeout:12000});
+     const artwork=await page.locator('.app-header').evaluate(el=>getComputedStyle(el).backgroundImage);
+     assert(artwork.includes('vigor-sunrise.svg'),'premium sunrise artwork applied');
+     const artResponse=await page.request.get('http://127.0.0.1:'+port+'/vigor-sunrise.svg');
+     assert.equal(artResponse.status(),200,'sunrise artwork served');
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Today priorities visible');
      assert.equal(await page.locator('#vigorDailyFocus').isVisible(),true,'Next Small Win hero visible');
