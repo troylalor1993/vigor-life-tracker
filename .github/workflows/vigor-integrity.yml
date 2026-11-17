@@ -21,6 +21,7 @@ jobs:
           node --check growth-dashboard.js
           node --check premium-navigation.js
           node --check daily-focus.js
+          node --check today-habit-swipe.js
           node --check onboarding-guide.js
           node --check rotation-recap.js
           node --check premium-screens.js
@@ -30,6 +31,8 @@ jobs:
           node --check couples-sync.js
       - name: Test coaching and habit journey
         run: node tests/adaptive-coach.test.cjs
+      - name: Test all-habits Today swipe view
+        run: node tests/today-habit-swipe.test.cjs
       - name: Test non-destructive Journey sorting
         run: node tests/journey-sorting.test.cjs
       - name: Test lossless habit archive and restore
@@ -55,12 +58,15 @@ jobs:
           test -s modern-theme.css
           test -s premium-screens.css
           test -s journey-manager.css
+          test -s today-habit-swipe.css
           test -s theme-bridge.css
           test -s ux-clarity.css
           test -s vigor-mark.svg
           test -s vigor-sunrise.svg
           grep -q 'premium-navigation.js' index.html
           grep -q 'daily-focus.js' index.html
+          grep -q 'today-habit-swipe.js' index.html
+          grep -q 'today-habit-swipe.css' index.html
           grep -q 'onboarding-guide.js' index.html
           grep -q 'rotation-recap.js' index.html
           grep -q 'premium-screens.js' index.html
