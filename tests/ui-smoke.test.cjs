@@ -39,6 +39,10 @@ async function main(){
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Next Small Win action leads to priorities');
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Dedicated Journey view visible');
+     assert.equal(await page.locator('#globalSaveStatus').isVisible(),false,'duplicate legacy save text hidden');
+     assert.equal(await page.locator('#vigorSyncBadge').isVisible(),true,'single trustworthy save badge remains visible');
+     assert.equal(await page.locator('.app-header h1').isVisible(),false,'secondary-screen header is compact');
+
      assert.equal(await page.locator('#vigorJourneyScreen .vigor-step').count(),5,'Five guided habit steps');
      assert.equal(await page.locator('#panel-today').isVisible(),false,'Today panel hidden while in Journey');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
@@ -54,6 +58,7 @@ async function main(){
      assert.equal(await page.locator('#panel-faith').isVisible(),true,'Faith remains reachable');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Return to Today');
+     assert.equal(await page.locator('.app-header h1').isVisible(),true,'Today retains full heading');
      assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),false,'Journey hidden when returning Today');
      // A local habit check must survive a complete browser reload even without signing in.
      await page.locator('#vigorSyncBadge').waitFor({state:'visible'});
