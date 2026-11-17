@@ -2107,6 +2107,13 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ recordJourneyHabit:(index,mode)=>{
+  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length||!['full','minimum'].includes(mode))
+    throw Error('Choose a valid habit and effort.');
+  const day=iso(new Date());
+  updatePriority('h:'+index,day,mode==='minimum'?'min':'full');
+  return true;
+ },
  addJourneyHabit:({name,cue,minimum,identity,kind})=>{
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
    small=String(minimum??'').trim(),why=String(identity??'').trim();
