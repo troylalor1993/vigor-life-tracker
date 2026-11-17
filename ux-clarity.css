@@ -41,3 +41,9 @@ body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-shift{margin-bottom:
  #vigorPersonalGrowth .vc-growth-stats small{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.vigor-screen .vigor-action-row button,.vigor-focus-hero button,.vigor-start-guide button{transition:none}}
+
+/* Password recovery stays secondary to the main sign-in action. */
+.cloud-password-recovery{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.cloud-password-recovery button{background:transparent!important;border:1px solid var(--border)!important;color:var(--accent-soft)!important;border-radius:10px;padding:8px 12px;min-height:42px}
+.cloud-password-recovery p{margin:0;max-width:380px;color:var(--muted);font-size:12px;line-height:1.5}
+@media(max-width:650px){.cloud-password-recovery{display:block}.cloud-password-recovery p{margin:8px 0}}
