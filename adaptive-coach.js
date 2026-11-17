@@ -226,7 +226,7 @@
    const journey=habitJourney(data,day,selectedIndex);
    const trainingExpanded=root.querySelector('.vc-training-details')?.open||false;
    root.innerHTML=`<div class="vc-eyebrow">YOUR HABIT & LIFE COACH · BASED ON YOUR TRACKER</div>
-    <h2>${comeback?'Your comeback starts today':'Your next best step'}</h2>
+    <h2>${comeback?'A fresh start today':'Your daily guidance'}</h2>
     <p class="vc-lead">${escape(c.lead)}</p>
     <p>${escape(c.reason)}</p><p class="vc-shift"><strong>${escape(c.shift)}:</strong> ${escape(c.shiftAdvice)}</p>
     ${h.chosen?'<div class="vc-habit-action"><div class="vc-eyebrow">YOUR NEXT SMALL WIN</div><h3>'+escape(h.chosen.name)+'</h3><p><strong>Minimum:</strong> '+escape(h.minimum)+'</p><p><strong>Cue:</strong> '+escape(h.cue)+'</p></div>':h.allDone?'<p class="vc-next">✓ All listed habits are recorded for today.</p>':''}
