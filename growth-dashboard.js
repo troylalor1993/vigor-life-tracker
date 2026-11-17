@@ -20,6 +20,8 @@
    const groups=new Map();
    let full=0,minimum=0;
    labels.forEach((label,index)=>{
+     const archived=data.discipline?.settings?.[index]?.archivedAt;
+     if(archived)return; // Active dashboard stays focused; archived history remains in the saved records.
      let f=0,m=0;
      valid.forEach(date=>{
        if(records[date]?.habits?.[index])f++;
@@ -36,7 +38,7 @@
      .sort().reverse()
      .map(date=>({date,...(reviews[date]||{})}))
      .find(x=>x.win||x.obstacle||x.adjustment)||null;
-   return {habitCount:labels.length,recordedDays:valid.length,full,minimum,
+   return {habitCount:labels.filter((_,i)=>!data.discipline?.settings?.[i]?.archivedAt).length,recordedDays:valid.length,full,minimum,
      groups:Array.from(groups,([name,habits])=>({name,habits})),
      reflection};
  }
@@ -59,7 +61,7 @@
    card.hidden=false;
    card.innerHTML=`<div class="vc-growth-eyebrow">PERSONAL GROWTH · LAST 16 DAYS</div>
      <h2>Growth beyond the checklist</h2>
-     <p>See your intentional actions across different parts of life. These logs are not grades of your worth.</p>
+     <p>See your current habits across different parts of life. Archived habits are preserved in your history but hidden from active progress.</p>
      <div class="vc-growth-stats">
        <div><strong>${g.habitCount}</strong><small>Habits tracked</small></div>
        <div><strong>${g.recordedDays}</strong><small>Recorded days</small></div>
