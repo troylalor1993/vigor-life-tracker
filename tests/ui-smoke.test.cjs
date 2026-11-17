@@ -39,6 +39,7 @@ async function main(){
      assert.equal(await page.locator('#panel-today').isVisible(),false,'Today panel hidden while in Journey');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
      assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth visible');
+     assert((await page.locator('#vigorPersonalGrowth .vc-life-area').count())>0,'Life-area progress tiles rendered');
      assert.equal(await page.locator('#vigorRotationRecap').isVisible(),true,'Rotation recap visible in Growth');
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
