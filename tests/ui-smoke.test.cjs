@@ -87,7 +87,7 @@ async function main(){
      await page.locator('#vigorFitnessOpen').click();
      assert.equal(await page.locator('#training').isVisible(),true,'Open workout checklist reveals existing logs without navigating away');
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Fitness remains selected after opening workouts');
-     await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).locator('summary').click();
+     await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).locator(':scope > summary').click();
      assert.equal(await page.locator('#training').isVisible(),false,'workout log accordion can collapse');
 
      // Zone 2 is one shared tracker, now housed in Fitness rather than Today.
