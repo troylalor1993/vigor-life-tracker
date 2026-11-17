@@ -24,10 +24,11 @@
  }
  function habitIntelligence(data,day){
    const labels=Array.isArray(data.habitLabels)?data.habitLabels:[];
+   const active=labels.map((_,i)=>i).filter(i=>!data.discipline?.settings?.[i]?.archivedAt);
    const last=recent(data,day,8);
    const rest=data.discipline?.restDays||{};
    const recorded=last.filter(x=>x.entry?.saved&&!rest[x.day]);
-   const perHabit=labels.map((name,i)=>{
+   const perHabit=labels.map((name,i)=>({name,i})).filter(x=>active.includes(x.i)).map(({name,i})=>{
      const full=recorded.filter(x=>!!x.entry?.habits?.[i]).length;
      const minimum=recorded.filter(x=>!x.entry?.habits?.[i]&&!!x.mins?.[i]).length;
      const opportunities=recorded.length;
@@ -47,18 +48,18 @@
    const cue=typeof config.cue==='string'&&config.cue.trim()?config.cue.trim():'After something you already do each day';
    const totalFull=perHabit.reduce((n,h)=>n+h.full,0);
    const totalMinimum=perHabit.reduce((n,h)=>n+h.minimum,0);
-   const possible=labels.length*recorded.length;
+   const possible=active.length*recorded.length;
    const opportunities=possible?Math.round(100*(totalFull+totalMinimum)/possible):null;
    const prior=shiftDate(day,-1);
    const priorEntry=data.dailyCheckins?.[prior],priorMin=data.discipline?.minimums?.[prior]||{};
-   const missed=!!priorEntry?.saved&&!rest[prior]&&labels.some((_,i)=>!priorEntry.habits?.[i]&&!priorMin[i]);
+   const missed=!!priorEntry?.saved&&!rest[prior]&&active.some(i=>!priorEntry.habits?.[i]&&!priorMin[i]);
    return {perHabit,chosen,minimum,cue,recordedDays:recorded.length,totalFull,totalMinimum,possible,
-     rate:opportunities,missedYesterday:missed,allDone:labels.length>0&&!available.length};
+     rate:opportunities,missedYesterday:missed,allDone:active.length>0&&!available.length};
  }
 
  function habitJourney(data,day,index){
    const labels=Array.isArray(data.habitLabels)?data.habitLabels:[];
-   if(!Number.isInteger(index)||index<0||index>=labels.length)return null;
+   if(!Number.isInteger(index)||index<0||index>=labels.length||data.discipline?.settings?.[index]?.archivedAt)return null;
    const settings=data.discipline?.settings?.[index]||{};
    const configured=['cue','minimum','identity'].every(key=>typeof settings[key]==='string'&&settings[key].trim().length>0);
    const recorded=recent(data,day,16).filter(x=>x.entry?.saved&&!data.discipline?.restDays?.[x.day]);
@@ -222,7 +223,8 @@
    const expanded=root.querySelector('.vc-roadmap')?.open||false;
    const workoutExpanded=root.querySelector('.vc-workout details')?.open||false;
    const journeyExpanded=root.querySelector('.vc-journey')?.open||false;
-   const selectedIndex=selectedJourneyIndex!==null&&selectedJourneyIndex>=0&&selectedJourneyIndex<data.habitLabels.length?selectedJourneyIndex:(h.chosen?.index??0);
+   const availableIndexes=data.habitLabels.map((_,i)=>i).filter(i=>!data.discipline?.settings?.[i]?.archivedAt);
+   const selectedIndex=availableIndexes.includes(selectedJourneyIndex)?selectedJourneyIndex:(h.chosen?.index??availableIndexes[0]??0);
    const journey=habitJourney(data,day,selectedIndex);
    const trainingExpanded=root.querySelector('.vc-training-details')?.open||false;
    root.innerHTML=`<div class="vc-eyebrow">YOUR HABIT & LIFE COACH · BASED ON YOUR TRACKER</div>
@@ -237,7 +239,7 @@
       ${journey?`<div class="vc-journey-body">
         <label class="vc-journey-picker">Focus on a habit
         <select id="vcHabitChoice" aria-label="Habit to develop">
-          ${data.habitLabels.map((label,i)=>'<option value="'+i+'"'+(i===selectedIndex?' selected':'')+'>'+escape(label)+'</option>').join('')}
+          ${data.habitLabels.map((label,i)=>({label,i})).filter(x=>!data.discipline?.settings?.[x.i]?.archivedAt).map(({label,i})=>'<option value="'+i+'"'+(i===selectedIndex?' selected':'')+'>'+escape(label)+'</option>').join('')}
         </select></label>
         <div class="vc-journey-steps">${journey.steps.map(x=>'<span class="'+(x.complete?'complete':'')+'">'+(x.complete?'✓ ':'○ ')+escape(x.label)+'</span>').join('')}</div>
         <h3>${escape(journey.headline)}</h3>
