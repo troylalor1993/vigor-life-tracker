@@ -1308,6 +1308,7 @@ function renderDaily(){
  state.habitLabels.forEach((name,i)=>{
   const cfg=disciplineConfig(i),small=!!state.discipline.minimums[date]?.[i]&&!entry.habits[i];
   const item=element('div',undefined,'discipline-habit'),info=element('div'),title=element('strong',name);
+  item.dataset.habitIndex=String(i);
   const cue=element('small','Cue: '+cfg.cue);
   const minimum=element('small','Minimum: '+cfg.minimum);
   const identity=element('small','Identity: '+cfg.identity);
