@@ -1,0 +1,192 @@
+/* Vigor Life palette bridge
+   This stylesheet deliberately loads AFTER the premium layers.
+   No data or theme settings are changed; all colours derive from existing theme variables. */
+:root{
+  --vigor-ui-surface:var(--panel);
+  --vigor-ui-raised:var(--panel-alt);
+  --vigor-ui-ink:var(--text-primary);
+  --vigor-ui-dim:var(--muted);
+  --vigor-ui-line:var(--border-strong);
+  --vigor-ui-glow:color-mix(in srgb,var(--accent) 24%,transparent);
+  --vigor-ui-gentle:color-mix(in srgb,var(--accent) 12%,var(--panel-alt));
+  --vigor-ui-dark:color-mix(in srgb,var(--panel) 90%,black);
+  --vigor-ui-overlay:color-mix(in srgb,var(--bg) 92%,transparent);
+  --vigor-ui-highlight:color-mix(in srgb,var(--accent) 20%,var(--panel));
+}
+body{
+  background:
+    radial-gradient(ellipse 70% 340px at 82% 0%,var(--vigor-ui-glow),transparent),
+    linear-gradient(180deg,var(--panel) 0%,var(--bg) 48%)!important;
+  color:var(--text-primary);
+}
+.app-header,
+.vigor-screen-header{
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb,var(--panel) 98%,transparent) 0%,
+      color-mix(in srgb,var(--panel) 94%,transparent) 38%,
+      color-mix(in srgb,var(--panel) 79%,transparent) 70%,
+      color-mix(in srgb,var(--panel) 60%,transparent) 100%),
+    url("./vigor-sunrise.svg") right center / cover no-repeat!important;
+  border-color:var(--border-strong)!important;
+  box-shadow:0 18px 48px color-mix(in srgb,var(--bg) 67%,black),inset 0 1px color-mix(in srgb,var(--accent) 22%,transparent)!important;
+}
+.app-header:before,.app-header:after{
+  border-color:color-mix(in srgb,var(--accent) 18%,transparent)!important;
+  box-shadow:0 0 0 32px color-mix(in srgb,var(--accent) 4%,transparent),0 0 0 65px color-mix(in srgb,var(--accent) 3%,transparent)!important;
+}
+.app-header h1 .accent{background:linear-gradient(105deg,var(--accent-soft),var(--accent))!important;color:transparent!important;-webkit-background-clip:text!important;background-clip:text!important}
+.app-header>p,.vigor-screen-header p,.vigor-caption,.vigor-identity .vigor-caption{color:var(--muted)!important}
+.vigor-identity .brand,.vigor-screen-header h2{color:var(--text-primary)!important}
+.vigor-identity .brand b,.vigor-identity .brand strong{color:var(--accent-soft)!important}
+.vigor-identity img{border-color:var(--border-strong)!important}
+#globalSaveStatus{
+  background:var(--vigor-ui-dark)!important;color:var(--text-primary)!important;
+  border-color:var(--border-strong)!important;
+}
+#vigorNav,.app-tabs{
+  background:var(--vigor-ui-overlay)!important;
+  border-color:var(--border-strong)!important;
+  box-shadow:0 10px 30px color-mix(in srgb,var(--bg) 65%,black)!important;
+}
+#vigorNav .app-tab,.app-tab{color:var(--text-primary)}
+#vigorNav .app-tab.active,.app-tabs .app-tab.active{
+  background:linear-gradient(120deg,var(--accent-soft),var(--accent))!important;
+  border-color:var(--accent)!important;
+  color:var(--accent-contrast)!important;
+  box-shadow:0 5px 17px var(--vigor-ui-glow)!important;
+}
+#vigorNav .app-tab.active:after{background:color-mix(in srgb,var(--accent-contrast) 50%,transparent)!important}
+.vigor-more-menu{
+  background:var(--panel)!important;
+  border-color:var(--border-strong)!important;
+  box-shadow:0 15px 38px color-mix(in srgb,var(--bg) 70%,black)!important;
+}
+.vigor-more-menu button{
+  background:var(--panel-alt)!important;
+  color:var(--text-primary)!important;
+  border-color:var(--border)!important;
+}
+.vigor-focus-hero,#panel-today>.vigor-focus-hero,
+#vigorStartGuide,.vigor-start-guide,.vigor-rotation-recap,#vigorRotationRecap,
+#panel-today>.big3-card,#panel-today>.vigor-coach,
+#panel-progress>.vc-growth-card,
+.vigor-screen,.vigor-coach,.vc-growth-card,
+.card,.big3-card,.discipline-overview,.insight-card,
+.activity-card,.nutrition-discipline,details.compact-details{
+  background:
+    linear-gradient(140deg,var(--vigor-ui-highlight),transparent 57%),
+    linear-gradient(160deg,var(--panel-alt),var(--panel))!important;
+  border-color:var(--border-strong)!important;
+  color:var(--text-primary)!important;
+  box-shadow:0 13px 32px color-mix(in srgb,var(--bg) 40%,black),inset 0 1px color-mix(in srgb,var(--accent) 12%,transparent)!important;
+}
+#panel-today>.vigor-focus-hero,
+#panel-today>.big3-card,.vigor-screen-header{
+  border-color:var(--accent)!important;
+}
+.vigor-focus-hero h2,.vigor-screen h2,.vigor-screen .vigor-step strong,
+.vigor-coach h2,.vigor-rotation-recap h2,
+.vigor-start-guide h2,.vc-growth-card h2,
+#panel-today>.big3-card .big3-row strong{
+  color:var(--text-primary)!important;
+}
+.vigor-focus-hero .vigor-focus-eyebrow,
+.vigor-screen .vigor-eyebrow,
+.vigor-focus-hero .vigor-focus-value,
+.vigor-coach .vc-eyebrow,
+.vigor-start-guide .vsg-eyebrow,
+.vigor-rotation-recap .vrr-eyebrow,
+.vc-growth-card .vc-growth-eyebrow,
+.vc-growth-card .vc-life-area-top span,
+.vigor-screen .vigor-summary strong,
+.vigor-screen .vigor-step .vigor-step-state,
+.vigor-screen .vigor-step-index,
+.vrr-stats b,
+.vc-growth-stats strong{
+  color:var(--accent-soft)!important;
+}
+.vigor-focus-hero p,.vigor-focus-hero .vigor-focus-note,
+.vigor-screen .vigor-summary p,.vigor-screen .vigor-detail-note,
+.vigor-screen .vigor-workout-row span,
+.vigor-rotation-recap p,.vigor-start-guide p,
+.vc-growth-card p,.vc-growth-card small{
+  color:var(--muted)!important;
+}
+.vigor-focus-hero button,
+.vigor-screen .vigor-action-row button:not(.secondary),
+.vigor-start-guide .vsg-actions button:not(.vsg-secondary),
+.vc-growth-review button,
+.vigor-coach .vc-actions .vc-nav:not(.alt){
+  background:linear-gradient(120deg,var(--accent-soft),var(--accent))!important;
+  color:var(--accent-contrast)!important;
+  border-color:var(--accent)!important;
+}
+.vigor-screen .vigor-action-row button.secondary,
+.vigor-start-guide .vsg-actions button.vsg-secondary,
+.vigor-rotation-recap button{
+  background:var(--panel-alt)!important;
+  color:var(--text-primary)!important;
+  border-color:var(--border-strong)!important;
+}
+.vigor-focus-hero .vigor-focus-track,
+.vigor-screen .vigor-mini-progress,
+.vc-life-meter,.vigor-coach .vc-meter,.discipline-track,.bar{
+  background:var(--border)!important;
+}
+.vigor-focus-hero .vigor-focus-fill,
+.vigor-screen .vigor-mini-progress span,
+.vc-life-meter span,.vigor-coach .vc-meter span,
+.discipline-track>div,.bar>div{
+  background:linear-gradient(90deg,var(--accent),var(--accent-soft))!important;
+}
+.vigor-screen .vigor-step,
+.vigor-screen .vigor-workout-row,
+.vigor-screen .vigor-summary,
+.vigor-screen .vigor-step.complete,
+.vc-life-area,
+.vigor-coach .vc-habit-action,
+.vigor-coach .vc-journey,
+.vigor-rotation-recap .vrr-stats>div,
+.vigor-rotation-recap .vrr-review,
+.vc-growth-card .vc-growth-stats>div,
+#panel-today>.big3-card .big3-row,
+.vsg-step{
+  background:var(--vigor-ui-gentle)!important;
+  color:var(--text-primary)!important;
+  border-color:var(--border-strong)!important;
+}
+.vigor-screen .vigor-step-index{
+  background:var(--vigor-ui-highlight)!important;
+  border-color:var(--accent)!important;
+}
+.vigor-screen .vigor-habit-select,
+.vigor-screen .vigor-habit-select select{
+  color:var(--text-primary)!important;
+}
+.vigor-screen .vigor-habit-select select{
+  background:var(--input-bg)!important;
+  border-color:var(--border-strong)!important;
+}
+.vigor-sync-badge{
+  background:var(--panel-alt)!important;
+  color:var(--text-primary)!important;
+  border-color:var(--border-strong)!important;
+}
+.vigor-sync-badge:hover,
+.vigor-screen .vigor-habit-select select:focus-visible{
+  border-color:var(--accent)!important;
+}
+.vigor-screen button:focus-visible,
+.vigor-screen select:focus-visible,
+.vigor-sync-badge:focus-visible,
+.vigor-more-menu button:focus-visible{
+  outline-color:var(--accent-soft)!important;
+}
+@media(max-width:650px){
+ .app-header{
+   background:
+     linear-gradient(90deg,color-mix(in srgb,var(--panel) 98%,transparent),color-mix(in srgb,var(--panel) 78%,transparent)),
+     url("./vigor-sunrise.svg") 70% center / cover no-repeat!important;
+ }
+}
