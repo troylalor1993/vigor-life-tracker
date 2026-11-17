@@ -75,6 +75,53 @@ async function main(){
      assert.equal(await page.locator('#vigorSyncBadge').textContent(),'Saved on this device','reload does not claim cloud confirmation');
      await page.locator('#vigorSyncBadge').click();
      assert.equal(await page.locator('#cloudSync').isVisible(),true,'save status opens Account & Automatic Sync');
+     // Every selectable palette must reach the premium header, journey, growth,
+     // fitness, navigation, and accent buttons rather than only the Settings card.
+     const palettes=[
+       ['Black & Gold',''],['Midnight Blue','midnight'],['Forest Green','forest'],
+       ['Burgundy','burgundy'],['Graphite','graphite'],['Dark Copper','copper']
+     ];
+     const signatures=new Set();
+     for(const [label,theme] of palettes){
+       await page.locator('#appTabs [data-panel="settings"]').click();
+       await page.locator('#themeChoices .theme-choice').filter({hasText:label}).click();
+       const selected=await page.evaluate(()=>document.documentElement.dataset.theme||'');
+       assert.equal(selected,theme,'selected theme matches '+label);
+       await page.locator('#vigorNav [data-vigor-route="today"]').click();
+       const colors=await page.evaluate(()=>{
+         const root=document.documentElement;
+         const current=el=>{const css=getComputedStyle(el);return css.backgroundImage+'|'+css.borderTopColor};
+         return {
+           accent:getComputedStyle(root).getPropertyValue('--accent').trim(),
+           body:getComputedStyle(document.body).backgroundImage,
+           header:current(document.querySelector('.app-header')),
+           priority:current(document.querySelector('#big3Panel')),
+           focus:current(document.querySelector('#vigorDailyFocus')),
+           nav:current(document.querySelector('#vigorNav'))
+         };
+       });
+       assert(colors.header.includes('vigor-sunrise.svg'),'brand artwork remains for '+label);
+       assert(colors.body.includes('gradient'),'body receives theme styling for '+label);
+       assert(colors.focus&&colors.priority&&colors.nav,'all premium surfaces visible for '+label);
+       signatures.add(colors.header+'|'+colors.priority+'|'+colors.focus+'|'+colors.nav);
+       await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+       assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Journey renders for '+label);
+       const journeyColor=await page.locator('#vigorJourneyScreen .vigor-step').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+       await page.locator('#vigorNav [data-vigor-route="growth"]').click();
+       assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth renders for '+label);
+       const growthColor=await page.locator('#vigorPersonalGrowth .vc-life-area').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+       await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
+       assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Fitness renders for '+label);
+       const fitnessColor=await page.locator('#vigorFitnessScreen .vigor-summary').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+       assert(journeyColor&&growthColor&&fitnessColor,'feature surfaces styled for '+label);
+     }
+     assert.equal(signatures.size,palettes.length,'all six palettes visually distinguishable across premium surfaces');
+     await page.locator('#appTabs [data-panel="settings"]').click();
+     await page.locator('#themeChoices .theme-choice').filter({hasText:'Midnight Blue'}).click();
+     await page.reload({waitUntil:'domcontentloaded'});
+     assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),'midnight','saved colour theme survives reload');
+     await page.locator('#appTabs [data-panel="settings"]').click();
+     await page.locator('#themeChoices .theme-choice').filter({hasText:'Black & Gold'}).click();
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
      assert(!errors.some(e=>/Cannot read properties of undefined|SyntaxError|ReferenceError/.test(e)),errors.join('; '));
