@@ -2,8 +2,8 @@
    Existing habit records, cue settings and save/sync mechanisms are reused. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- let editorOpen=false,editingIndex=null,selectedIndex=0;
- let draft={kind:'build',name:'',cue:'',minimum:'',identity:''};
+ let editorOpen=false,editingIndex=null,selectedIndex=0,view='all';
+ let draft={kind:'build',name:'',cue:'',minimum:'',identity:'',plan:''};
  let notice='';
  const getData=()=>{try{return window.vigorCloudBridge?.read?.()}catch(e){return null}};
  const mk=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
@@ -19,10 +19,10 @@
  function openForm(index,data){
   editingIndex=Number.isInteger(index)?index:null;
   const existing=editingIndex===null?null:data.discipline?.settings?.[editingIndex]||{};
-  draft=editingIndex===null?{kind:'build',name:'',cue:'',minimum:'',identity:''}:{
+  draft=editingIndex===null?{kind:'build',name:'',cue:'',minimum:'',identity:'',plan:''}:{
     kind:existing.kind==='replace'?'replace':'build',
     name:data.habitLabels[editingIndex]||'',cue:existing.cue||'',
-    minimum:existing.minimum||'',identity:existing.identity||''
+    minimum:existing.minimum||'',identity:existing.identity||'',plan:existing.plan||''
   };
   editorOpen=true;notice='';render();
   $('vjmName')?.focus();
@@ -63,17 +63,49 @@
   const add=mk('button','vjm-add','+ Add a habit');add.type='button';
   add.onclick=()=>{editorOpen=false;openForm(null,data)};
   heading.append(left,add);manager.append(heading);
+  const days=Array.from({length:16},(_,j)=>{
+    const date=new Date();date.setHours(12,0,0,0);date.setDate(date.getDate()-15+j);
+    return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+  }).filter(day=>data.dailyCheckins?.[day]?.saved&&!data.discipline?.restDays?.[day]);
+  const big3=new Set((data.discipline?.big3||[]).filter(key=>typeof key==='string'&&key.startsWith('h:'))
+    .map(key=>Number(key.slice(2))));
+  const focusIndexes=big3.size?big3:new Set(data.habitLabels.slice(0,3).map((_,i)=>i));
+  const visible=data.habitLabels.map((name,index)=>{
+    const settings=data.discipline?.settings?.[index]||{};
+    const full=days.filter(day=>!!data.dailyCheckins?.[day]?.habits?.[index]).length;
+    const minimum=days.filter(day=>!data.dailyCheckins?.[day]?.habits?.[index]&&!!data.discipline?.minimums?.[day]?.[index]).length;
+    return {name,index,kind:settings.kind==='replace'?'replace':'build',full,minimum,
+      rate:days.length?Math.round((full+minimum)*100/days.length):null};
+  }).filter(item=>view==='all'||view==='focus'&&focusIndexes.has(item.index)
+     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace');
+  const tabs=mk('div','vjm-filters');
+  for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing']]){
+    const button=mk('button',view===key?'vjm-filter active':'vjm-filter',label);
+    button.type='button';button.setAttribute('aria-pressed',String(view===key));
+    button.onclick=()=>{view=key;render()};
+    tabs.append(button);
+  }
+  manager.append(tabs);
+  const summary=mk('p','vjm-filter-summary',
+    view==='focus'?'Your selected daily-priority habits. Change your Big 3 on Today.':
+    view==='replace'?'A positive action to practise when an unwanted pattern appears.':
+    view==='build'?'Good routines that you are growing one step at a time.':
+    'All your habits in one place. Choose a smaller view when you want less to look at.');
+  manager.append(summary);
   if(data.habitLabels.length){
     const grid=mk('div','vjm-list');
     const entry=data.dailyCheckins?.[localDate()]||{};
     const mins=data.discipline?.minimums?.[localDate()]||{};
-    data.habitLabels.forEach((name,i)=>{
+    visible.forEach(({name,index:i,full:recentFull,minimum:recentMinimum,rate})=>{
       const settings=data.discipline?.settings?.[i]||{};
       const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':''));
       const info=mk('div','vjm-item-info');
       const top=mk('div','vjm-item-title');
       top.append(mk('strong','',name),mk('span','vjm-kind',settings.kind==='replace'?'Replacing':'Building'));
       info.append(top, mk('small','',entry.habits?.[i]?'✓ Full effort today':mins[i]?'◐ Minimum effort today':settings.minimum?'Small step: '+settings.minimum:'Not started today'));
+      info.append(mk('small','vjm-trend',
+        rate===null?'No recent check-ins yet':rate+'% followed on '+days.length+' recorded non-rest day(s)'));
+      if(settings.kind==='replace'&&settings.plan)info.append(mk('small','vjm-plan','When it gets difficult: '+settings.plan));
       const actions=mk('div','vjm-item-actions');
       const full=mk('button','vjm-done'+(entry.habits?.[i]?' vjm-pressed':''),'Done');
       full.type='button';full.setAttribute('aria-label','Record full effort for '+name);full.setAttribute('aria-pressed',String(!!entry.habits?.[i]));
@@ -85,6 +117,7 @@
       edit.onclick=()=>{selectedIndex=i;openForm(i,data)};
       actions.append(full,min,edit);row.append(info,actions);grid.append(row);
     });
+    if(!visible.length)grid.append(mk('p','vjm-empty','No habits in this view yet. Try All habits or add one.'));
     manager.append(grid);
   }else manager.append(mk('p','vjm-empty','No habits yet. Add one to begin.'));
   const manage=mk('button','vjm-manage','Rearrange or remove habits');
@@ -108,7 +141,8 @@
       ['name',draft.kind==='replace'?'My replacement action':'Habit I want to build','e.g. Read one chapter',70,true],
       ['minimum','My smallest doable step','e.g. Read one page',150,true],
       ['cue','When will I do it? (optional)','e.g. After breakfast',150,false],
-      ['identity','Why this matters (optional)','e.g. I am a lifelong learner',150,false]
+      ['identity','Why this matters (optional)','e.g. I am a lifelong learner',150,false],
+      ...(draft.kind==='replace'?[['plan','What will I do when the urge shows up? (optional)','e.g. When I want soda, I will choose water first',180,false]]:[])
     ];
     fields.forEach(([key,label,placeholder,max,required])=>{
       const field=mk('label','vjm-field');const input=mk('input');input.id=key==='name'?'vjmName':'vjm'+key;
@@ -126,7 +160,7 @@
       try{
         const index=editingIndex===null?bridge.addJourneyHabit({...draft}):editingIndex;
         if(editingIndex!==null)bridge.updateJourneyHabit({index,...draft});
-        selectedIndex=index;editorOpen=false;notice='✓ Saved on this device. Cloud status appears above.';
+        selectedIndex=index;view='all';editorOpen=false;notice='✓ Saved on this device. Cloud status appears above.';
         // The legacy renderer updates all connected modules.
         window.VigorPremiumScreens?.selectHabit?.(index);render();
       }catch(error){notice=String(error?.message||'Could not save. Please try again.');render()}

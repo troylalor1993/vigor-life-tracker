@@ -56,3 +56,12 @@
  #vigorJourneyScreen .vjm-item{padding:11px}
  #vigorJourneyScreen .vjm-form{padding:13px}
 }
+
+/* Focused, manageable views instead of a permanently overwhelming checklist. */
+#vigorJourneyScreen .vjm-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 8px}
+#vigorJourneyScreen .vjm-filter{min-width:0;padding:10px 3px;min-height:44px;font-size:12px;font-weight:750;border:1px solid var(--border-strong);background:var(--panel-alt);color:var(--text-primary);border-radius:11px}
+#vigorJourneyScreen .vjm-filter.active{background:var(--accent);color:var(--accent-contrast);border-color:var(--accent)}
+#vigorJourneyScreen .vjm-filter-summary{font-size:12px;line-height:1.5;color:var(--muted);margin:5px 0 12px}
+#vigorJourneyScreen .vjm-trend{color:var(--accent-soft)!important;margin-top:5px}
+#vigorJourneyScreen .vjm-plan{padding:9px 11px;margin-top:9px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));border:1px solid var(--border);border-radius:10px;color:var(--text-primary)!important}
+@media(max-width:390px){#vigorJourneyScreen .vjm-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#vigorJourneyScreen .vjm-filter{font-size:12px}}
