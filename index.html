@@ -2114,10 +2114,10 @@ window.vigorCloudBridge={
   updatePriority('h:'+index,day,mode==='minimum'?'min':'full');
   return true;
  },
- addJourneyHabit:({name,cue,minimum,identity,kind})=>{
+ addJourneyHabit:({name,cue,minimum,identity,kind,plan})=>{
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
    small=String(minimum??'').trim(),why=String(identity??'').trim();
-  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150)
+  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
    throw Error('Enter a habit name (up to 70 characters) and a small action (up to 150 characters).');
   if(!['build','replace'].includes(kind))throw Error('Choose Build or Replace.');
   if(state.habitLabels.length>=100)throw Error('The habit list has reached its limit.');
@@ -2128,7 +2128,8 @@ window.vigorCloudBridge={
   state.habitLabels.push(label);
   state.discipline.settings[index]={
     cue:prompt||'After something I already do each day',
-    minimum:small,identity:why||'I take small actions toward the life I want',kind
+    minimum:small,identity:why||'I take small actions toward the life I want',kind,
+    plan:kind==='replace'?String(plan??'').trim():''
   };
   if(!save()){
     state.habitLabels.pop();delete state.discipline.settings[index];
@@ -2137,11 +2138,11 @@ window.vigorCloudBridge={
   renderDaily();render();renderSetup();
   return index;
  },
- updateJourneyHabit:({index,name,cue,minimum,identity,kind})=>{
+ updateJourneyHabit:({index,name,cue,minimum,identity,kind,plan})=>{
   if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)throw Error('Choose a valid habit.');
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
    small=String(minimum??'').trim(),why=String(identity??'').trim();
-  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150)
+  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
    throw Error('Enter a habit name (up to 70 characters) and a small action (up to 150 characters).');
   if(!['build','replace'].includes(kind))throw Error('Choose Build or Replace.');
   if(state.habitLabels.some((x,i)=>i!==index&&x.toLowerCase()===label.toLowerCase()))
@@ -2151,7 +2152,8 @@ window.vigorCloudBridge={
   state.habitLabels[index]=label;
   state.discipline.settings[index]={...disciplineConfig(index),
     cue:prompt||'After something I already do each day',minimum:small,
-    identity:why||'I take small actions toward the life I want',kind};
+    identity:why||'I take small actions toward the life I want',kind,
+    plan:kind==='replace'?String(plan??'').trim():''};
   if(!save()){
     state.habitLabels[index]=oldName;
     if(oldSettings===undefined)delete state.discipline.settings[index];
