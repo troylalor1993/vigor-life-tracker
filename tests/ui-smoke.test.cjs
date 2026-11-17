@@ -83,7 +83,8 @@ async function main(){
      ];
      const signatures=new Set();
      for(const [label,theme] of palettes){
-       await page.locator('#appTabs [data-panel="settings"]').click();
+       await page.locator('#vigorNav [data-vigor-route="more"]').click();
+       await page.locator('#vigorMoreMenu [data-vigor-old="settings"]').click();
        await page.locator('#themeChoices .theme-choice').filter({hasText:label}).click();
        const selected=await page.evaluate(()=>document.documentElement.dataset.theme||'');
        assert.equal(selected,theme,'selected theme matches '+label);
@@ -116,11 +117,13 @@ async function main(){
        assert(journeyColor&&growthColor&&fitnessColor,'feature surfaces styled for '+label);
      }
      assert.equal(signatures.size,palettes.length,'all six palettes visually distinguishable across premium surfaces');
-     await page.locator('#appTabs [data-panel="settings"]').click();
+     await page.locator('#vigorNav [data-vigor-route="more"]').click();
+       await page.locator('#vigorMoreMenu [data-vigor-old="settings"]').click();
      await page.locator('#themeChoices .theme-choice').filter({hasText:'Midnight Blue'}).click();
      await page.reload({waitUntil:'domcontentloaded'});
      assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),'midnight','saved colour theme survives reload');
-     await page.locator('#appTabs [data-panel="settings"]').click();
+     await page.locator('#vigorNav [data-vigor-route="more"]').click();
+       await page.locator('#vigorMoreMenu [data-vigor-old="settings"]').click();
      await page.locator('#themeChoices .theme-choice').filter({hasText:'Black & Gold'}).click();
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
