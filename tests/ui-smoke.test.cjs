@@ -33,21 +33,41 @@ async function main(){
      assert.equal(artResponse.status(),200,'sunrise artwork served');
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
      assert.equal(await page.locator('#big3Panel').isVisible(),true,'Today priorities visible');
-     assert.equal(await page.locator('#vigorDailyFocus').isVisible(),true,'Next Small Win hero visible');
+     assert.equal(await page.locator('#vigorAllHabits').isVisible(),true,'All habits carousel is prominent on Today');
+     assert.equal(await page.locator('#vigorDailyFocus').isVisible(),false,'Old duplicate priority hero is hidden');
      assert.equal(await page.locator('#vigorStartGuide').isVisible(),true,'First-run guide visible without saved history');
-     const nextName=await page.locator('#vigorDailyFocus h2').textContent();
-     const selectedRow=page.locator('#big3List .big3-row').filter({hasText:nextName}).first();
-     assert.equal(await page.locator('#vigorDailyFocus [data-focus-complete]').isVisible(),true,'one-tap Done action available');
-     assert.equal(await page.locator('#vigorDailyFocus [data-focus-minimum]').isVisible(),true,'one-tap Minimum action available');
-     await page.locator('#vigorDailyFocus [data-focus-complete]').click();
-     assert.equal(await selectedRow.locator('button').filter({hasText:/^Done$/}).getAttribute('aria-pressed'),'true','one-tap Done records through existing Big 3');
-     await selectedRow.locator('button').filter({hasText:/^Done$/}).click();
-     assert.equal(await selectedRow.locator('button').filter({hasText:/^Done$/}).getAttribute('aria-pressed'),'false','existing Big 3 can undo a completed action');
-     await page.locator('#vigorDailyFocus [data-focus-minimum]').click();
-     assert.equal(await selectedRow.locator('button').filter({hasText:/^Minimum$/}).getAttribute('aria-pressed'),'true','one-tap Minimum records a smaller action');
-     await selectedRow.locator('button').filter({hasText:/^Minimum$/}).click();
-     await page.locator('#vigorDailyFocus [data-focus-open]').click();
-     assert.equal(await page.locator('#big3Panel').isVisible(),true,'Next Small Win action leads to priorities');
+     const activeHabits=await page.evaluate(()=>{
+       const state=window.vigorCloudBridge.read();
+       return state.habitLabels.filter((_,i)=>!state.discipline?.settings?.[i]?.archivedAt).length;
+     });
+     assert.equal(await page.locator('#vigorHabitsTrack .vah-card').count(),activeHabits,
+       'Every active habit has one swipe card');
+     assert(activeHabits>=2,'test starts with multiple habits to swipe');
+     await page.locator('#vigorAllHabits .vah-navigation [aria-label="Next habit"]').click();
+     assert.equal(await page.locator('#vigorAllHabits .vah-position').textContent(),'2 of '+activeHabits,
+       'Next arrow navigates between habit cards');
+     await page.locator('#vigorAllHabits .vah-navigation [aria-label="Previous habit"]').click();
+     assert.equal(await page.locator('#vigorAllHabits .vah-position').textContent(),'1 of '+activeHabits,
+       'Previous arrow goes back to first habit');
+     const firstHabit=page.locator('#vigorHabitsTrack .vah-card').first();
+     const firstIndex=await firstHabit.getAttribute('data-habit-index');
+     await firstHabit.locator('[data-mode="full"]').click();
+     const finished=page.locator('#vigorHabitsTrack .vah-card[data-habit-index="'+firstIndex+'"]');
+     assert.equal(await finished.locator('[data-mode="full"]').getAttribute('aria-pressed'),'true',
+       'Done is recorded on the swipe card');
+     assert.equal(await finished.locator('[data-mode="minimum"]').getAttribute('aria-pressed'),'false',
+       'Minimum is not selected when Done is active');
+     assert.equal(await page.locator('#vigorJourneyManager').count(),1,'same existing Journey is present');
+     await finished.locator('[data-mode="minimum"]').click();
+     assert.equal(await finished.locator('[data-mode="minimum"]').getAttribute('aria-pressed'),'true',
+       'Minimum effort is recorded on the same habit');
+     assert.equal(await finished.locator('[data-mode="full"]').getAttribute('aria-pressed'),'false',
+       'Full effort becomes unselected after Minimum');
+     await finished.locator('[data-mode="minimum"]').click();
+     assert.equal(await finished.locator('[data-mode="minimum"]').getAttribute('aria-pressed'),'false',
+       'Tapping selected minimum again can undo the action');
+     assert.equal(await page.locator('#vigorHabitsTrack .vah-card').count(),activeHabits,
+       'Every active habit remains available after completion or undo');
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Dedicated Journey view visible');
      assert.equal(await page.locator('#globalSaveStatus').isVisible(),false,'duplicate legacy save text hidden');
@@ -57,6 +77,16 @@ async function main(){
      assert.equal(await page.locator('#vigorJourneyScreen .vigor-step').count(),5,'Five guided habit steps');
      assert.equal(await page.locator('#vigorJourneyManager .vjm-item-actions button').first().isVisible(),true,
        'compact habit actions visible by default');
+     // Journey auto-prioritizes unfinished habits while preserving each habit's identity.
+     const journeyOrder=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(rows=>rows.map(row=>Number(row.dataset.habitIndex)));
+     const expectedOrder=await page.evaluate(()=>{
+       const d=window.vigorCloudBridge.read(),today=new Date();
+       const date=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+       const full=d.dailyCheckins?.[date]?.habits||[],mins=d.discipline?.minimums?.[date]||{};
+       return d.habitLabels.map((_,i)=>i).filter(i=>!d.discipline?.settings?.[i]?.archivedAt)
+         .sort((a,b)=>Number(!!full[a]||!!mins[a])-Number(!!full[b]||!!mins[b])||a-b);
+     });
+     assert.deepEqual(journeyOrder,expectedOrder,'Journey lists unfinished habits above completed habits');
      assert.equal(await page.locator('#vigorJourneyManager .vjm-item-more').first().isVisible(),false,
        'extra habit controls collapsed by default');
      assert.equal(await page.locator('#vigorJourneyManager .vjm-focus-strip').isVisible(),true,
