@@ -80,6 +80,8 @@ async function main(){
      assert.equal(await page.locator('#vigorSyncBadge').textContent(),'Saved on this device','reload does not claim cloud confirmation');
      await page.locator('#vigorSyncBadge').click();
      assert.equal(await page.locator('#cloudSync').isVisible(),true,'save status opens Account & Automatic Sync');
+     assert.equal(await page.locator('#cloudResetPassword').isVisible(),true,'Forgot password action available to signed-out users');
+     assert.equal(await page.locator('#cloudResetFeedback').getAttribute('role'),'status','password reset has accessible status feedback');
      // Every selectable palette must reach the premium header, journey, growth,
      // fitness, navigation, and accent buttons rather than only the Settings card.
      const palettes=[
