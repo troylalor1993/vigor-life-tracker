@@ -1564,7 +1564,27 @@ function renderBig3(){
   const label=element('label','Priority '+(index+1)),select=element('select');
   select.setAttribute('aria-label','Daily priority '+(index+1));
   for(const choice of choices){const o=element('option',choice.label);o.value=choice.value;select.append(o)}
-  select.value=selectedValue;label.append(select);selectors.append(label);
+  select.value=selectedValue;
+  const orderButtons=element('span',undefined,'reorder-actions');
+  const up=element('button','↑','secondary tiny'),down=element('button','↓','secondary tiny');
+  for(const [button,direction,text] of [[up,-1,'Move up'],[down,1,'Move down']]){
+    button.type='button';
+    button.disabled=direction<0?index===0:index===selected.length-1;
+    button.setAttribute('aria-label',text+' priority '+(index+1));
+    button.onclick=()=>{
+      const neighbor=direction<0?label.previousElementSibling:label.nextElementSibling;
+      if(!neighbor)return;
+      if(direction<0)neighbor.before(label);else neighbor.after(label);
+      Array.from(selectors.children).forEach((entry,i)=>{
+        entry.firstChild.textContent='Priority '+(i+1);
+        const buttons=entry.querySelectorAll('.reorder-actions button');
+        if(buttons[0])buttons[0].disabled=i===0;
+        if(buttons[1])buttons[1].disabled=i===selectors.children.length-1;
+      });
+    };
+  }
+  orderButtons.append(up,down);
+  label.append(select,orderButtons);selectors.append(label);
  });
 }
 $('saveBig3').onclick=()=>{
