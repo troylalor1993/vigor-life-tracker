@@ -22,11 +22,23 @@ check('configured priorities take precedence',()=>{
 });
 check('minimum effort counts as started, not full',()=>{
  const x=focusFor({...base,discipline:{...base.discipline,minimums:{[day]:{1:true}}}},day);
- assert.equal(x.completed,1);assert.equal(x.next.name,'Followed nutrition plan');
+ assert.equal(x.completed,1);assert.equal(x.next.name,'Strength');
 });
 check('workout completion counts as a priority',()=>{
  const x=focusFor({...base,completions:[{activityId:'strength',date:day}]},day);
  assert.equal(x.completed,1);
+});
+check('next action follows visible priority order even when workout is first',()=>{
+ const d={...base,discipline:{...base.discipline,big3:['w:strength','h:1','h:2']}};
+ const x=focusFor(d,day);
+ assert.equal(x.next.name,'Strength');
+ assert.deepEqual(Array.from(x.priorities),['w:strength','h:1','h:2']);
+});
+check('completed priority moves to the next selected item in order',()=>{
+ const d={...base,discipline:{...base.discipline,big3:['w:strength','h:1','h:2']},
+  completions:[{activityId:'strength',date:day}]};
+ const x=focusFor(d,day);
+ assert.equal(x.next.name,'Pray');
 });
 check('future workouts are not counted',()=>{
  const x=focusFor({...base,completions:[{activityId:'strength',date:'2026-11-17'}]},day);
