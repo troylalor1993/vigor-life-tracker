@@ -1127,11 +1127,41 @@ const disciplineShiftFor=date=>{
  const i=((days(date,state.anchor)%8)+8)%8;
  return i<2?'Day shift':i<4?'Night shift':i===4?'Recovery day':'Day off';
 };
+// Archiving is non-destructive: habit indexes and historical records stay stable.
+function isHabitActive(index){
+ return Number.isInteger(index)&&index>=0&&index<state.habitLabels.length
+   &&!state.discipline.settings?.[index]?.archivedAt;
+}
+function habitWasTracked(index,date){
+ const archived=state.discipline.settings?.[index]?.archivedAt;
+ return !archived||date<archived;
+}
+function setHabitArchived(index,archived){
+ if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)
+  throw Error('Choose a valid habit.');
+ const before=state.discipline.settings?.[index];
+ const previousPriorities=(state.discipline.big3||[]).slice();
+ state.discipline.settings||={};
+ state.discipline.settings[index]={...disciplineConfig(index),...before};
+ if(archived){
+  state.discipline.settings[index].archivedAt=iso(new Date());
+  state.discipline.big3=(state.discipline.big3||[]).filter(key=>key!=='h:'+index);
+ }else delete state.discipline.settings[index].archivedAt;
+ if(!save()){
+  if(before===undefined)delete state.discipline.settings[index];
+  else state.discipline.settings[index]=before;
+  state.discipline.big3=previousPriorities;
+  throw Error('Could not save this change. Your habit was not altered.');
+ }
+ renderDaily();render();renderSetup();
+ return true;
+}
 function disciplineCounts(date){
  const entry=cleanCheck(state.dailyCheckins[date]),minimum=state.discipline.minimums[date]||{};
- const full=entry.habits.filter(Boolean).length;
- const small=state.habitLabels.reduce((n,_,i)=>n+(!entry.habits[i]&&!!minimum[i]?1:0),0);
- return {full,small,total:state.habitLabels.length,entry};
+ const indices=state.habitLabels.map((_,i)=>i).filter(i=>habitWasTracked(i,date));
+ const full=indices.filter(i=>!!entry.habits[i]).length;
+ const small=indices.filter(i=>!entry.habits[i]&&!!minimum[i]).length;
+ return {full,small,total:indices.length,entry};
 }
 function disciplineMetrics(){
  const current=cycleStartFor(today),windowStart=plus(current,-cycleDays()*3);
@@ -1151,8 +1181,8 @@ function renderDisciplineOverview(date){
  $('disciplineBar').style.width=(m.total?Math.round((m.full+m.small)/m.total*100):0)+'%';
  $('disciplineShift').textContent=disciplineShiftFor(date);
  $('disciplineFocus').dataset.shift=disciplineShiftFor(date);
- const next=state.habitLabels.find((_,i)=>!m.entry.habits[i]&&!state.discipline.minimums[date]?.[i]);
- const previous=plus(date,-1),prior=state.dailyCheckins[previous],recover=prior?.saved&&disciplineCounts(previous).full<state.habitLabels.length;
+ const next=state.habitLabels.find((_,i)=>isHabitActive(i)&&!m.entry.habits[i]&&!state.discipline.minimums[date]?.[i]);
+ const previous=plus(date,-1),prior=state.dailyCheckins[previous],recover=prior?.saved&&disciplineCounts(previous).full<disciplineCounts(previous).total;
  const focusConfig=next?disciplineConfig(state.habitLabels.indexOf(next)):null;
  $('disciplineFocus').textContent=next?(recover?'A fresh start today: ':'Next small win: ')+next+'. '+(recover?'Try '+focusConfig.minimum.toLowerCase()+'. ':disciplineShiftFor(date)==='Night shift'?'Anchor it to waking, not the clock. ':'Start with the minimum if time is limited. '):'You showed up for each listed habit today. Well done.';
  $('disciplineFocus').textContent+=' '+currentShiftPlan(date);
@@ -1210,7 +1240,7 @@ $('disciplineObstacle').onchange=saveDisciplineReview;
 $('disciplineAdjustment').onchange=saveDisciplineReview;
 // Nutrition is one connected habit, not a second competing checklist.
 function nutritionIndex(){
- return state.habitLabels.findIndex(name=>/nutrition|food plan|healthy eat|meal plan/i.test(name));
+ return state.habitLabels.findIndex((name,i)=>isHabitActive(i)&&/nutrition|food plan|healthy eat|meal plan/i.test(name));
 }
 function nutritionCravingAdvice(reason){
  const advice={
@@ -1306,6 +1336,7 @@ function renderDaily(){
  const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);
  $('habitGrid').replaceChildren();
  state.habitLabels.forEach((name,i)=>{
+  if(!isHabitActive(i))return;
   const cfg=disciplineConfig(i),small=!!state.discipline.minimums[date]?.[i]&&!entry.habits[i];
   const item=element('div',undefined,'discipline-habit'),info=element('div'),title=element('strong',name);
   item.dataset.habitIndex=String(i);
@@ -1354,6 +1385,7 @@ function renderDaily(){
  $('habitEditor').replaceChildren();
  if(habitEdit){
   state.habitLabels.forEach((name,i)=>{
+   if(!isHabitActive(i))return;
    const row=element('div',undefined,'habit-add-row'),input=element('input'),remove=element('button','Remove','secondary tiny');
    const moves=element('div',undefined,'reorder-actions');
    const up=element('button','↑','secondary tiny'),down=element('button','↓','secondary tiny');
@@ -1432,18 +1464,19 @@ function currentShiftPlan(date){
  return state.discipline.shiftPlans[shift]||shiftPlanDefaults[shift]||shiftPlanDefaults['Day off'];
 }
 function big3Choices(){
- return [...state.habitLabels.map((name,i)=>({value:'h:'+i,label:name})),
+ return [...state.habitLabels.map((name,i)=>isHabitActive(i)?({value:'h:'+i,label:name}):null).filter(Boolean),
   ...state.activities.map(a=>({value:'w:'+a.id,label:'Workout: '+a.name}))];
 }
 function big3Defaults(){
- const pray=state.habitLabels.findIndex(x=>/pray/i.test(x));
- const nutrition=state.habitLabels.findIndex(x=>/nutrition|meal|protein/i.test(x));
- const bible=state.habitLabels.findIndex(x=>/bible|scripture/i.test(x));
+ const active=state.habitLabels.map((name,i)=>isHabitActive(i)?{name,i}:null).filter(Boolean);
+ const find=(pattern)=>active.find(x=>pattern.test(x.name))?.i;
+ const prayer=find(/pray/i),bible=find(/bible|scripture/i),nutrition=find(/nutrition|meal|protein/i);
+ const a=(prayer??bible??active[0]?.i),b=active.find(x=>x.i!==a)?.i;
  return [
-  pray>=0?'h:'+pray:bible>=0?'h:'+bible:'h:0',
-  state.activities[0]?'w:'+state.activities[0].id:'h:1',
-  nutrition>=0?'h:'+nutrition:'h:2'
- ];
+  a===undefined?null:'h:'+a,
+  state.activities[0]?'w:'+state.activities[0].id:b===undefined?null:'h:'+b,
+  nutrition===undefined?(active.find(x=>x.i!==a&&x.i!==b)?.i===undefined?null:'h:'+active.find(x=>x.i!==a&&x.i!==b).i):'h:'+nutrition
+ ].filter(Boolean);
 }
 function big3Selected(){
  const known=new Set(big3Choices().map(x=>x.value));
@@ -1501,7 +1534,7 @@ function recoveryCandidates(date){
  const previous=cleanCheck(prior),small=state.discipline.minimums[yesterday]||{};
  const before=plus(yesterday,-1),older=state.dailyCheckins[before],olderSmall=state.discipline.minimums[before]||{};
  return state.habitLabels.map((name,i)=>{
-  if(previous.habits[i]||small[i])return null;
+  if(!isHabitActive(i)||previous.habits[i]||small[i])return null;
   const current=cleanCheck(state.dailyCheckins[date]);
   if(current.habits[i]||state.discipline.minimums[date]?.[i])return null;
   const twice=older?.saved&&!state.discipline.restDays[before]&&!older.habits?.[i]&&!olderSmall[i];
@@ -1653,8 +1686,8 @@ function renderSetup(){
  $('openSetup').hidden=!!state.discipline.setupDone;
  const select=$('setupTopHabit'),previous=select.value;
  select.replaceChildren();
- state.habitLabels.forEach(name=>{const option=element('option',name);option.value=name;select.append(option)});
- if(state.habitLabels.includes(previous))select.value=previous;
+ state.habitLabels.forEach((name,i)=>{if(!isHabitActive(i))return;const option=element('option',name);option.value=name;select.append(option)});
+ if(Array.from(select.options).some(opt=>opt.value===previous))select.value=previous;
 }
 $('finishSetup').onclick=()=>{
  const text=$('setupTopHabit').value.trim(),cue=$('setupCue').value.trim(),minimum=$('setupMinimum').value.trim();
@@ -2107,8 +2140,9 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ setJourneyArchived:({index,archived})=>setHabitArchived(index,!!archived),
  recordJourneyHabit:(index,mode)=>{
-  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length||!['full','minimum'].includes(mode))
+  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length||!isHabitActive(index)||!['full','minimum'].includes(mode))
     throw Error('Choose a valid habit and effort.');
   const day=iso(new Date());
   updatePriority('h:'+index,day,mode==='minimum'?'min':'full');
@@ -2157,7 +2191,7 @@ window.vigorCloudBridge={
   return true;
  },
  updateJourneyHabit:({index,name,cue,minimum,identity,kind,plan})=>{
-  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)throw Error('Choose a valid habit.');
+  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length||!isHabitActive(index))throw Error('Choose a valid active habit.');
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
    small=String(minimum??'').trim(),why=String(identity??'').trim();
   if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
