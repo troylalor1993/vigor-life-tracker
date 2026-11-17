@@ -55,6 +55,13 @@ async function main(){
      assert.equal(await page.locator('.app-header h1').isVisible(),false,'secondary-screen header is compact');
 
      assert.equal(await page.locator('#vigorJourneyScreen .vigor-step').count(),5,'Five guided habit steps');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-item-actions button').first().isVisible(),true,
+       'compact habit actions visible by default');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-item-more').first().isVisible(),false,
+       'extra habit controls collapsed by default');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-focus-strip').isVisible(),true,
+       'compact Today focus strip is available');
+
      assert.equal(await page.locator('#panel-today').isVisible(),false,'Today panel hidden while in Journey');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
      assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth visible');
@@ -242,17 +249,38 @@ async function main(){
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
      assert(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),'All restores the replacement habit');
 
-     await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).locator('.vjm-edit').click();
+     const replacementRow=page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'});
+     await replacementRow.locator('.vjm-expand').click();
+     assert.equal(await replacementRow.locator('.vjm-item-more').isVisible(),true,'optional habit actions expand');
+     await replacementRow.locator('.vjm-edit').click();
      await page.locator('#vjmName').fill('Choose water instead of sugary drinks');
      await page.locator('#vigorJourneyForm .vjm-save').click();
      newState=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      assert.equal(newState.habitLabels[replaceIndex],'Choose water instead of sugary drinks','habit edited in Journey');
      const chosen=page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of sugary drinks'});
      await chosen.locator('.vjm-min').click();
+     assert.equal(await chosen.locator('.vjm-min').getAttribute('aria-pressed'),'true',
+       'minimum effort shows selected state');
+     const selectedMin=await chosen.locator('.vjm-min').evaluate(el=>getComputedStyle(el).borderTopColor);
+     assert.equal(selectedMin,'rgb(232, 185, 78)','gold ring appears around selected minimum');
+     assert.equal(await chosen.locator('.vjm-done').getAttribute('aria-pressed'),'false',
+       'Done is unselected when minimum is selected');
+
      const local=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      const recordedMinimums=Object.values(local.discipline.minimums||{});
      assert(recordedMinimums.some(row=>row[replaceIndex]===true),'minimum effort saved through existing daily check-in');
      await chosen.locator('.vjm-done').click();
+     assert.equal(await chosen.locator('.vjm-done').getAttribute('aria-pressed'),'true',
+       'Done shows selected state');
+     assert.equal(await chosen.locator('.vjm-min').getAttribute('aria-pressed'),'false',
+       'Minimum becomes unselected after Done');
+     const selectedDone=await chosen.locator('.vjm-done').evaluate(el=>getComputedStyle(el).borderTopColor);
+     assert.equal(selectedDone,'rgb(232, 185, 78)','gold ring appears around selected Done');
+     await page.locator('#vigorJourneyManager #vjmToggleCompleted').click();
+     assert.equal(await chosen.count(),0,'hide completed removes recorded habit from the visible list');
+     await page.locator('#vigorJourneyManager #vjmToggleCompleted').click();
+     assert.equal(await chosen.count(),1,'show completed restores it');
+
      const updated=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      assert(Object.values(updated.dailyCheckins||{}).some(row=>row.habits?.[replaceIndex]===true),'full effort saved on existing daily check-in');
      // Recover one habit without rewriting its historical full/minimum records.
@@ -261,6 +289,7 @@ async function main(){
        return {dailyCheckins:d.dailyCheckins,minimums:d.discipline.minimums,
          otherSettings:d.discipline.settings[0]};
      });
+     if(!(await chosen.locator('.vjm-item-more').isVisible()))await chosen.locator('.vjm-expand').click();
      await chosen.locator('.vjm-adjust').click();
      assert.equal(await page.locator('#vigorJourneyRecovery').isVisible(),true,'obstacle adjustment form is available');
      await page.locator('#vjmRecoveryObstacle').selectOption('energy');
@@ -274,10 +303,12 @@ async function main(){
      assert.deepEqual(afterRecovery.dailyCheckins,beforeRecovery.dailyCheckins,'historical habit check-ins unchanged');
      assert.deepEqual(afterRecovery.discipline.minimums,beforeRecovery.minimums,'minimum efforts unchanged');
      assert.deepEqual(afterRecovery.discipline.settings[0],beforeRecovery.otherSettings,'other habit settings unchanged');
+     if(!(await chosen.locator('.vjm-item-more').isVisible()))await chosen.locator('.vjm-expand').click();
      assert.equal(await chosen.locator('.vjm-recovery-note').isVisible(),true,'saved adjustment appears on habit');
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      const restoredHabit=page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of sugary drinks'});
+     await restoredHabit.locator('.vjm-expand').click();
      assert.equal(await restoredHabit.locator('.vjm-recovery-note').isVisible(),true,'adjustment survives browser reload');
      await restoredHabit.locator('.vjm-edit').click();
      await page.locator('#vjmminimum').fill('Pause for a moment and fill one glass of water');
