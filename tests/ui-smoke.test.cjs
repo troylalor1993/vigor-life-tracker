@@ -318,6 +318,48 @@ async function main(){
        'Rest first, then prepare a glass of water.','editing the habit preserves the recovery plan');
      await page.locator('#vigorJourneyManager .vjm-manage').click();
      assert.equal(await page.locator('#habitEditor').isVisible(),true,'Journey links to existing remove/reorder editor');
+     // Archive an active habit without changing the underlying historical records.
+     const beforeArchive=await page.evaluate(()=>{
+       const d=JSON.parse(localStorage.getItem('vigor-tracker'));
+       return {labels:d.habitLabels.slice(),checks:d.dailyCheckins,mins:d.discipline.minimums,
+         priorities:d.discipline.big3.slice(),settings:d.discipline.settings};
+     });
+     const archivedPriority=beforeArchive.priorities.find(key=>/^h:\d+$/.test(key));
+     assert(archivedPriority,'expected at least one active habit priority');
+     const archivedIndex=Number(archivedPriority.slice(2));
+     await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
+     let archivedRow=page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]');
+     if(!(await archivedRow.locator('.vjm-item-more').isVisible()))await archivedRow.locator('.vjm-expand').click();
+     page.once('dialog',dialog=>dialog.accept());
+     await archivedRow.locator('.vjm-archive').click();
+     const afterArchive=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
+     assert.equal(afterArchive.discipline.settings[archivedIndex].archivedAt!==undefined,true,'archival timestamp stored');
+     assert.deepEqual(afterArchive.habitLabels,beforeArchive.labels,'habit labels preserved by archive');
+     assert.deepEqual(afterArchive.dailyCheckins,beforeArchive.checks,'check-in history preserved by archive');
+     assert.deepEqual(afterArchive.discipline.minimums,beforeArchive.mins,'minimum history preserved by archive');
+     assert(!afterArchive.discipline.big3.includes('h:'+archivedIndex),'archived habit removed from active priority choices');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]').count(),0,'archived item leaves active Journey');
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Archived'}).click();
+     archivedRow=page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]');
+     assert.equal(await archivedRow.isVisible(),true,'archived habit remains accessible for restore');
+     assert.equal(await archivedRow.locator('.vjm-done').count(),0,'archived habit is no longer directly loggable');
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
+     assert.equal(await page.locator('#habitGrid [data-habit-index="'+archivedIndex+'"]').count(),0,'archived habit leaves Today checklist');
+     await page.reload({waitUntil:'domcontentloaded'});
+     await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Archived'}).click();
+     archivedRow=page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]');
+     assert.equal(await archivedRow.isVisible(),true,'archived habit persists after page reload');
+     await archivedRow.locator('.vjm-restore').click();
+     const afterRestore=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
+     assert.equal(afterRestore.discipline.settings[archivedIndex].archivedAt,undefined,'habit becomes active after restore');
+     assert.deepEqual(afterRestore.habitLabels,beforeArchive.labels,'restore preserves names and order');
+     assert.deepEqual(afterRestore.dailyCheckins,beforeArchive.checks,'restore preserves check-in history');
+     assert.deepEqual(afterRestore.discipline.minimums,beforeArchive.mins,'restore preserves historical minimums');
+     assert(Array.isArray(afterRestore.discipline.settings[archivedIndex].archivePeriods),'archive interval retained for future calculations');
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
+     assert.equal(await page.locator('#habitGrid [data-habit-index="'+archivedIndex+'"]').count(),1,'restored habit returns to Today');
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
      assert(!errors.some(e=>/Cannot read properties of undefined|SyntaxError|ReferenceError/.test(e)),errors.join('; '));
