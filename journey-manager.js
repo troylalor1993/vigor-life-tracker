@@ -86,9 +86,10 @@
     const date=new Date();date.setHours(12,0,0,0);date.setDate(date.getDate()-15+j);
     return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
   }).filter(day=>data.dailyCheckins?.[day]?.saved&&!data.discipline?.restDays?.[day]);
-  const big3=new Set((data.discipline?.big3||[]).filter(key=>typeof key==='string'&&key.startsWith('h:'))
+  // Exactly the same daily priorities and order used by Today (including defaults).
+  const priorities=window.VigorDailyFocus?.focusFor?.(data,localDate())?.priorities||[];
+  const focusIndexes=new Set(priorities.filter(key=>/^h:\d+$/.test(key))
     .map(key=>Number(key.slice(2))));
-  const focusIndexes=big3.size?big3:new Set(data.habitLabels.slice(0,3).map((_,i)=>i));
   const visible=data.habitLabels.map((name,index)=>{
     const settings=data.discipline?.settings?.[index]||{};
     const full=days.filter(day=>!!data.dailyCheckins?.[day]?.habits?.[index]).length;
@@ -96,7 +97,8 @@
     return {name,index,kind:settings.kind==='replace'?'replace':'build',full,minimum,
       rate:days.length?Math.round((full+minimum)*100/days.length):null};
   }).filter(item=>view==='all'||view==='focus'&&focusIndexes.has(item.index)
-     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace');
+     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace')
+    .sort((a,b)=>view==='focus'?priorities.indexOf('h:'+a.index)-priorities.indexOf('h:'+b.index):a.index-b.index);
   const tabs=mk('div','vjm-filters');
   for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing']]){
     const button=mk('button',view===key?'vjm-filter active':'vjm-filter',label);
@@ -106,7 +108,7 @@
   }
   manager.append(tabs);
   const summary=mk('p','vjm-filter-summary',
-    view==='focus'?'Your selected daily-priority habits. Change your Big 3 on Today.':
+    view==='focus'?'The habit priorities shown on Today, in the same order. Workouts remain under Fitness.':
     view==='replace'?'A positive action to practise when an unwanted pattern appears.':
     view==='build'?'Good routines that you are growing one step at a time.':
     'All your habits in one place. Choose a smaller view when you want less to look at.');
@@ -118,6 +120,7 @@
     visible.forEach(({name,index:i,full:recentFull,minimum:recentMinimum,rate})=>{
       const settings=data.discipline?.settings?.[i]||{};
       const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':''));
+      row.dataset.habitIndex=String(i);
       const info=mk('div','vjm-item-info');
       const top=mk('div','vjm-item-title');
       top.append(mk('strong','',name),mk('span','vjm-kind',settings.kind==='replace'?'Replacing':'Building'));
@@ -247,5 +250,13 @@
   queueMicrotask(render);
  });
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
- window.VigorJourneyManager={refresh:render};
+ window.VigorJourneyManager={refresh:render,showHabit:index=>{
+   const data=getData();
+   if(!data||!Number.isInteger(index)||index<0||index>=data.habitLabels.length)return false;
+   selectedIndex=index;view='all';editorOpen=false;recoveryIndex=null;render();
+   document.querySelector('#vigorNav [data-vigor-route="journey"]')?.click();
+   const item=Array.from($('vigorJourneyManager')?.querySelectorAll('.vjm-item')||[])[index];
+   item?.scrollIntoView({behavior:'smooth',block:'center'});
+   return true;
+ }};
 })();

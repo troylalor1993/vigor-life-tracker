@@ -48,6 +48,7 @@
  const style=document.createElement('style');
  style.textContent='.vc-growth-card{border:1px solid var(--border-strong);background:linear-gradient(135deg,var(--panel-alt),var(--panel));border-radius:18px;margin:8px 0 15px;padding:16px;color:var(--text-primary)}.vc-growth-card h2{font-size:22px;margin:6px 0}.vc-growth-card h3{font-size:15px;margin:12px 0 7px}.vc-growth-card p{font-size:13px;line-height:1.5;margin:7px 0}.vc-growth-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vc-growth-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:13px 0}.vc-growth-stats>div{background:var(--input-bg);border:1px solid var(--border);padding:10px 6px;border-radius:11px;min-width:0}.vc-growth-stats strong{display:block;font-size:23px;color:var(--accent-soft)}.vc-growth-stats small{font-size:10px;line-height:1.3;color:var(--muted)}.vc-growth-card details{border-top:1px solid var(--border);padding:11px 0}.vc-growth-card summary{font-size:13px;color:var(--accent-soft);font-weight:750;cursor:pointer}.vc-growth-group{padding:9px 0;border-bottom:1px solid var(--border)}.vc-growth-habit{display:flex;justify-content:space-between;gap:9px;padding:7px 0;font-size:12px}.vc-growth-habit span{min-width:0;overflow-wrap:anywhere}.vc-growth-habit small{color:var(--muted);white-space:nowrap}.vc-growth-note{font-size:11px!important;color:var(--muted)}.vc-growth-review{padding:10px;border:1px solid var(--border);border-radius:12px;background:var(--panel-alt)}.vc-growth-review button{padding:10px 12px;min-height:44px;background:var(--accent);border:0;border-radius:9px;color:var(--accent-contrast);font-weight:800;cursor:pointer}@media(max-width:440px){.vc-growth-stats strong{font-size:18px}.vc-growth-stats small{font-size:9px}.vc-growth-card{padding:13px}}';
  style.textContent += '.vc-life-areas{margin:14px 0}.vc-life-areas h3{font-size:16px;margin:14px 0 11px}.vc-life-area{border:1px solid var(--border);background:linear-gradient(125deg,#302a22,#232426);padding:13px 14px;border-radius:14px;margin-bottom:9px}.vc-life-area-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.vc-life-area-top strong{font-size:13px;color:var(--text-primary)}.vc-life-area-top span{color:var(--accent-soft);font-size:12px;font-weight:750;white-space:nowrap}.vc-life-area small{font-size:11px;color:var(--muted)}.vc-life-meter{margin:10px 0 6px;height:7px;background:#4b4032;overflow:hidden;border-radius:20px}.vc-life-meter span{display:block;height:100%;background:linear-gradient(90deg,#c69342,#f7d991);border-radius:20px}';
+ style.textContent += '.vc-growth-habit{align-items:center}.vc-growth-habit .vc-open-habit{flex:none;min-height:40px;padding:8px 12px;border:1px solid var(--border-strong);border-radius:10px;background:var(--panel-alt);color:var(--accent-soft);font-weight:750;font-size:12px}.vc-growth-habit .vc-open-habit:focus-visible{outline:3px solid var(--accent-soft);outline-offset:2px}@media(max-width:440px){.vc-growth-habit{flex-wrap:wrap}.vc-growth-habit>span{flex:1 1 100%}.vc-growth-habit small{flex:1}}';
  document.head.append(style);
  function render(){
    const bridge=window.vigorCloudBridge;
@@ -79,7 +80,7 @@
      </div>
      <details class="vc-growth-details" ${open?'open':''}>
        <summary>Explore my habit areas</summary>
-       ${g.groups.length?g.groups.map(group=>`<div class="vc-growth-group"><h3>${clean(group.name)}</h3>${group.habits.map(item=>`<div class="vc-growth-habit"><span>${clean(item.label)}</span><small>${item.full} full · ${item.minimum} minimum</small></div>`).join('')}</div>`).join(''):'<p>Start by adding your first habit.</p>'}
+       ${g.groups.length?g.groups.map(group=>`<div class="vc-growth-group"><h3>${clean(group.name)}</h3>${group.habits.map(item=>`<div class="vc-growth-habit"><span>${clean(item.label)}</span><small>${item.full} full · ${item.minimum} minimum</small><button type="button" class="vc-open-habit" data-growth-habit="${item.index}" aria-label="Open ${clean(item.label)} in Journey">Open</button></div>`).join('')}</div>`).join(''):'<p>Start by adding your first habit.</p>'}
        <p class="vc-growth-note">Areas are suggested from habit names, not a judgment of your life. Rest and unrecorded days are not scored.</p>
      </details>
      <div class="vc-growth-review">
@@ -90,6 +91,12 @@
        ${g.reflection.adjustment?'<p><strong>Next adjustment:</strong> '+clean(g.reflection.adjustment)+'</p>':''}`:'<p class="vc-growth-note">Your saved reflection will appear here after your first rotation review.</p>'}
        <button id="growthOpenReview" type="button">Open rotation review</button>
      </div>`;
+   card.querySelectorAll('[data-growth-habit]').forEach(button=>button.addEventListener('click',()=>{
+     const index=Number(button.dataset.growthHabit);
+     if(!window.VigorJourneyManager?.showHabit?.(index)){
+       document.querySelector('#vigorNav [data-vigor-route="journey"]')?.click();
+     }
+   }));
    card.querySelector('#growthOpenReview')?.addEventListener('click',()=>{
      const section=byId('disciplineReview');if(!section)return;
      section.querySelector('details')?.setAttribute('open','');
