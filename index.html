@@ -1166,7 +1166,7 @@ function renderDisciplineOverview(date){
   state.discipline.minimums[date]||={};
   state.discipline.minimums[date][priorityIndex]=true;
   entry.saved=true;state.dailyCheckins[date]=entry;
-  if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Restart recorded · cloud syncing'}
+  if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Restart recorded on this device'}
  };
 }
 function renderDisciplineReview(){
@@ -1202,7 +1202,7 @@ function renderDisciplineReview(){
 function saveDisciplineReview(){
  const key=cycleStartFor(today);
  state.discipline.reviews[key]={win:$('disciplineWin').value.trim(),obstacle:$('disciplineObstacle').value,adjustment:$('disciplineAdjustment').value.trim()};
- if(save())$('disciplineReviewFeedback').textContent='✓ Rotation review saved · Firebase syncing';
+ if(save())$('disciplineReviewFeedback').textContent='✓ Rotation review saved on this device · see cloud status above';
 }
 $('saveDisciplineReview').onclick=saveDisciplineReview;
 $('disciplineWin').onchange=saveDisciplineReview;
@@ -1305,14 +1305,14 @@ function renderDaily(){
     else state.discipline.minimums[date][i]=true;
    }
    previous.saved=true;state.dailyCheckins[date]=previous;
-   if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Saved locally · cloud sync queued'}
+   if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Saved on this device · see cloud status above'}
   };
   full.onclick=()=>setMode('full');min.onclick=()=>setMode('minimum');
   actions.append(full,min);item.append(info,actions);$('habitGrid').append(item);
  });
  const totals=disciplineCounts(date);
  $('habitProgress').textContent=totals.full+' completed · '+totals.small+' minimums · '+totals.total+' habits';
- $('dailySaveStatus').textContent=entry.saved?'✓ Saved locally · Firebase syncing automatically':'No habits recorded for this date';
+ $('dailySaveStatus').textContent=entry.saved?'✓ Saved on this device · see cloud status above':'No habits recorded for this date';
  renderDisciplineOverview(date);
  renderDisciplineReview();
  renderBig3();
@@ -1347,7 +1347,7 @@ function renderDaily(){
      const updated={};state.habitLabels.forEach((_,j)=>{const k=j>=i?j+1:j;if(minimums[k])updated[j]=true});
      state.discipline.minimums[day]=updated;
     }
-    if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Habit removed and saved'}
+    if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Habit removed and saved on this device'}
    };
    row.append(input,remove);$('habitEditor').append(row);
    const details=element('details',undefined,'discipline-config'),sum=element('summary','Customize cue & minimum');
@@ -1604,7 +1604,7 @@ $('finishSetup').onclick=()=>{
  if(index<0)return alert('Choose a habit from the list.');
  state.discipline.settings[index]={...disciplineConfig(index),cue,minimum};
  state.discipline.setupDone=true;
- if(save()){renderSetup();renderDaily();$('setupFeedback').textContent='✓ Your habit system is personalized and saved.';$('setupDetails').open=false}
+ if(save()){renderSetup();renderDaily();$('setupFeedback').textContent='✓ Your habit setup is saved on this device.';$('setupDetails').open=false}
 };
 function recoveryStorageKey(){
  return 'vigor-recovery-'+(localStorage.getItem('vigor-cloud-linked-user')||'this-device');
@@ -2123,6 +2123,7 @@ window.vigorCloudBridge={
 <script src="./onboarding-guide.js" defer></script>
 <script src="./rotation-recap.js" defer></script>
 <script src="./premium-screens.js" defer></script>
+<script src="./sync-health.js" defer></script>
 
 
 </body>
