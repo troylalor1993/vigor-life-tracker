@@ -28,10 +28,16 @@
    const last=recent(data,day,8);
    const rest=data.discipline?.restDays||{};
    const recorded=last.filter(x=>x.entry?.saved&&!rest[x.day]);
+   const tracked=(index,date)=>{
+     const config=data.discipline?.settings?.[index]||{},periods=config.archivePeriods||[];
+     return (!config.archivedAt||date<config.archivedAt)&&
+       !periods.some(p=>p&&date>=p.start&&(!p.end||date<p.end));
+   };
    const perHabit=labels.map((name,i)=>({name,i})).filter(x=>active.includes(x.i)).map(({name,i})=>{
-     const full=recorded.filter(x=>!!x.entry?.habits?.[i]).length;
-     const minimum=recorded.filter(x=>!x.entry?.habits?.[i]&&!!x.mins?.[i]).length;
-     const opportunities=recorded.length;
+     const applicable=recorded.filter(x=>tracked(i,x.day));
+     const full=applicable.filter(x=>!!x.entry?.habits?.[i]).length;
+     const minimum=applicable.filter(x=>!x.entry?.habits?.[i]&&!!x.mins?.[i]).length;
+     const opportunities=applicable.length;
      const rate=opportunities?Math.round(100*(full+minimum)/opportunities):null;
      return {name,index:i,full,minimum,opportunities,rate};
    });
@@ -48,11 +54,11 @@
    const cue=typeof config.cue==='string'&&config.cue.trim()?config.cue.trim():'After something you already do each day';
    const totalFull=perHabit.reduce((n,h)=>n+h.full,0);
    const totalMinimum=perHabit.reduce((n,h)=>n+h.minimum,0);
-   const possible=active.length*recorded.length;
+   const possible=perHabit.reduce((sum,h)=>sum+h.opportunities,0);
    const opportunities=possible?Math.round(100*(totalFull+totalMinimum)/possible):null;
    const prior=shiftDate(day,-1);
    const priorEntry=data.dailyCheckins?.[prior],priorMin=data.discipline?.minimums?.[prior]||{};
-   const missed=!!priorEntry?.saved&&!rest[prior]&&active.some(i=>!priorEntry.habits?.[i]&&!priorMin[i]);
+   const missed=!!priorEntry?.saved&&!rest[prior]&&active.some(i=>tracked(i,prior)&&!priorEntry.habits?.[i]&&!priorMin[i]);
    return {perHabit,chosen,minimum,cue,recordedDays:recorded.length,totalFull,totalMinimum,possible,
      rate:opportunities,missedYesterday:missed,allDone:active.length>0&&!available.length};
  }
@@ -62,7 +68,12 @@
    if(!Number.isInteger(index)||index<0||index>=labels.length||data.discipline?.settings?.[index]?.archivedAt)return null;
    const settings=data.discipline?.settings?.[index]||{};
    const configured=['cue','minimum','identity'].every(key=>typeof settings[key]==='string'&&settings[key].trim().length>0);
-   const recorded=recent(data,day,16).filter(x=>x.entry?.saved&&!data.discipline?.restDays?.[x.day]);
+   const recorded=recent(data,day,16).filter(x=>{
+     if(!x.entry?.saved||data.discipline?.restDays?.[x.day])return false;
+     const periods=settings.archivePeriods||[];
+     return (!settings.archivedAt||x.day<settings.archivedAt)&&
+       !periods.some(p=>p&&x.day>=p.start&&(!p.end||x.day<p.end));
+   });
    const done=recorded.filter(x=>x.entry?.habits?.[index]||x.mins?.[index]);
    const full=recorded.filter(x=>x.entry?.habits?.[index]).length;
    const minimums=done.length-full;
