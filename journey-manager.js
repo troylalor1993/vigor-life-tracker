@@ -92,17 +92,22 @@
   const priorities=window.VigorDailyFocus?.focusFor?.(data,localDate())?.priorities||[];
   const focusIndexes=new Set(priorities.filter(key=>/^h:\d+$/.test(key))
     .map(key=>Number(key.slice(2))));
+  const tracked=(settings,day)=>!settings.archivedAt||day<settings.archivedAt;
   const visible=data.habitLabels.map((name,index)=>{
-    const settings=data.discipline?.settings?.[index]||{};
-    const full=days.filter(day=>!!data.dailyCheckins?.[day]?.habits?.[index]).length;
-    const minimum=days.filter(day=>!data.dailyCheckins?.[day]?.habits?.[index]&&!!data.discipline?.minimums?.[day]?.[index]).length;
-    return {name,index,kind:settings.kind==='replace'?'replace':'build',full,minimum,
-      rate:days.length?Math.round((full+minimum)*100/days.length):null};
-  }).filter(item=>view==='all'||view==='focus'&&focusIndexes.has(item.index)
-     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace')
+    const settings=data.discipline?.settings?.[index]||{},archived=!!settings.archivedAt;
+    const eligible=days.filter(day=>tracked(settings,day)&&
+      !(settings.archivePeriods||[]).some(p=>day>=p.start&&(!p.end||day<p.end)));
+    const full=eligible.filter(day=>!!data.dailyCheckins?.[day]?.habits?.[index]).length;
+    const minimum=eligible.filter(day=>!data.dailyCheckins?.[day]?.habits?.[index]&&!!data.discipline?.minimums?.[day]?.[index]).length;
+    return {name,index,archived,kind:settings.kind==='replace'?'replace':'build',full,minimum,
+      rate:eligible.length?Math.round((full+minimum)*100/eligible.length):null,
+      opportunities:eligible.length};
+  }).filter(item=>view==='archived'?item.archived:
+    !item.archived&&(view==='all'||view==='focus'&&focusIndexes.has(item.index)
+     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace'))
     .sort((a,b)=>view==='focus'?priorities.indexOf('h:'+a.index)-priorities.indexOf('h:'+b.index):a.index-b.index);
   const tabs=mk('div','vjm-filters');
-  for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing']]){
+  for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing'],['archived','Archived']]){
     const button=mk('button',view===key?'vjm-filter active':'vjm-filter',label);
     button.type='button';button.setAttribute('aria-pressed',String(view===key));
     button.onclick=()=>{view=key;render()};
@@ -128,12 +133,13 @@
   const summary=mk('p','vjm-filter-summary',
     view==='focus'?'The habit priorities shown on Today, in the same order. Workouts remain under Fitness.':
     view==='replace'?'A positive action to practise when an unwanted pattern appears.':
+    view==='archived'?'Paused habits live here. Restore one whenever you are ready; its earlier records stay intact.':
     view==='build'?'Good routines that you are growing one step at a time.':
     'All your habits in one place. Choose a smaller view when you want less to look at.');
   manager.append(summary);
   const checkins=data.dailyCheckins?.[localDate()]?.habits||[];
   const minimumsToday=data.discipline?.minimums?.[localDate()]||{};
-  const completedCount=visible.filter(item=>checkins[item.index]||minimumsToday[item.index]).length;
+  const completedCount=visible.filter(item=>!item.archived&&(checkins[item.index]||minimumsToday[item.index])).length;
   const controls=mk('div','vjm-display-controls');
   const toggle=mk('button','vjm-hide-completed'+(hideCompleted?' active':''),hideCompleted?'Show completed':'Hide completed today');
   toggle.type='button';toggle.id='vjmToggleCompleted';
@@ -141,12 +147,12 @@
   toggle.onclick=()=>{hideCompleted=!hideCompleted;render()};
   controls.append(mk('span','',completedCount+' of '+visible.length+' followed today'),toggle);
   manager.append(controls);
-  const shown=visible.filter(item=>!hideCompleted||!checkins[item.index]&&!minimumsToday[item.index]);
+  const shown=visible.filter(item=>item.archived||!hideCompleted||!checkins[item.index]&&!minimumsToday[item.index]);
   if(data.habitLabels.length){
     const grid=mk('div','vjm-list');
     const entry=data.dailyCheckins?.[localDate()]||{};
     const mins=data.discipline?.minimums?.[localDate()]||{};
-    shown.forEach(({name,index:i,full:recentFull,minimum:recentMinimum,rate})=>{
+    shown.forEach(({name,index:i,archived,full:recentFull,minimum:recentMinimum,rate,opportunities})=>{
       const settings=data.discipline?.settings?.[i]||{};
       const expanded=expandedCards.has(i);
       const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':'')+(expanded?' vjm-expanded':''));
@@ -155,10 +161,10 @@
       details.hidden=!expanded;
       const info=mk('div','vjm-item-info');
       const top=mk('div','vjm-item-title');
-      top.append(mk('strong','',name),mk('span','vjm-kind',settings.kind==='replace'?'Replacing':'Building'));
-      info.append(top, mk('small','',entry.habits?.[i]?'✓ Full effort today':mins[i]?'◐ Minimum effort today':settings.minimum?'Small step: '+settings.minimum:'Not started today'));
+      top.append(mk('strong','',name),mk('span','vjm-kind',archived?'Archived':settings.kind==='replace'?'Replacing':'Building'));
+      info.append(top, mk('small','',archived?'Paused · not in your active daily checklist':entry.habits?.[i]?'✓ Full effort today':mins[i]?'◐ Minimum effort today':settings.minimum?'Small step: '+settings.minimum:'Not started today'));
       details.append(mk('small','vjm-trend',
-        rate===null?'No recent check-ins yet':rate+'% followed on '+days.length+' recorded non-rest day(s)'));
+        rate===null?'No tracked check-ins in this period':rate+'% followed on '+opportunities+' tracked non-rest day(s)'));
       if(settings.kind==='replace'&&settings.plan)details.append(mk('small','vjm-plan','When it gets difficult: '+settings.plan));
       if(settings.recovery?.nextStep)details.append(mk('small','vjm-recovery-note','Next easier step: '+settings.recovery.nextStep));
       const actions=mk('div','vjm-item-actions');
@@ -173,13 +179,36 @@
       const adjust=mk('button','vjm-adjust','Adjust');
       adjust.type='button';adjust.setAttribute('aria-label','Adjust '+name+' after an obstacle');
       adjust.onclick=()=>openRecovery(i,data);
-      actions.append(full,min);
+      if(archived){
+        const restore=mk('button','vjm-restore','Restore habit');
+        restore.type='button';restore.setAttribute('aria-label','Restore '+name);
+        restore.onclick=()=>{
+          try{
+            window.vigorCloudBridge.setJourneyArchived({index:i,archived:false});
+            view='all';notice='✓ Habit restored with its history and settings.';
+            render();
+          }catch(error){notice=String(error?.message||'Could not restore habit.');render()}
+        };
+        actions.append(restore);
+      }else actions.append(full,min);
       const more=mk('button','vjm-expand',expanded?'Less':'More');
       more.type='button';more.setAttribute('aria-expanded',String(expanded));
       more.setAttribute('aria-label',(expanded?'Hide details for ':'Show details for ')+name);
       more.onclick=()=>{expanded?expandedCards.delete(i):expandedCards.add(i);render()};
       actions.append(more);
-      details.append(edit,adjust);
+      if(!archived){
+        const archive=mk('button','vjm-archive','Archive');
+        archive.type='button';archive.setAttribute('aria-label','Archive '+name);
+        archive.onclick=()=>{
+          if(!confirm('Archive '+name+'? It will leave active checklists, but you can restore it with all past progress intact.'))return;
+          try{
+            window.vigorCloudBridge.setJourneyArchived({index:i,archived:true});
+            expandedCards.delete(i);notice='✓ Habit archived. Restore it from Archived whenever you want.';
+            render();
+          }catch(error){notice=String(error?.message||'Could not archive habit.');render()}
+        };
+        details.append(edit,adjust,archive);
+      }
       row.append(info,actions,details);grid.append(row);
     });
     if(!shown.length)grid.append(mk('p','vjm-empty',hideCompleted&&completedCount?'All visible habits are recorded today. You can show completed ones again.':'No habits in this view yet. Try All habits or add one.'));
@@ -292,7 +321,7 @@
  window.VigorJourneyManager={refresh:render,showHabit:index=>{
    const data=getData();
    if(!data||!Number.isInteger(index)||index<0||index>=data.habitLabels.length)return false;
-   selectedIndex=index;view='all';editorOpen=false;recoveryIndex=null;render();
+   selectedIndex=index;view=data.discipline?.settings?.[index]?.archivedAt?'archived':'all';editorOpen=false;recoveryIndex=null;render();
    document.querySelector('#vigorNav [data-vigor-route="journey"]')?.click();
    const item=Array.from($('vigorJourneyManager')?.querySelectorAll('.vjm-item')||[])[index];
    item?.scrollIntoView({behavior:'smooth',block:'center'});

@@ -28,13 +28,14 @@
  }
  function renderJourney(data,day){
   const labels=Array.isArray(data.habitLabels)?data.habitLabels:[];
-  if(selectedHabit>=labels.length)selectedHabit=0;
-  const h=labels.length?window.VigorCoaching.habitJourney(data,day,selectedHabit):null;
+  const active=labels.map((name,i)=>({name,i})).filter(x=>!data.discipline?.settings?.[x.i]?.archivedAt);
+  if(!active.some(x=>x.i===selectedHabit))selectedHabit=active[0]?.i??0;
+  const h=active.length?window.VigorCoaching.habitJourney(data,day,selectedHabit):null;
   const stepDesc=['Choose a meaningful habit and why it matters','Attach a small action to a reliable cue','Repeat with minimum or full efforts','Learn from obstacles and recent check-ins','Protect your routine before adding more'];
   journey.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">A LIFE BUILT ON PURPOSE</div>
       <h2>Habit-Building Journey</h2><p>Choose, simplify, practice, reflect, and grow. Your journey is personal—not a race.</p></div>
-      ${labels.length?`<label class="vigor-habit-select">Habit you're building
-       <select id="vigorJourneySelect" aria-label="Choose a habit to develop">${labels.map((x,i)=>'<option value="'+i+'"'+(i===selectedHabit?' selected':'')+'>'+escape(x)+'</option>').join('')}</select></label>`:'<div class="vigor-summary">Create a habit in the Today tab to begin your journey.</div>'}
+      ${active.length?`<label class="vigor-habit-select">Habit you're building
+       <select id="vigorJourneySelect" aria-label="Choose a habit to develop">${active.map(({name:x,i})=>'<option value="'+i+'"'+(i===selectedHabit?' selected':'')+'>'+escape(x)+'</option>').join('')}</select></label>`:'<div class="vigor-summary">Add or restore a habit in Journey to begin.</div>'}
       ${h?`<div class="vigor-steps">${h.steps.map((step,i)=>`<div class="vigor-step${step.complete?' complete':''}">
        <span class="vigor-step-index">${step.complete?'✓':i+1}</span>
        <div><strong>${escape(step.label)}</strong><small>${escape(stepDesc[i])}</small></div>
