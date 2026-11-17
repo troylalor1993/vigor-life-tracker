@@ -22,15 +22,18 @@
    labels.forEach((label,index)=>{
      const archived=data.discipline?.settings?.[index]?.archivedAt;
      if(archived)return; // Active dashboard stays focused; archived history remains in the saved records.
+     const settings=data.discipline?.settings?.[index]||{};
+     const relevant=valid.filter(date=>(!settings.archivedAt||date<settings.archivedAt)
+       &&!(settings.archivePeriods||[]).some(p=>p&&date>=p.start&&(!p.end||date<p.end)));
      let f=0,m=0;
-     valid.forEach(date=>{
+     relevant.forEach(date=>{
        if(records[date]?.habits?.[index])f++;
        else if(minimums[date]?.[index])m++;
      });
      full+=f;minimum+=m;
      const category=classify(label);
      if(!groups.has(category))groups.set(category,[]);
-     groups.get(category).push({label,index,full:f,minimum:m});
+     groups.get(category).push({label,index,full:f,minimum:m,opportunities:relevant.length});
    });
    const reviews=data.discipline?.reviews||{};
    const reflection=Object.keys(reviews)
@@ -72,7 +75,7 @@
        <h3>Your life areas</h3>
        ${g.groups.length?g.groups.map(group=>{
         const count=group.habits.reduce((n,x)=>n+x.full+x.minimum,0);
-        const total=g.recordedDays*group.habits.length;
+        const total=group.habits.reduce((sum,h)=>sum+(h.opportunities??g.recordedDays),0);
         const pct=total?Math.round(count*100/total):null;
         return `<div class="vc-life-area"><div class="vc-life-area-top"><strong>${clean(group.name)}</strong><span>${pct===null?'No check-ins':pct+'% followed'}</span></div>
          <div class="vc-life-meter" role="progressbar" aria-label="${clean(group.name)} habit follow-through" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct??0}"><span style="width:${pct??0}%"></span></div>
