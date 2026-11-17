@@ -88,7 +88,7 @@
   }).filter(day=>data.dailyCheckins?.[day]?.saved&&!data.discipline?.restDays?.[day]);
   // Exactly the same daily priorities and order used by Today (including defaults).
   const priorities=window.VigorDailyFocus?.focusFor?.(data,localDate())?.priorities||[];
-  const focusIndexes=new Set(priorities.filter(key=>/^h:\\d+$/.test(key))
+  const focusIndexes=new Set(priorities.filter(key=>/^h:\d+$/.test(key))
     .map(key=>Number(key.slice(2))));
   const visible=data.habitLabels.map((name,index)=>{
     const settings=data.discipline?.settings?.[index]||{};
