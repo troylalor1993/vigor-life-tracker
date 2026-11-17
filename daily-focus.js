@@ -24,11 +24,12 @@
   for(const key of priorities){if(ordered.length>=Math.min(3,possible.length))break;const item=possible.find(x=>x.key===key);if(item&&!ordered.includes(item))ordered.push(item)}
   const completed=ordered.filter(x=>x.done||x.started).length;
   const remaining=ordered.filter(x=>!x.done&&!x.started);
-  const next=remaining.find(x=>x.type==='habit')||remaining[0]||null;
+  // Follow the visible Big 3 order. Journey and Growth use the same priorities.
+  const next=remaining[0]||null;
   const config=next?.type==='habit'?data.discipline?.settings?.[next.index]||{}:{};
   const min=typeof config.minimum==='string'&&config.minimum.trim()?config.minimum.trim():'Start with the smallest useful version';
   const cue=typeof config.cue==='string'&&config.cue.trim()?config.cue.trim():'After an existing daily routine';
-  return {completed,total:ordered.length,next,minimum:min,cue,allComplete:ordered.length>0&&completed===ordered.length};
+  return {completed,total:ordered.length,priorities:ordered.map(x=>x.key),next,minimum:min,cue,allComplete:ordered.length>0&&completed===ordered.length};
  }
  const anchor=$('big3Panel');if(!anchor)return;
  const hero=document.createElement('section');hero.className='vigor-focus-hero';hero.id='vigorDailyFocus';hero.setAttribute('aria-label','Your next small win');
