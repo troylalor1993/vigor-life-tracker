@@ -289,7 +289,7 @@ async function main(){
        return {dailyCheckins:d.dailyCheckins,minimums:d.discipline.minimums,
          otherSettings:d.discipline.settings[0]};
      });
-     await chosen.locator('.vjm-expand').click();
+     if(!(await chosen.locator('.vjm-item-more').isVisible()))await chosen.locator('.vjm-expand').click();
      await chosen.locator('.vjm-adjust').click();
      assert.equal(await page.locator('#vigorJourneyRecovery').isVisible(),true,'obstacle adjustment form is available');
      await page.locator('#vjmRecoveryObstacle').selectOption('energy');
@@ -303,7 +303,7 @@ async function main(){
      assert.deepEqual(afterRecovery.dailyCheckins,beforeRecovery.dailyCheckins,'historical habit check-ins unchanged');
      assert.deepEqual(afterRecovery.discipline.minimums,beforeRecovery.minimums,'minimum efforts unchanged');
      assert.deepEqual(afterRecovery.discipline.settings[0],beforeRecovery.otherSettings,'other habit settings unchanged');
-     await chosen.locator('.vjm-expand').click();
+     if(!(await chosen.locator('.vjm-item-more').isVisible()))await chosen.locator('.vjm-expand').click();
      assert.equal(await chosen.locator('.vjm-recovery-note').isVisible(),true,'saved adjustment appears on habit');
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
