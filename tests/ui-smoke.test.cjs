@@ -79,6 +79,17 @@ async function main(){
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
      assert.equal(await page.locator('#vigorFitnessOpen').isVisible(),true,'Workout checklist action visible');
+     // The original collapsed shells must move too, not just their inner nodes.
+     assert.equal(await page.locator('#panel-today>details.compact-details').filter({has:page.locator('summary:text-is("Zone 2 minutes")')}).count(),0,'Today has no empty Zone 2 accordion');
+     assert.equal(await page.locator('#panel-today>details.compact-details').filter({has:page.locator('summary:text-is("All workouts & session logs")')}).count(),0,'Today has no empty workout log accordion');
+     assert.equal(await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#zone2')}).count(),1,'Zone 2 accordion is in Fitness');
+     assert.equal(await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).count(),1,'Workout log accordion is in Fitness');
+     await page.locator('#vigorFitnessOpen').click();
+     assert.equal(await page.locator('#training').isVisible(),true,'Open workout checklist reveals existing logs without navigating away');
+     assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Fitness remains selected after opening workouts');
+     await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).locator('summary').click();
+     assert.equal(await page.locator('#training').isVisible(),false,'workout log accordion can collapse');
+
      // Zone 2 is one shared tracker, now housed in Fitness rather than Today.
      const zone=page.locator('#zone2');
      assert.equal(await zone.isVisible(),true,'Zone 2 visible inside Fitness');
@@ -115,6 +126,9 @@ async function main(){
      await page.locator('#saveZoneGoal').click();
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
      assert.equal(await page.locator('#zone2').isVisible(),false,'Zone 2 is not displayed on Today');
+     assert.equal(await page.locator('#panel-today>details.compact-details').filter({hasText:'Zone 2 minutes'}).count(),0,'Today has no Zone 2 heading after switching tabs');
+     assert.equal(await page.locator('#panel-today>details.compact-details').filter({hasText:'All workouts & session logs'}).count(),0,'Today has no workout log heading after switching tabs');
+
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
 
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
