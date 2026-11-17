@@ -108,6 +108,22 @@
     button.onclick=()=>{view=key;render()};
     tabs.append(button);
   }
+  if(focusIndexes.size){
+    const focus=mk('section','vjm-focus-strip');
+    focus.append(mk('strong','', 'Today’s focus'));
+    const items=mk('div','vjm-focus-chips');
+    priorities.filter(key=>/^h:\d+$/.test(key)).slice(0,3).forEach(key=>{
+      const i=Number(key.slice(2)),name=data.habitLabels[i];
+      if(!name)return;
+      const chip=mk('button','vjm-focus-chip',name);
+      chip.type='button';
+      chip.onclick=()=>{view='focus';expandedCards.add(i);selectedIndex=i;render();
+       $('vigorJourneyManager')?.querySelector('[data-habit-index="'+i+'"]')?.scrollIntoView({behavior:'smooth',block:'center'});
+      };
+      items.append(chip);
+    });
+    focus.append(items);manager.append(focus);
+  }
   manager.append(tabs);
   const summary=mk('p','vjm-filter-summary',
     view==='focus'?'The habit priorities shown on Today, in the same order. Workouts remain under Fitness.':
@@ -135,17 +151,17 @@
       const expanded=expandedCards.has(i);
       const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':'')+(expanded?' vjm-expanded':''));
       row.dataset.habitIndex=String(i);
+      const details=mk('div','vjm-item-more');
+      details.hidden=!expanded;
       const info=mk('div','vjm-item-info');
       const top=mk('div','vjm-item-title');
       top.append(mk('strong','',name),mk('span','vjm-kind',settings.kind==='replace'?'Replacing':'Building'));
       info.append(top, mk('small','',entry.habits?.[i]?'✓ Full effort today':mins[i]?'◐ Minimum effort today':settings.minimum?'Small step: '+settings.minimum:'Not started today'));
-      info.append(mk('small','vjm-trend',
+      details.append(mk('small','vjm-trend',
         rate===null?'No recent check-ins yet':rate+'% followed on '+days.length+' recorded non-rest day(s)'));
-      if(settings.kind==='replace'&&settings.plan)info.append(mk('small','vjm-plan','When it gets difficult: '+settings.plan));
-      if(settings.recovery?.nextStep)info.append(mk('small','vjm-recovery-note','Next easier step: '+settings.recovery.nextStep));
+      if(settings.kind==='replace'&&settings.plan)details.append(mk('small','vjm-plan','When it gets difficult: '+settings.plan));
+      if(settings.recovery?.nextStep)details.append(mk('small','vjm-recovery-note','Next easier step: '+settings.recovery.nextStep));
       const actions=mk('div','vjm-item-actions');
-      const details=mk('div','vjm-item-more');
-      details.hidden=!expanded;
       const full=mk('button','vjm-done'+(entry.habits?.[i]?' vjm-pressed':''),'Done');
       full.type='button';full.setAttribute('aria-label','Record full effort for '+name);full.setAttribute('aria-pressed',String(!!entry.habits?.[i]));
       full.onclick=()=>{selectedIndex=i;recordHabit(i,'full')};
