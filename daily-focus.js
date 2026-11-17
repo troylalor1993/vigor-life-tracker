@@ -52,18 +52,47 @@
   const fill=document.createElement('div');fill.className='vigor-focus-fill';fill.style.width=(focus.total?Math.round(100*focus.completed/focus.total):0)+'%';meter.append(fill);
   const count=document.createElement('div');count.className='vigor-focus-value';count.textContent=focus.completed+' of '+focus.total;progress.append(meter,count);
   const detail=document.createElement('p');detail.className='vigor-focus-note';detail.textContent=next?.type==='habit'?'Cue: '+focus.cue:'A small effort counts. Keep your routine sustainable.';
-  const action=document.createElement('button');action.type='button';action.textContent=focus.allComplete?'Review my progress':next?'Open this priority':'Choose my priorities';
-  action.onclick=()=>{
-    if(focus.allComplete){document.querySelector('#vigorNav [data-vigor-route="growth"]')?.click();return}
+  const actions=document.createElement('div');actions.className='vigor-focus-actions';
+  const open=document.createElement('button');
+  open.type='button';open.dataset.focusOpen='true';
+  open.textContent=focus.allComplete?'Review my progress':next?'View priorities':'Choose my priorities';
+  open.onclick=()=>{
+    if(focus.allComplete){
+      document.querySelector('#vigorNav [data-vigor-route="growth"]')?.click();return;
+    }
     document.querySelector('#vigorNav [data-vigor-route="today"]')?.click();
-    const target=next?.type==='habit'&&!data.discipline?.big3?.includes(next.key)?$('daily'):next?.type==='workout'&&!data.discipline?.big3?.includes(next.key)?$('training'):$('big3Panel');
+    const isBig3=!!Array.from($('big3List')?.querySelectorAll('[data-priority-key]')||[])
+      .find(x=>x.dataset.priorityKey===next?.key);
+    const target=isBig3?$('big3Panel'):next?.type==='habit'?$('daily'):next?.type==='workout'?$('training'):$('big3Panel');
     const details=target?.closest('details');if(details)details.open=true;
     target?.scrollIntoView({behavior:'smooth',block:'start'});
   };
-  hero.append(top,title,desc,progress,detail,action);
+  const matching=next&&Array.from($('big3List')?.querySelectorAll('[data-priority-key]')||[])
+    .find(x=>x.dataset.priorityKey===next.key);
+  if(matching&&!focus.allComplete){
+    const record=mode=>{
+      const text=mode==='full'?'Done':'Minimum';
+      const button=Array.from(matching.querySelectorAll('button')).find(b=>b.textContent.trim()===text);
+      if(button&&!button.disabled)button.click();else open.click();
+    };
+    const fullButton=document.createElement('button');fullButton.type='button';
+    fullButton.dataset.focusComplete='true';fullButton.textContent='Done';
+    fullButton.setAttribute('aria-label','Record full completion for '+next.name);
+    fullButton.onclick=()=>record('full');
+    const minimumButton=document.createElement('button');minimumButton.type='button';
+    minimumButton.dataset.focusMinimum='true';minimumButton.className='vigor-focus-secondary';
+    minimumButton.textContent='Minimum effort';
+    minimumButton.setAttribute('aria-label','Record minimum effort for '+next.name);
+    minimumButton.onclick=()=>record('min');
+    actions.append(fullButton,minimumButton);
+    open.className='vigor-focus-text-link';
+  }
+  actions.append(open);
+  hero.append(top,title,desc,progress,detail,actions);
  }
  render();
  window.addEventListener('vigor-sync-status',render);
+ window.addEventListener('vigor-local-changed',render);
  document.addEventListener('change',()=>queueMicrotask(render));
  document.addEventListener('click',()=>queueMicrotask(render));
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
