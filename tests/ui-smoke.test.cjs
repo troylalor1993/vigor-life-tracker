@@ -323,10 +323,13 @@ async function main(){
        const state=window.vigorCloudBridge.read();
        const today=new Date();
        const day=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
-       return window.VigorDailyFocus.focusFor(state,day).priorities.filter(key=>key.startsWith('h:')).map(key=>key.slice(2));
+       const full=state.dailyCheckins?.[day]?.habits||[],minimums=state.discipline?.minimums?.[day]||{};
+       return window.VigorDailyFocus.focusFor(state,day).priorities.filter(key=>key.startsWith('h:'))
+         .map(key=>key.slice(2)).sort((a,b)=>
+           Number(!!full[Number(a)]||!!minimums[Number(a)])-Number(!!full[Number(b)]||!!minimums[Number(b)]));
      });
      const journeyFocus=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(nodes=>nodes.map(n=>n.dataset.habitIndex));
-     assert.deepEqual(journeyFocus,sharedFocus,'Journey My focus uses exactly the same ordered habits as Today');
+     assert.deepEqual(journeyFocus,sharedFocus,'Journey My focus uses the same Big 3 habits with completed ones last');
 
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
      assert(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),'All restores the replacement habit');
