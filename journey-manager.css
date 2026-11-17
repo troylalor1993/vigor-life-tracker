@@ -65,3 +65,29 @@
 #vigorJourneyScreen .vjm-trend{color:var(--accent-soft)!important;margin-top:5px}
 #vigorJourneyScreen .vjm-plan{padding:9px 11px;margin-top:9px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));border:1px solid var(--border);border-radius:10px;color:var(--text-primary)!important}
 @media(max-width:390px){#vigorJourneyScreen .vjm-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#vigorJourneyScreen .vjm-filter{font-size:12px}}
+
+/* Gentle recovery is an adjustment, not a new checklist or lost streak. */
+#vigorJourneyScreen .vjm-item-actions{grid-template-columns:repeat(4,minmax(0,1fr));}
+#vigorJourneyScreen .vjm-item-actions .vjm-adjust{color:var(--accent-soft);border-color:var(--border-strong)}
+#vigorJourneyScreen .vjm-recovery-note{
+  display:block;padding:9px 11px;margin-top:8px;
+  border-radius:11px;background:color-mix(in srgb,var(--accent) 12%,var(--panel));
+  border:1px solid var(--border-strong);color:var(--text-primary)!important;
+  font-size:12px;line-height:1.45
+}
+#vigorJourneyScreen .vjm-recovery-form{
+  margin:15px 0;padding:17px;border:1px solid var(--border-strong);
+  border-radius:17px;background:linear-gradient(145deg,
+    color-mix(in srgb,var(--accent) 10%,var(--panel-alt)),var(--panel));
+}
+#vigorJourneyScreen .vjm-recovery-form h3{font-size:19px;margin:9px 0 5px}
+#vigorJourneyScreen .vjm-recovery-form select,
+#vigorJourneyScreen .vjm-recovery-form input{
+  width:100%;min-height:48px;min-width:0;font-size:16px;padding:10px 12px;
+  color:var(--text-primary);background:var(--input-bg);
+  border:1px solid var(--border-strong);border-radius:11px
+}
+@media(max-width:480px){
+ #vigorJourneyScreen .vjm-item-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #vigorJourneyScreen .vjm-recovery-form{padding:13px}
+}

@@ -2,7 +2,8 @@
    Existing habit records, cue settings and save/sync mechanisms are reused. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- let editorOpen=false,editingIndex=null,selectedIndex=0,view='all';
+ let editorOpen=false,editingIndex=null,selectedIndex=0,view='all',recoveryIndex=null;
+ let recoveryDraft={obstacle:'time',nextStep:''};
  let draft={kind:'build',name:'',cue:'',minimum:'',identity:'',plan:''};
  let notice='';
  const getData=()=>{try{return window.vigorCloudBridge?.read?.()}catch(e){return null}};
@@ -24,7 +25,7 @@
     name:data.habitLabels[editingIndex]||'',cue:existing.cue||'',
     minimum:existing.minimum||'',identity:existing.identity||'',plan:existing.plan||''
   };
-  editorOpen=true;notice='';render();
+  editorOpen=true;recoveryIndex=null;notice='';render();
   $('vjmName')?.focus();
  }
  function recordHabit(index,mode){
@@ -33,6 +34,24 @@
     notice=mode==='full'?'Full action recorded for today.':'Minimum effort recorded for today.';
     render();
   }catch(error){notice=String(error?.message||'Could not record this action.');render()}
+ }
+ function gentleSuggestion(obstacle){
+  const advice={
+   time:'Do the two-minute version at my next reliable opportunity.',
+   energy:'Rest first, then try the smallest helpful action.',
+   forgot:'Put a visible reminder beside something I already use.',
+   environment:'Prepare what I need before the cue arrives.',
+   motivation:'Begin with just one small action, even if I do not feel ready.',
+   other:'Make my next attempt easier with one small change.'
+  };
+  return advice[obstacle]||advice.other;
+ }
+ function openRecovery(index,data){
+  const existing=data.discipline?.settings?.[index]?.recovery;
+  recoveryIndex=index;editorOpen=false;selectedIndex=index;
+  recoveryDraft={obstacle:existing?.obstacle||'time',nextStep:existing?.nextStep||''};
+  notice='';render();
+  $('vjmRecoveryStep')?.focus();
  }
  function enhanceJourney(){
   const root=$('vigorJourneyScreen');if(!root)return null;
@@ -106,6 +125,7 @@
       info.append(mk('small','vjm-trend',
         rate===null?'No recent check-ins yet':rate+'% followed on '+days.length+' recorded non-rest day(s)'));
       if(settings.kind==='replace'&&settings.plan)info.append(mk('small','vjm-plan','When it gets difficult: '+settings.plan));
+      if(settings.recovery?.nextStep)info.append(mk('small','vjm-recovery-note','Next easier step: '+settings.recovery.nextStep));
       const actions=mk('div','vjm-item-actions');
       const full=mk('button','vjm-done'+(entry.habits?.[i]?' vjm-pressed':''),'Done');
       full.type='button';full.setAttribute('aria-label','Record full effort for '+name);full.setAttribute('aria-pressed',String(!!entry.habits?.[i]));
@@ -115,13 +135,61 @@
       min.onclick=()=>{selectedIndex=i;recordHabit(i,'minimum')};
       const edit=mk('button','vjm-edit','Edit');edit.type='button';edit.setAttribute('aria-label','Edit '+name);
       edit.onclick=()=>{selectedIndex=i;openForm(i,data)};
-      actions.append(full,min,edit);row.append(info,actions);grid.append(row);
+      const adjust=mk('button','vjm-adjust','Adjust');
+      adjust.type='button';adjust.setAttribute('aria-label','Adjust '+name+' after an obstacle');
+      adjust.onclick=()=>openRecovery(i,data);
+      actions.append(full,min,edit,adjust);row.append(info,actions);grid.append(row);
     });
     if(!visible.length)grid.append(mk('p','vjm-empty','No habits in this view yet. Try All habits or add one.'));
     manager.append(grid);
   }else manager.append(mk('p','vjm-empty','No habits yet. Add one to begin.'));
   const manage=mk('button','vjm-manage','Rearrange or remove habits');
   manage.type='button';manage.onclick=openHabitEditor;manager.append(manage);
+  if(recoveryIndex!==null&&recoveryIndex<data.habitLabels.length){
+    const name=data.habitLabels[recoveryIndex];
+    const form=mk('form','vjm-recovery-form');form.id='vigorJourneyRecovery';form.noValidate=true;
+    form.append(mk('div','vigor-eyebrow','ADJUST, NOT RESTART'));
+    form.append(mk('h3','', 'Make '+name+' easier'));
+    form.append(mk('p','vjm-helper','A difficult day is information, not failure. Keep every past check-in and choose just one helpful adjustment.'));
+    const field=mk('label','vjm-field');
+    field.append(mk('span','','What got in the way?'));
+    const select=mk('select','');select.id='vjmRecoveryObstacle';select.name='obstacle';
+    const obstacles=[
+     ['time','Not enough time'],['energy','Tired or needed recovery'],
+     ['forgot','Forgot'],['environment','Environment or distractions'],
+     ['motivation','Hard to get started'],['other','Something else']
+    ];
+    obstacles.forEach(([key,label])=>{const opt=mk('option','',label);opt.value=key;select.append(opt)});
+    select.value=recoveryDraft.obstacle;
+    select.onchange=()=>{
+      const prior=gentleSuggestion(recoveryDraft.obstacle);
+      const canSuggest=!recoveryDraft.nextStep||recoveryDraft.nextStep===prior;
+      recoveryDraft.obstacle=select.value;
+      if(canSuggest){recoveryDraft.nextStep=gentleSuggestion(select.value);$('vjmRecoveryStep').value=recoveryDraft.nextStep}
+    };
+    field.append(select);form.append(field);
+    const next=mk('label','vjm-field');
+    next.append(mk('span','','One easier action for next time'));
+    const step=mk('input','');step.type='text';step.id='vjmRecoveryStep';
+    step.name='nextStep';step.maxLength=180;step.required=true;
+    step.value=recoveryDraft.nextStep;step.placeholder=gentleSuggestion(recoveryDraft.obstacle);
+    step.oninput=()=>{recoveryDraft.nextStep=step.value};
+    next.append(step);form.append(next);
+    const actions=mk('div','vjm-form-actions');
+    const save=mk('button','vjm-save','Save adjustment');save.type='submit';
+    const cancel=mk('button','vjm-cancel','Cancel');cancel.type='button';
+    cancel.onclick=()=>{recoveryIndex=null;notice='';render()};
+    actions.append(save,cancel);form.append(actions);
+    form.onsubmit=event=>{
+      event.preventDefault();
+      try{
+       window.vigorCloudBridge.saveJourneyRecovery({index:recoveryIndex,...recoveryDraft});
+       recoveryIndex=null;notice='✓ Your next step is saved. Your earlier progress remains unchanged.';
+       render();
+      }catch(error){notice=String(error?.message||'Could not save this adjustment.');render()}
+    };
+    manager.append(form);
+  }
   if(editorOpen){
     const form=mk('form','vjm-form');form.id='vigorJourneyForm';form.noValidate=true;
     const title=mk('h3','',editingIndex===null?'Add a habit':'Edit this habit');form.append(title);

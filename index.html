@@ -2138,6 +2138,24 @@ window.vigorCloudBridge={
   renderDaily();render();renderSetup();
   return index;
  },
+ saveJourneyRecovery:({index,obstacle,nextStep})=>{
+  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)
+   throw Error('Choose a valid habit.');
+  const allowed=['time','energy','forgot','environment','motivation','other'];
+  if(!allowed.includes(obstacle))throw Error('Choose what made this habit difficult.');
+  const adjustment=String(nextStep??'').trim();
+  if(!adjustment||adjustment.length>180)throw Error('Enter one manageable next step (up to 180 characters).');
+  state.discipline.settings||={};
+  const before=state.discipline.settings[index];
+  state.discipline.settings[index]={...disciplineConfig(index),
+   ...before,recovery:{obstacle,nextStep:adjustment,reviewedOn:iso(new Date())}};
+  if(!save()){
+    if(before===undefined)delete state.discipline.settings[index];
+    else state.discipline.settings[index]=before;
+    throw Error('Could not save your adjustment. Your previous plan was kept.');
+  }
+  return true;
+ },
  updateJourneyHabit:({index,name,cue,minimum,identity,kind,plan})=>{
   if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)throw Error('Choose a valid habit.');
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
@@ -2150,7 +2168,7 @@ window.vigorCloudBridge={
   const oldName=state.habitLabels[index],oldSettings=state.discipline.settings?.[index];
   state.discipline.settings||={};
   state.habitLabels[index]=label;
-  state.discipline.settings[index]={...disciplineConfig(index),
+  state.discipline.settings[index]={...disciplineConfig(index),...oldSettings,
     cue:prompt||'After something I already do each day',minimum:small,
     identity:why||'I take small actions toward the life I want',kind,
     plan:kind==='replace'?String(plan??'').trim():''};
