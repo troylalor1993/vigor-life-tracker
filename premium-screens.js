@@ -9,9 +9,13 @@
  const journey=document.createElement('section');journey.className='vigor-screen';journey.id='vigorJourneyScreen';journey.setAttribute('aria-label','Habit Building Journey');
  const fitness=document.createElement('section');fitness.className='vigor-screen';fitness.id='vigorFitnessScreen';fitness.setAttribute('aria-label','Fitness and workout coaching');
  main.append(journey,fitness);
- // Move the one existing Zone 2 tracker into Fitness; retain its real DOM node,
- // inputs, listeners, rotation goal and saved session history across redraws.
+ // Keep one permanent Zone 2 element in Fitness, outside the rerendered summary.
+ // Its inputs and buttons must never be detached while the user is tapping them.
+ const fitnessContent=document.createElement('div');
+ fitnessContent.className='vigor-fitness-content';
  const zone2Movement=$('zone2');
+ fitness.append(fitnessContent);
+ if(zone2Movement)fitness.append(zone2Movement);
  let selectedHabit=0;
  function read(){try{return window.vigorCloudBridge?.read?.()}catch(e){return null}}
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
@@ -59,7 +63,7 @@
  function renderFitness(data,day){
   const w=window.VigorCoaching.workoutReview(data,day),guide=window.VigorCoaching.progressionGuidance(data,day);
   const rate=w.target?Math.min(100,Math.round(w.completed/w.target*100)):0;
-  fitness.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">BUILD STRENGTH · PROTECT CONSISTENCY</div>
+  fitnessContent.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">BUILD STRENGTH · PROTECT CONSISTENCY</div>
       <h2>Fitness & Coaching</h2><p>Train with intention. Your workouts adapt around real-life schedules and recovery—not a perfect calendar.</p></div>
       <div class="vigor-summary"><strong>Workout rotation</strong><h2>${w.completed} of ${w.target} sessions</h2>
       <p>${escape(w.length+'-day schedule')} · ${w.daysRemaining} day(s) remaining · ${w.minimumEfforts} minimum-effort start(s)</p>
@@ -70,13 +74,6 @@
       <div class="vigor-summary"><strong>Coach's note: ${escape(guide.label)}</strong><p>${escape(guide.detail)}</p>
       <p>${escape(guide.basis)}. Your training targets are not changed automatically.</p></div>
       <p class="vigor-detail-note">Session counts reflect completed logs, not an estimate of calories burned or fitness gains. Follow your own recovery needs and professional guidance where appropriate.</p>`;
-  // Fitness redraws its summary on sync. Reattach the original Zone 2 element
-  // instead of cloning its markup or creating a second tracker.
-  if(zone2Movement){
-    const list=fitness.querySelector('.vigor-workout-list');
-    if(list)list.after(zone2Movement);
-    else fitness.append(zone2Movement);
-  }
   fitness.querySelector('#vigorFitnessOpen')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('training')});
   fitness.querySelector('#vigorFitnessHistory')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('progressInsights')});
  }
