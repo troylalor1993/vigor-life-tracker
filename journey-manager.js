@@ -3,6 +3,8 @@
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
  let editorOpen=false,editingIndex=null,selectedIndex=0,view='all',recoveryIndex=null;
+ let hideCompleted=false;
+ const expandedCards=new Set();
  let recoveryDraft={obstacle:'time',nextStep:''};
  let draft={kind:'build',name:'',cue:'',minimum:'',identity:'',plan:''};
  let notice='';
@@ -113,13 +115,25 @@
     view==='build'?'Good routines that you are growing one step at a time.':
     'All your habits in one place. Choose a smaller view when you want less to look at.');
   manager.append(summary);
+  const checkins=data.dailyCheckins?.[localDate()]?.habits||[];
+  const minimumsToday=data.discipline?.minimums?.[localDate()]||{};
+  const completedCount=visible.filter(item=>checkins[item.index]||minimumsToday[item.index]).length;
+  const controls=mk('div','vjm-display-controls');
+  const toggle=mk('button','vjm-hide-completed'+(hideCompleted?' active':''),hideCompleted?'Show completed':'Hide completed today');
+  toggle.type='button';toggle.id='vjmToggleCompleted';
+  toggle.setAttribute('aria-pressed',String(hideCompleted));
+  toggle.onclick=()=>{hideCompleted=!hideCompleted;render()};
+  controls.append(mk('span','',completedCount+' of '+visible.length+' followed today'),toggle);
+  manager.append(controls);
+  const shown=visible.filter(item=>!hideCompleted||!checkins[item.index]&&!minimumsToday[item.index]);
   if(data.habitLabels.length){
     const grid=mk('div','vjm-list');
     const entry=data.dailyCheckins?.[localDate()]||{};
     const mins=data.discipline?.minimums?.[localDate()]||{};
-    visible.forEach(({name,index:i,full:recentFull,minimum:recentMinimum,rate})=>{
+    shown.forEach(({name,index:i,full:recentFull,minimum:recentMinimum,rate})=>{
       const settings=data.discipline?.settings?.[i]||{};
-      const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':''));
+      const expanded=expandedCards.has(i);
+      const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':'')+(expanded?' vjm-expanded':''));
       row.dataset.habitIndex=String(i);
       const info=mk('div','vjm-item-info');
       const top=mk('div','vjm-item-title');
@@ -130,6 +144,8 @@
       if(settings.kind==='replace'&&settings.plan)info.append(mk('small','vjm-plan','When it gets difficult: '+settings.plan));
       if(settings.recovery?.nextStep)info.append(mk('small','vjm-recovery-note','Next easier step: '+settings.recovery.nextStep));
       const actions=mk('div','vjm-item-actions');
+      const details=mk('div','vjm-item-more');
+      details.hidden=!expanded;
       const full=mk('button','vjm-done'+(entry.habits?.[i]?' vjm-pressed':''),'Done');
       full.type='button';full.setAttribute('aria-label','Record full effort for '+name);full.setAttribute('aria-pressed',String(!!entry.habits?.[i]));
       full.onclick=()=>{selectedIndex=i;recordHabit(i,'full')};
@@ -141,9 +157,16 @@
       const adjust=mk('button','vjm-adjust','Adjust');
       adjust.type='button';adjust.setAttribute('aria-label','Adjust '+name+' after an obstacle');
       adjust.onclick=()=>openRecovery(i,data);
-      actions.append(full,min,edit,adjust);row.append(info,actions);grid.append(row);
+      actions.append(full,min);
+      const more=mk('button','vjm-expand',expanded?'Less':'More');
+      more.type='button';more.setAttribute('aria-expanded',String(expanded));
+      more.setAttribute('aria-label',(expanded?'Hide details for ':'Show details for ')+name);
+      more.onclick=()=>{expanded?expandedCards.delete(i):expandedCards.add(i);render()};
+      actions.append(more);
+      details.append(edit,adjust);
+      row.append(info,actions,details);grid.append(row);
     });
-    if(!visible.length)grid.append(mk('p','vjm-empty','No habits in this view yet. Try All habits or add one.'));
+    if(!shown.length)grid.append(mk('p','vjm-empty',hideCompleted&&completedCount?'All visible habits are recorded today. You can show completed ones again.':'No habits in this view yet. Try All habits or add one.'));
     manager.append(grid);
   }else manager.append(mk('p','vjm-empty','No habits yet. Add one to begin.'));
   const manage=mk('button','vjm-manage','Rearrange or remove habits');
