@@ -9,6 +9,9 @@
  const journey=document.createElement('section');journey.className='vigor-screen';journey.id='vigorJourneyScreen';journey.setAttribute('aria-label','Habit Building Journey');
  const fitness=document.createElement('section');fitness.className='vigor-screen';fitness.id='vigorFitnessScreen';fitness.setAttribute('aria-label','Fitness and workout coaching');
  main.append(journey,fitness);
+ // Move the one existing Zone 2 tracker into Fitness; retain its real DOM node,
+ // inputs, listeners, rotation goal and saved session history across redraws.
+ const zone2Movement=$('zone2');
  let selectedHabit=0;
  function read(){try{return window.vigorCloudBridge?.read?.()}catch(e){return null}}
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
@@ -67,6 +70,13 @@
       <div class="vigor-summary"><strong>Coach's note: ${escape(guide.label)}</strong><p>${escape(guide.detail)}</p>
       <p>${escape(guide.basis)}. Your training targets are not changed automatically.</p></div>
       <p class="vigor-detail-note">Session counts reflect completed logs, not an estimate of calories burned or fitness gains. Follow your own recovery needs and professional guidance where appropriate.</p>`;
+  // Fitness redraws its summary on sync. Reattach the original Zone 2 element
+  // instead of cloning its markup or creating a second tracker.
+  if(zone2Movement){
+    const list=fitness.querySelector('.vigor-workout-list');
+    if(list)list.after(zone2Movement);
+    else fitness.append(zone2Movement);
+  }
   fitness.querySelector('#vigorFitnessOpen')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('training')});
   fitness.querySelector('#vigorFitnessHistory')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('progressInsights')});
  }
