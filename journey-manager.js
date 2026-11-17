@@ -120,6 +120,7 @@
     visible.forEach(({name,index:i,full:recentFull,minimum:recentMinimum,rate})=>{
       const settings=data.discipline?.settings?.[i]||{};
       const row=mk('div','vjm-item'+(selectedIndex===i?' vjm-selected':''));
+      row.dataset.habitIndex=String(i);
       const info=mk('div','vjm-item-info');
       const top=mk('div','vjm-item-title');
       top.append(mk('strong','',name),mk('span','vjm-kind',settings.kind==='replace'?'Replacing':'Building'));
