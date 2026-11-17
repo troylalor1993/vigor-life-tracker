@@ -19,14 +19,26 @@ const context={full:[true,false,false,false,false],minimums:{2:true},
  view:'all',priorities:['h:3','h:1','h:0']};
 const indices=arr=>Array.from(arr,x=>x.index);
 const check=(name,fn)=>{fn();console.log('PASS',name)};
-check('manual order preserves saved positions',()=>{
- assert.deepEqual(indices(sortHabits(habits,'manual',context)),[0,1,2,3,4]);
+check('manual order always moves recorded habits to the bottom, preserving order within groups',()=>{
+ assert.deepEqual(indices(sortHabits(habits,'manual',context)),[1,3,4,0,2]);
 });
-check('unfinished first preserves relative manual order',()=>{
+check('unfinished first agrees with automatic unfinished priority',()=>{
  assert.deepEqual(indices(sortHabits(habits,'unfinished',context)),[1,3,4,0,2]);
 });
+check('marking a habit complete moves it to the bottom',()=>{
+ const input={...context,full:[true,false,false,false,false],minimums:{}};
+ const before=indices(sortHabits(habits,'manual',input));
+ assert.deepEqual(before,[1,2,3,4,0]);
+ input.full[1]=true;
+ const after=indices(sortHabits(habits,'manual',input));
+ assert.deepEqual(after,[2,3,4,0,1]);
+});
+check('minimum effort moves a habit to the bottom just like full completion',()=>{
+ const input={...context,full:[],minimums:{3:true}};
+ assert.deepEqual(indices(sortHabits(habits,'manual',input)),[0,1,2,4,3]);
+});
 check('needs attention uses enough logged opportunities, not guesses',()=>{
- assert.deepEqual(indices(sortHabits(habits,'attention',context)),[3,1,0,4,2]);
+ assert.deepEqual(indices(sortHabits(habits,'attention',context)),[3,1,4,0,2]);
 });
 check('not-yet-recorded habits never rank as failed',()=>{
  const sorted=sortHabits(habits,'attention',context);
