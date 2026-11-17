@@ -13,14 +13,16 @@
  function linked(){try{return !!localStorage.getItem('vigor-cloud-linked-user')}catch(e){return false}}
  function pending(){try{return localStorage.getItem('vigor-cloud-pending')==='yes'}catch(e){return false}}
  function describe(status,linkedAccount,pendingEdits,online){
-   if(status==='Saved to cloud'&&!pendingEdits)return {text:'Cloud backup confirmed',type:'synced'};
+   if(['Saved to cloud','Updated from cloud'].includes(status)&&linkedAccount&&!pendingEdits&&online)return {text:'Cloud backup confirmed',type:'synced'};
    if(status==='Offline'||online===false)return {text:linkedAccount?'Offline · saved on device':'Saved on this device',type:linkedAccount?'warning':'local'};
    if(['Retry needed','Connection issue','Upload failed','Sign-in failed'].includes(status))return {text:'Cloud needs attention',type:'warning'};
-   if(['Checking','Syncing','Sync pending','Restoring','Choose a copy','Signing in'].includes(status)||pendingEdits)return {text:linkedAccount?'Saved locally · cloud pending':'Cloud setup not finished',type:'pending'};
+   if(['Checking','Syncing','Sync pending','Restoring','Choose a copy','Signing in','Online','Local change'].includes(status)||pendingEdits)return {text:linkedAccount?'Saved locally · cloud pending':'Cloud setup not finished',type:'pending'};
    if(!linkedAccount)return {text:'Saved on this device',type:'local'};
    return {text:'Cloud status not confirmed',type:'pending'};
  }
  let lastStatus='';
+ // Display the single trustworthy status badge rather than a second, contradictory label.
+ target.hidden=true;target.style.display='none';
  function display(status=lastStatus){
    lastStatus=status;
    const view=describe(lastStatus,linked(),pending(),navigator.onLine);
