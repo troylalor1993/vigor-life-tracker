@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 420" role="img" aria-labelledby="vigor-sunrise-title">
+<title id="vigor-sunrise-title">Golden sunrise over layered mountains</title>
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2d2824"/><stop offset=".5" stop-color="#714c2a"/><stop offset="1" stop-color="#1b2229"/></linearGradient>
+ <radialGradient id="sun"><stop stop-color="#ffe8b0" stop-opacity=".9"/><stop offset=".23" stop-color="#f8c56b" stop-opacity=".6"/><stop offset=".7" stop-color="#e1a34b" stop-opacity=".12"/><stop offset="1" stop-color="#e1a34b" stop-opacity="0"/></radialGradient>
+ <linearGradient id="far" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#665a53"/><stop offset="1" stop-color="#242a30"/></linearGradient>
+ <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#393b3d"/><stop offset="1" stop-color="#151b23"/></linearGradient>
+</defs>
+<rect width="1000" height="420" fill="url(#sky)"/>
+<ellipse cx="723" cy="170" rx="270" ry="250" fill="url(#sun)"/>
+<circle cx="724" cy="158" r="41" fill="#ffdf9a" opacity=".69"/>
+<path d="M0 247 110 223 164 241 271 198 380 236 478 185 598 224 710 170 792 217 872 188 1000 217V420H0Z" fill="url(#far)" opacity=".67"/>
+<path d="M0 279 91 259 153 278 285 220 372 277 498 220 605 260 748 197 861 248 935 228 1000 250V420H0Z" fill="url(#mid)"/>
+<path d="M0 340 145 310 243 332 376 278 470 326 604 270 726 313 827 260 933 294 1000 265V420H0Z" fill="#121921" opacity=".95"/>
+<path d="M0 365 150 339 265 358 399 316 539 358 695 311 790 350 920 310 1000 332V420H0Z" fill="#0d121a"/>
+<path d="M850 267v-37m-12 13h24" fill="none" stroke="#eed09a" stroke-width="2.4" opacity=".77" stroke-linecap="round"/>
+<path d="M0 204c166-20 245 14 408-23 112-26 215-8 354-22" fill="none" stroke="#f9d499" stroke-width="1.5" opacity=".12"/>
+</svg>
