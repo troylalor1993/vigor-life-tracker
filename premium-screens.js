@@ -77,7 +77,7 @@
  render();
  window.addEventListener('vigor-sync-status',render);
  window.addEventListener('vigor-local-changed',render);
- document.addEventListener('change',()=>queueMicrotask(render));
+ document.addEventListener('change',event=>{if(event.target?.closest?.('#vigorJourneyManager'))return;queueMicrotask(render)});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
- window.VigorPremiumScreens={refresh:render};
+ window.VigorPremiumScreens={refresh:render,selectHabit:index=>{if(Number.isInteger(index)&&index>=0)selectedHabit=index;render()}};
 })();
