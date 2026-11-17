@@ -84,9 +84,11 @@
      return item.rate;
    };
    return items.slice().sort((a,b)=>{
-     if(mode==='unfinished'&&context.view!=='archived'){
-       const diff=Number(started(a))-Number(started(b));
-       if(diff)return diff;
+     // Always move today's full and minimum efforts below unfinished habits.
+     // Sort choices only control the order WITHIN the two groups.
+     if(context.view!=='archived'){
+       const completionDiff=Number(started(a))-Number(started(b));
+       if(completionDiff)return completionDiff;
      }
      if(mode==='attention'&&context.view!=='archived'){
        const ar=attention(a),br=attention(b);
@@ -132,6 +134,7 @@
   }).filter(item=>view==='archived'?item.archived:
     !item.archived&&(view==='all'||view==='focus'&&focusIndexes.has(item.index)
      ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace'));
+  // A completed habit is never dropped or erased; it simply moves to the bottom.
   const tabs=mk('div','vjm-filters');
   for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing'],['archived','Archived']]){
     const button=mk('button',view===key?'vjm-filter active':'vjm-filter',label);
@@ -161,7 +164,7 @@
     view==='replace'?'A positive action to practise when an unwanted pattern appears.':
     view==='archived'?'Paused habits live here. Restore one whenever you are ready; its earlier records stay intact.':
     view==='build'?'Good routines that you are growing one step at a time.':
-    'All your habits in one place. Choose a smaller view when you want less to look at.');
+    'Unfinished habits appear first. Done or minimum effort moves a habit to the bottom for today.');
   manager.append(summary);
   const checkins=data.dailyCheckins?.[localDate()]?.habits||[];
   const minimumsToday=data.discipline?.minimums?.[localDate()]||{};
@@ -170,7 +173,7 @@
   const sortLabel=mk('label','vjm-sort-label','Sort');
   const sort=mk('select','vjm-sort-select');sort.id='vjmSortHabits';
   sort.setAttribute('aria-label','Sort habits');
-  const choices=[['manual','Manual order'],['unfinished','Unfinished first'],['attention','Needs attention']];
+  const choices=[['manual','My order'],['unfinished','Unfinished first'],['attention','Needs attention']];
   choices.forEach(([value,title])=>{
     const option=mk('option','',title);option.value=value;sort.append(option);
   });
