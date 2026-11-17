@@ -84,3 +84,9 @@ body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-shift{margin-bottom:
  #habitEditor .habit-add-row>.reorder-actions{grid-column:1;grid-row:2}
  #habitEditor .habit-add-row>button{grid-column:2;grid-row:2;min-width:0!important}
 }
+
+/* Big 3 can also be ordered independently of the full habit/workout lists. */
+#big3Selectors>label{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
+#big3Selectors>label>select{grid-column:1;grid-row:2;min-width:0}
+#big3Selectors>label>.reorder-actions{grid-column:2;grid-row:2}
+@media(max-width:450px){#big3Selectors>label{grid-template-columns:minmax(0,1fr) auto}#big3Selectors>label>.reorder-actions button{min-width:40px!important}}
