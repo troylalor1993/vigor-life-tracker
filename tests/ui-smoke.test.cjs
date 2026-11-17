@@ -237,6 +237,36 @@ async function main(){
      await chosen.locator('.vjm-done').click();
      const updated=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      assert(Object.values(updated.dailyCheckins||{}).some(row=>row.habits?.[replaceIndex]===true),'full effort saved on existing daily check-in');
+     // Recover one habit without rewriting its historical full/minimum records.
+     const beforeRecovery=await page.evaluate(()=>{
+       const d=JSON.parse(localStorage.getItem('vigor-tracker'));
+       return {dailyCheckins:d.dailyCheckins,minimums:d.discipline.minimums,
+         otherSettings:d.discipline.settings[0]};
+     });
+     await chosen.locator('.vjm-adjust').click();
+     assert.equal(await page.locator('#vigorJourneyRecovery').isVisible(),true,'obstacle adjustment form is available');
+     await page.locator('#vjmRecoveryObstacle').selectOption('energy');
+     await page.locator('#vjmRecoveryStep').fill('Rest first, then prepare a glass of water.');
+     await page.locator('#vigorJourneyRecovery .vjm-save').click();
+     const afterRecovery=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
+     assert.equal(afterRecovery.discipline.settings[replaceIndex].recovery.obstacle,'energy',
+       'selected obstacle saved');
+     assert.equal(afterRecovery.discipline.settings[replaceIndex].recovery.nextStep,
+       'Rest first, then prepare a glass of water.','next easier step saved');
+     assert.deepEqual(afterRecovery.dailyCheckins,beforeRecovery.dailyCheckins,'historical habit check-ins unchanged');
+     assert.deepEqual(afterRecovery.discipline.minimums,beforeRecovery.minimums,'minimum efforts unchanged');
+     assert.deepEqual(afterRecovery.discipline.settings[0],beforeRecovery.otherSettings,'other habit settings unchanged');
+     assert.equal(await chosen.locator('.vjm-recovery-note').isVisible(),true,'saved adjustment appears on habit');
+     await page.reload({waitUntil:'domcontentloaded'});
+     await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+     const restoredHabit=page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of sugary drinks'});
+     assert.equal(await restoredHabit.locator('.vjm-recovery-note').isVisible(),true,'adjustment survives browser reload');
+     await restoredHabit.locator('.vjm-edit').click();
+     await page.locator('#vjmminimum').fill('Pause for a moment and fill one glass of water');
+     await page.locator('#vigorJourneyForm .vjm-save').click();
+     const afterEdit=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
+     assert.equal(afterEdit.discipline.settings[replaceIndex].recovery.nextStep,
+       'Rest first, then prepare a glass of water.','editing the habit preserves the recovery plan');
      await page.locator('#vigorJourneyManager .vjm-manage').click();
      assert.equal(await page.locator('#habitEditor').isVisible(),true,'Journey links to existing remove/reorder editor');
      const bounds=await page.locator('#vigorNav').boundingBox();
