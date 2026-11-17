@@ -28,11 +28,8 @@
    button.title='Open Account & Automatic Sync for details';
  }
  button.addEventListener('click',()=>{
-   const more=$('vigorNav')?.querySelector('[data-vigor-route="more"]');
-   if(more)more.click();
-   const settings=$('vigorMoreMenu')?.querySelector('[data-vigor-old="settings"]');
-   if(settings)settings.click();
-   else $('appTabs')?.querySelector('[data-panel="settings"]')?.click();
+   const settings=$('appTabs')?.querySelector('[data-panel="settings"]');
+   settings?.click();
    const section=$('cloudSync');
    section?.scrollIntoView({behavior:'smooth',block:'start'});
  });
