@@ -205,11 +205,25 @@ async function main(){
      await page.locator('#vigorJourneyForm input[value="replace"]').check();
      await page.locator('#vjmName').fill('Choose water instead of soda');
      await page.locator('#vjmminimum').fill('Pause and fill a glass of water');
+     await page.locator('#vjmplan').fill('When tempted, pause and fill a glass of water.');
      await page.locator('#vigorJourneyForm .vjm-save').click();
      newState=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      const replaceIndex=newState.habitLabels.indexOf('Choose water instead of soda');
      assert(replaceIndex>=0,'replacement habit added');
      assert.equal(newState.discipline.settings[replaceIndex].kind,'replace','replacement habit clearly distinguished');
+     assert.equal(newState.discipline.settings[replaceIndex].plan,
+       'When tempted, pause and fill a glass of water.','replacement if-then plan saved');
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Replacing'}).click();
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-item').count(),1,'Replace filter shows only replacement habits');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-plan').count(),1,'replacement plan displayed');
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Building'}).click();
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),0,'Build filter hides replacement habits');
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'My focus'}).click();
+     const visibleFocus=await page.locator('#vigorJourneyManager .vjm-item').count();
+     assert(visibleFocus>=1&&visibleFocus<=3,'Focus filter shows only daily-priority habits');
+     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
+     assert(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),'All restores the replacement habit');
+
      await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).locator('.vjm-edit').click();
      await page.locator('#vjmName').fill('Choose water instead of sugary drinks');
      await page.locator('#vigorJourneyForm .vjm-save').click();
