@@ -84,3 +84,8 @@ body[data-vigor-view="journey"] #vigorJourneyScreen,body[data-vigor-view="fitnes
  .vigor-screen .vigor-step{padding:12px 10px;gap:9px}
 }
 @media(prefers-reduced-motion:reduce){.vigor-screen *{transition:none!important;scroll-behavior:auto!important}}
+
+/* Branded atmospheric artwork: subdued behind text to preserve legibility. */
+.app-header{background:linear-gradient(90deg,rgba(15,17,20,.98) 0%,rgba(19,20,22,.9) 38%,rgba(19,20,22,.55) 70%,rgba(19,20,22,.32) 100%),url("./vigor-sunrise.svg") right center/cover no-repeat!important}
+.vigor-screen-header{background:linear-gradient(90deg,rgba(22,24,27,.96),rgba(32,26,22,.8) 60%,rgba(26,27,29,.45)),url("./vigor-sunrise.svg") right center/cover no-repeat!important}
+@media(max-width:650px){.app-header{background:linear-gradient(90deg,rgba(15,17,20,.97),rgba(19,20,22,.87) 60%,rgba(19,20,22,.68)),url("./vigor-sunrise.svg") 70% center/cover no-repeat!important}}
