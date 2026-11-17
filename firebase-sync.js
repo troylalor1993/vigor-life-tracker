@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
  getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged,
- createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut
+ createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
  getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp
@@ -231,6 +231,31 @@ $("togglePassword").onclick=()=>{
 };
 $("cloudSignIn").onclick=()=>handleSignIn(false);
 $("cloudSignUp").onclick=()=>handleSignIn(true);
+$("cloudResetPassword").onclick=async()=>{
+ const button=$("cloudResetPassword");
+ const feedback=$("cloudResetFeedback");
+ const email=$("cloudEmail").value.trim();
+ if(!email||!/^\S+@\S+\.\S+$/.test(email)){
+  feedback.textContent="Enter your email above, then select Forgot password.";
+  $("cloudEmail").focus();
+  return;
+ }
+ if(!navigator.onLine){feedback.textContent="You're offline. Connect to the internet and try again.";return}
+ button.disabled=true;button.textContent="Sending…";
+ feedback.textContent="Checking your request…";
+ try{
+  await sendPasswordResetEmail(auth,email);
+  feedback.textContent="If this email has an account, a password-reset message will arrive. Check your inbox and spam folder.";
+ }catch(e){
+  if(e.code==="auth/network-request-failed")feedback.textContent="Network unavailable. Try again when connected.";
+  else if(e.code==="auth/too-many-requests")feedback.textContent="Too many requests. Try again later.";
+  else if(e.code==="auth/invalid-email")feedback.textContent="Please enter a valid email address.";
+  else feedback.textContent="We couldn't send the reset email. Please try again.";
+ }finally{
+  button.disabled=false;button.textContent="Forgot password?";
+ }
+};
+
 $("cloudSignOut").onclick=async()=>{
  try{
   if(pending()&&linked&&navigator.onLine)await upload();
