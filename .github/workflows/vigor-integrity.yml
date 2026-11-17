@@ -30,6 +30,8 @@ jobs:
           node --check couples-sync.js
       - name: Test coaching and habit journey
         run: node tests/adaptive-coach.test.cjs
+      - name: Test non-destructive Journey sorting
+        run: node tests/journey-sorting.test.cjs
       - name: Test lossless habit archive and restore
         run: node tests/habit-archive.test.cjs
       - name: Test reordering data integrity

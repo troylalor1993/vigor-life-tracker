@@ -151,3 +151,18 @@
  #vigorJourneyScreen .vjm-filters{display:flex;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:3px}
  #vigorJourneyScreen .vjm-filter{flex:0 0 auto;min-width:82px;scroll-snap-align:start;padding:9px 11px}
 }
+
+/* Sorting is an optional view preference, never a rewrite of the habit order. */
+#vigorJourneyScreen .vjm-sort-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#vigorJourneyScreen .vjm-sort-label{display:grid;gap:4px;color:var(--muted);font-size:11px;font-weight:700}
+#vigorJourneyScreen .vjm-sort-select{
+ min-height:44px;padding:8px 12px;max-width:190px;width:100%;
+ color:var(--text-primary);background:var(--input-bg);
+ border:1px solid var(--border-strong);border-radius:10px;font-size:14px;
+}
+#vigorJourneyScreen .vjm-sort-select:focus-visible{outline:3px solid var(--accent-soft);outline-offset:2px}
+@media(max-width:490px){
+ #vigorJourneyScreen .vjm-display-controls{align-items:stretch;flex-direction:column}
+ #vigorJourneyScreen .vjm-sort-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end}
+ #vigorJourneyScreen .vjm-sort-select{max-width:none}
+}

@@ -360,6 +360,38 @@ async function main(){
      assert(Array.isArray(afterRestore.discipline.settings[archivedIndex].archivePeriods),'archive interval retained for future calculations');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
      assert.equal(await page.locator('#habitGrid [data-habit-index="'+archivedIndex+'"]').count(),1,'restored habit returns to Today');
+     // Sorting only changes the visible Journey order, never saved habit or check-in data.
+     await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+     const sortingStateBefore=await page.evaluate(()=>{
+       const d=JSON.parse(localStorage.getItem('vigor-tracker'));
+       return {habitLabels:d.habitLabels,checkins:d.dailyCheckins,minimums:d.discipline.minimums};
+     });
+     const allHabits=page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'});
+     await allHabits.click();
+     const sortInput=page.locator('#vigorJourneyManager #vjmSortHabits');
+     assert.equal(await sortInput.inputValue(),'manual','manual sorting defaults to the user-defined order');
+     const manualOrder=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(rows=>rows.map(el=>Number(el.dataset.habitIndex)));
+     await sortInput.selectOption('unfinished');
+     const unfinishedOrder=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(rows=>rows.map(el=>Number(el.dataset.habitIndex)));
+     const calculated=await page.evaluate(()=>{
+       const d=window.vigorCloudBridge.read(),now=new Date();
+       const key=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+       const full=d.dailyCheckins?.[key]?.habits||[],mins=d.discipline?.minimums?.[key]||{};
+       return d.habitLabels.map((_,i)=>i).filter(i=>!d.discipline?.settings?.[i]?.archivedAt)
+         .sort((a,b)=>Number(!!full[a]||!!mins[a])-Number(!!full[b]||!!mins[b])||a-b);
+     });
+     assert.deepEqual(unfinishedOrder,calculated,'unfinished habits appear before already-recorded habits');
+     await page.locator('#vigorJourneyManager #vjmSortHabits').selectOption('attention');
+     assert.equal(await page.locator('#vigorJourneyManager #vjmSortHabits').inputValue(),'attention',
+       'needs-attention sorting is available');
+     await page.locator('#vigorJourneyManager #vjmSortHabits').selectOption('manual');
+     const again=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(rows=>rows.map(el=>Number(el.dataset.habitIndex)));
+     assert.deepEqual(again,manualOrder,'manual sorting restores the original visible order');
+     const sortingStateAfter=await page.evaluate(()=>{
+       const d=JSON.parse(localStorage.getItem('vigor-tracker'));
+       return {habitLabels:d.habitLabels,checkins:d.dailyCheckins,minimums:d.discipline.minimums};
+     });
+     assert.deepEqual(sortingStateAfter,sortingStateBefore,'switching sort modes never edits saved records');
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
      assert(!errors.some(e=>/Cannot read properties of undefined|SyntaxError|ReferenceError/.test(e)),errors.join('; '));
