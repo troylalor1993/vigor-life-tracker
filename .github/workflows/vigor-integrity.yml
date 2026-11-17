@@ -48,6 +48,7 @@ jobs:
           test -s modern-theme.css
           test -s premium-screens.css
           test -s theme-bridge.css
+          test -s ux-clarity.css
           test -s vigor-mark.svg
           test -s vigor-sunrise.svg
           grep -q 'premium-navigation.js' index.html
@@ -58,5 +59,6 @@ jobs:
           grep -q 'sync-health.js' index.html
           grep -q 'premium-screens.css' index.html
           grep -q 'theme-bridge.css' index.html
+          grep -q 'ux-clarity.css' index.html
           grep -q 'adaptive-coach.js' index.html
           grep -q 'growth-dashboard.js' index.html
