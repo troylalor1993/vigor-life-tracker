@@ -1,0 +1,43 @@
+/* Quiet clarity: fewer repeated actions, smaller chrome, clearer focus.
+   All colours inherit the selected user theme. */
+#globalSaveStatus[hidden]{display:none!important}
+#vigorSyncBadge{max-width:100%;white-space:normal;text-wrap:balance}
+body[data-vigor-view]:not([data-vigor-view="today"]) .app-header{
+ min-height:0!important;padding:14px 17px!important;margin-bottom:13px
+}
+body[data-vigor-view]:not([data-vigor-view="today"]) .app-header h1,
+body[data-vigor-view]:not([data-vigor-view="today"]) .app-header>p{display:none!important}
+body[data-vigor-view]:not([data-vigor-view="today"]) .vigor-identity{margin:0 0 3px!important}
+body[data-vigor-view]:not([data-vigor-view="today"]) #vigorSyncBadge{min-height:32px;margin:5px 0 0;padding:5px 10px;font-size:11px}
+body[data-vigor-view="today"] #panel-today>.vigor-coach{
+ padding:16px!important;margin-top:8px!important
+}
+body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-eyebrow{font-size:10px}
+body[data-vigor-view="today"] #panel-today>.vigor-coach h2{font-size:18px!important}
+body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-lead{font-size:14px;font-weight:700}
+body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-actions{display:none!important}
+body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-note{font-size:11px}
+body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-habit-history{margin-top:12px}
+body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-shift{margin-bottom:6px}
+#vigorNav .app-tab{touch-action:manipulation}
+.vigor-screen .vigor-action-row button,
+.vigor-focus-hero button,.vigor-start-guide button,.vigor-sync-badge{
+ transition:transform .14s ease,box-shadow .14s ease
+}
+.vigor-screen .vigor-action-row button:active,
+.vigor-focus-hero button:active,.vigor-start-guide button:active{transform:scale(.985)}
+@media(max-width:650px){
+ .app-header{margin-bottom:11px!important}
+ .vigor-focus-hero{margin-bottom:11px!important}
+ #vigorNav .app-tab{min-height:58px!important}
+ .vigor-screen .vigor-action-row{display:grid;grid-template-columns:1fr;gap:8px}
+ .vigor-screen .vigor-action-row button{width:100%;min-height:48px}
+ body[data-vigor-view]:not([data-vigor-view="today"]) .app-header{
+  padding:12px 14px!important;border-radius:18px!important
+ }
+ body[data-vigor-view]:not([data-vigor-view="today"]) .vigor-identity img{width:36px;height:36px}
+ body[data-vigor-view]:not([data-vigor-view="today"]) .vigor-identity .brand{font-size:11px}
+ #vigorPersonalGrowth .vc-growth-stats>div{padding:8px 5px}
+ #vigorPersonalGrowth .vc-growth-stats small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.vigor-screen .vigor-action-row button,.vigor-focus-hero button,.vigor-start-guide button{transition:none}}
