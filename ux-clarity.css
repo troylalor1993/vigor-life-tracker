@@ -47,3 +47,22 @@ body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-shift{margin-bottom:
 .cloud-password-recovery button{background:transparent!important;border:1px solid var(--border)!important;color:var(--accent-soft)!important;border-radius:10px;padding:8px 12px;min-height:42px}
 .cloud-password-recovery p{margin:0;max-width:380px;color:var(--muted);font-size:12px;line-height:1.5}
 @media(max-width:650px){.cloud-password-recovery{display:block}.cloud-password-recovery p{margin:8px 0}}
+
+/* One primary decision: full effort, minimum effort, or review details. */
+.vigor-focus-actions{display:flex;align-items:stretch;flex-wrap:wrap;gap:9px;margin-top:12px}
+.vigor-focus-actions button{margin:0!important;min-height:48px;flex:1 1 auto}
+.vigor-focus-actions .vigor-focus-secondary{
+  background:var(--panel-alt)!important;color:var(--text-primary)!important;
+  border:1px solid var(--border-strong)!important;box-shadow:none!important
+}
+.vigor-focus-actions .vigor-focus-text-link{
+  flex:0 0 100%;background:transparent!important;
+  color:var(--accent-soft)!important;box-shadow:none!important;
+  border:0!important;min-height:38px;padding:7px 4px;
+  text-align:center;text-decoration:underline;text-underline-offset:4px
+}
+@media(max-width:650px){
+ .vigor-focus-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .vigor-focus-actions button{width:100%}
+ .vigor-focus-actions .vigor-focus-text-link{grid-column:1/-1}
+}
