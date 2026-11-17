@@ -79,6 +79,44 @@ async function main(){
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
      assert.equal(await page.locator('#vigorFitnessOpen').isVisible(),true,'Workout checklist action visible');
+     // Zone 2 is one shared tracker, now housed in Fitness rather than Today.
+     const zone=page.locator('#zone2');
+     assert.equal(await zone.isVisible(),true,'Zone 2 visible inside Fitness');
+     assert.equal(await zone.locator('#addZoneMinutes').isVisible(),true,'Zone 2 logging available in Fitness');
+     assert.equal(await page.locator('#vigorFitnessScreen #zone2').count(),1,'original Zone 2 tracker lives inside Fitness');
+     assert.equal(await page.locator('#panel-today #zone2').count(),0,'Zone 2 is no longer duplicated on Today');
+     await page.evaluate(()=>{window.__zone2Original=document.querySelector('#zone2')});
+     const initialMinutes=Number(await page.locator('#zoneTotal').textContent());
+     const originalGoal=Number(await page.locator('#zoneGoalLabel').textContent());
+     await page.locator('#zoneMinutes').fill('23');
+     await page.locator('#addZoneMinutes').click();
+     assert.equal(Number(await page.locator('#zoneTotal').textContent()),initialMinutes+23,'Zone 2 logs through existing save handler');
+     const afterLog=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')).zone2Logs);
+     assert(afterLog.some(x=>x.minutes===23),'Zone 2 session persisted to original data');
+     await page.evaluate(()=>window.VigorPremiumScreens.refresh());
+     assert.equal(await page.evaluate(()=>document.querySelector('#zone2')===window.__zone2Original),true,
+       'Fitness refresh reuses original Zone 2 element and handlers');
+     await page.locator('#editZoneGoal').click();
+     await page.locator('#zoneGoalInput').fill(String(originalGoal+25));
+     await page.locator('#saveZoneGoal').click();
+     assert.equal(Number(await page.locator('#zoneGoalLabel').textContent()),originalGoal+25,
+       'existing rotation target edits work inside Fitness');
+     await page.reload({waitUntil:'domcontentloaded'});
+     await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
+     assert.equal(Number(await page.locator('#zoneTotal').textContent()),initialMinutes+23,
+       'Zone 2 minutes survive browser reload');
+     assert.equal(Number(await page.locator('#zoneGoalLabel').textContent()),originalGoal+25,
+       'Zone 2 target survives browser reload');
+     await page.locator('#zoneLog .zone-log-row').filter({hasText:'23 min'}).locator('button').click();
+     assert.equal(Number(await page.locator('#zoneTotal').textContent()),initialMinutes,
+       'Zone 2 undo works from the Fitness screen');
+     await page.locator('#editZoneGoal').click();
+     await page.locator('#zoneGoalInput').fill(String(originalGoal));
+     await page.locator('#saveZoneGoal').click();
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
+     assert.equal(await page.locator('#zone2').isVisible(),false,'Zone 2 is not displayed on Today');
+     await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
+
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
      assert.equal(await page.locator('#vigorMoreMenu').isVisible(),true,'More menu visible');
      await page.locator('#vigorMoreMenu [data-vigor-old="faith"]').click();
