@@ -174,14 +174,14 @@ async function main(){
 
      // Daily Big 3 can be reordered independently of the full checklists.
      await page.locator('#big3Editor').evaluate(el=>el.open=true);
-     const firstPriority=await page.locator('#big3Selectors>label select').first().inputValue();
+     const firstPriorityValue=await page.locator('#big3Selectors>label select').first().inputValue();
      const secondPriority=await page.locator('#big3Selectors>label select').nth(1).inputValue();
      await page.locator('#big3Selectors>label').first().locator('.reorder-actions button').nth(1).click();
      assert.equal(await page.locator('#big3Selectors>label select').first().inputValue(),secondPriority,'Big 3 selector moved');
      await page.locator('#saveBig3').click();
      const big3Saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')).discipline.big3);
      assert.equal(big3Saved[0],secondPriority,'Big 3 order saved');
-     assert.equal(big3Saved[1],firstPriority,'Big 3 keeps both selections');
+     assert.equal(big3Saved[1],firstPriorityValue,'Big 3 keeps both selections');
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
      assert(!errors.some(e=>/Cannot read properties of undefined|SyntaxError|ReferenceError/.test(e)),errors.join('; '));
