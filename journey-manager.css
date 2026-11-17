@@ -91,3 +91,45 @@
  #vigorJourneyScreen .vjm-item-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
  #vigorJourneyScreen .vjm-recovery-form{padding:13px}
 }
+
+/* Clear selection: unmistakable gold ring, even with non-gold themes. */
+:root{--vigor-selected-ring:#e8b94e;--vigor-selected-highlight:#fff0b6}
+#vigorJourneyScreen .vjm-item-actions button[aria-pressed="true"],
+#big3List .big3-actions button[aria-pressed="true"],
+#habitGrid .discipline-buttons button[aria-pressed="true"]{
+  border:3px solid var(--vigor-selected-ring)!important;
+  outline:2px solid var(--vigor-selected-highlight)!important;
+  outline-offset:1px!important;
+  box-shadow:0 0 0 4px rgba(232,185,78,.16),inset 0 0 0 1px rgba(36,25,5,.35)!important;
+  font-weight:850!important;
+}
+#vigorJourneyScreen .vjm-item-actions button[aria-pressed="true"]::before,
+#big3List .big3-actions button[aria-pressed="true"]::before,
+#habitGrid .discipline-buttons button[aria-pressed="true"]::before{
+ content:"✓";display:inline-block;margin-right:6px;font-weight:900
+}
+#vigorJourneyScreen .vjm-item-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#vigorJourneyScreen .vjm-item-actions .vjm-expand{
+ color:var(--accent-soft);background:var(--panel-alt);border:1px solid var(--border-strong);
+}
+#vigorJourneyScreen .vjm-item-more{display:flex;flex-wrap:wrap;gap:9px;padding-top:11px;border-top:1px solid var(--border)}
+#vigorJourneyScreen .vjm-item-more[hidden]{display:none!important}
+#vigorJourneyScreen .vjm-item-more small{display:block;flex:1 1 100%;color:var(--muted)}
+#vigorJourneyScreen .vjm-item-more button{min-height:42px;padding:9px 14px;flex:1;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-alt);color:var(--text-primary);font-size:13px;font-weight:750}
+#vigorJourneyScreen .vjm-item{gap:9px}
+#vigorJourneyScreen .vjm-focus-strip{margin:8px 0 13px;padding:12px;border:1px solid var(--border-strong);border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,var(--panel-alt))}
+#vigorJourneyScreen .vjm-focus-strip>strong{display:block;font-size:13px;margin-bottom:8px;color:var(--text-primary)}
+#vigorJourneyScreen .vjm-focus-chips{display:flex;flex-wrap:wrap;gap:7px}
+#vigorJourneyScreen .vjm-focus-chip{background:var(--panel);border:1px solid var(--border-strong);border-radius:999px;color:var(--accent-soft);font-size:12px;font-weight:700;padding:9px 12px;min-height:42px}
+#vigorJourneyScreen .vjm-display-controls{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:0 0 13px}
+#vigorJourneyScreen .vjm-display-controls span{font-size:12px;color:var(--muted)}
+#vigorJourneyScreen .vjm-hide-completed{font-size:12px;font-weight:800;color:var(--accent-soft);border:1px solid var(--border-strong);border-radius:10px;background:var(--panel-alt);min-height:43px;padding:8px 12px}
+#vigorJourneyScreen .vjm-hide-completed.active{border-color:var(--accent)}
+@media(max-width:430px){
+ #vigorJourneyScreen .vjm-display-controls{flex-wrap:wrap}
+ #vigorJourneyScreen .vjm-item-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #vigorJourneyScreen .vjm-item-actions button{min-width:0;padding:10px 5px}
+}
+@media(prefers-reduced-motion:reduce){
+ #vigorJourneyScreen .vjm-item-actions button{transition:none!important}
+}
