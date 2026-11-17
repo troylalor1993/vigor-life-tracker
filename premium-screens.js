@@ -9,6 +9,13 @@
  const journey=document.createElement('section');journey.className='vigor-screen';journey.id='vigorJourneyScreen';journey.setAttribute('aria-label','Habit Building Journey');
  const fitness=document.createElement('section');fitness.className='vigor-screen';fitness.id='vigorFitnessScreen';fitness.setAttribute('aria-label','Fitness and workout coaching');
  main.append(journey,fitness);
+ // Keep one permanent Zone 2 element in Fitness, outside the rerendered summary.
+ // Its inputs and buttons must never be detached while the user is tapping them.
+ const fitnessContent=document.createElement('div');
+ fitnessContent.className='vigor-fitness-content';
+ const zone2Movement=$('zone2');
+ fitness.append(fitnessContent);
+ if(zone2Movement)fitness.append(zone2Movement);
  let selectedHabit=0;
  function read(){try{return window.vigorCloudBridge?.read?.()}catch(e){return null}}
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
@@ -56,7 +63,7 @@
  function renderFitness(data,day){
   const w=window.VigorCoaching.workoutReview(data,day),guide=window.VigorCoaching.progressionGuidance(data,day);
   const rate=w.target?Math.min(100,Math.round(w.completed/w.target*100)):0;
-  fitness.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">BUILD STRENGTH · PROTECT CONSISTENCY</div>
+  fitnessContent.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">BUILD STRENGTH · PROTECT CONSISTENCY</div>
       <h2>Fitness & Coaching</h2><p>Train with intention. Your workouts adapt around real-life schedules and recovery—not a perfect calendar.</p></div>
       <div class="vigor-summary"><strong>Workout rotation</strong><h2>${w.completed} of ${w.target} sessions</h2>
       <p>${escape(w.length+'-day schedule')} · ${w.daysRemaining} day(s) remaining · ${w.minimumEfforts} minimum-effort start(s)</p>
