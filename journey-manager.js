@@ -28,17 +28,11 @@
   $('vjmName')?.focus();
  }
  function recordHabit(index,mode){
-  const daily=$('daily'),wrapper=daily?.closest('details');
-  // Only open temporarily if the check-in is collapsed; buttons use the original handlers.
-  if(wrapper)wrapper.open=true;
-  const item=Array.from($('habitGrid')?.children||[]).find(el=>el.dataset.habitIndex===String(index));
-  const label=mode==='full'?'Done':'Minimum';
-  const button=Array.from(item?.querySelectorAll('button')||[]).find(el=>el.textContent.trim()===label);
-  if(!button){notice='Open Today to log this habit.';render();return}
-  if(wrapper)wrapper.open=false;
-  button.click();
-  notice=mode==='full'?'Full action recorded.':'Minimum effort recorded.';
-  render();
+  try{
+    window.vigorCloudBridge.recordJourneyHabit(index,mode);
+    notice=mode==='full'?'Full action recorded for today.':'Minimum effort recorded for today.';
+    render();
+  }catch(error){notice=String(error?.message||'Could not record this action.');render()}
  }
  function enhanceJourney(){
   const root=$('vigorJourneyScreen');if(!root)return null;
@@ -131,7 +125,7 @@
         if(editingIndex!==null)bridge.updateJourneyHabit({index,...draft});
         selectedIndex=index;editorOpen=false;notice='✓ Saved on this device. Cloud status appears above.';
         // The legacy renderer updates all connected modules.
-        window.VigorPremiumScreens?.refresh?.();render();
+        window.VigorPremiumScreens?.selectHabit?.(index);render();
       }catch(error){notice=String(error?.message||'Could not save. Please try again.');render()}
     };
     manager.append(form);
