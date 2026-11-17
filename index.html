@@ -1397,7 +1397,7 @@ function renderDaily(){
    button.onclick=()=>{
     const values={};Array.from(details.children).forEach(node=>{const field=node.children?.[0];if(field?.dataset?.key)values[field.dataset.key]=field.value.trim()});
     if(!values.cue||!values.minimum||!values.identity)return alert('Complete the cue, minimum and identity fields.');
-    state.discipline.settings[i]=values;
+    state.discipline.settings[i]={...state.discipline.settings[i],...values};
     if(save()){renderDaily();$('habitSaveFeedback').textContent='✓ Habit cue and minimum saved'}
    };
    details.append(button);$('habitEditor').append(details);
@@ -2106,6 +2106,53 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ addJourneyHabit:({name,cue,minimum,identity,kind})=>{
+  const label=String(name??'').trim(),prompt=String(cue??'').trim(),
+   small=String(minimum??'').trim(),why=String(identity??'').trim();
+  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150)
+   throw Error('Enter a habit name (up to 70 characters) and a small action (up to 150 characters).');
+  if(!['build','replace'].includes(kind))throw Error('Choose Build or Replace.');
+  if(state.habitLabels.length>=100)throw Error('The habit list has reached its limit.');
+  if(state.habitLabels.some(x=>x.toLowerCase()===label.toLowerCase()))
+   throw Error('That habit already exists. Choose it from your list to edit it.');
+  const index=state.habitLabels.length;
+  state.discipline.settings||={};
+  state.habitLabels.push(label);
+  state.discipline.settings[index]={
+    cue:prompt||'After something I already do each day',
+    minimum:small,identity:why||'I take small actions toward the life I want',kind
+  };
+  if(!save()){
+    state.habitLabels.pop();delete state.discipline.settings[index];
+    throw Error('Could not save the habit. Check available storage and try again.');
+  }
+  renderDaily();render();renderSetup();
+  return index;
+ },
+ updateJourneyHabit:({index,name,cue,minimum,identity,kind})=>{
+  if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length)throw Error('Choose a valid habit.');
+  const label=String(name??'').trim(),prompt=String(cue??'').trim(),
+   small=String(minimum??'').trim(),why=String(identity??'').trim();
+  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150)
+   throw Error('Enter a habit name (up to 70 characters) and a small action (up to 150 characters).');
+  if(!['build','replace'].includes(kind))throw Error('Choose Build or Replace.');
+  if(state.habitLabels.some((x,i)=>i!==index&&x.toLowerCase()===label.toLowerCase()))
+   throw Error('That habit name is already being tracked.');
+  const oldName=state.habitLabels[index],oldSettings=state.discipline.settings?.[index];
+  state.discipline.settings||={};
+  state.habitLabels[index]=label;
+  state.discipline.settings[index]={...disciplineConfig(index),
+    cue:prompt||'After something I already do each day',minimum:small,
+    identity:why||'I take small actions toward the life I want',kind};
+  if(!save()){
+    state.habitLabels[index]=oldName;
+    if(oldSettings===undefined)delete state.discipline.settings[index];
+    else state.discipline.settings[index]=oldSettings;
+    throw Error('Could not save changes. Check available storage and try again.');
+  }
+  renderDaily();render();renderSetup();
+  return true;
+ },
  importStepsApp:(rows,includeCalories=false)=>{
   if(!Array.isArray(rows)||rows.length>31)throw Error('Invalid number of StepsApp days');
   state.dailyActivity||={};
