@@ -45,6 +45,7 @@ jobs:
           test -s modern-theme.css
           test -s premium-screens.css
           test -s vigor-mark.svg
+          test -s vigor-sunrise.svg
           grep -q 'premium-navigation.js' index.html
           grep -q 'daily-focus.js' index.html
           grep -q 'onboarding-guide.js' index.html
