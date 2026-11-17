@@ -59,6 +59,15 @@ async function main(){
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
      assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth visible');
      assert((await page.locator('#vigorPersonalGrowth .vc-life-area').count())>0,'Life-area progress tiles rendered');
+     await page.locator('#vigorPersonalGrowth .vc-growth-details').evaluate(el=>el.open=true);
+     const growthHabit=page.locator('#vigorPersonalGrowth [data-growth-habit]').first();
+     const targetedIndex=Number(await growthHabit.getAttribute('data-growth-habit'));
+     await growthHabit.click();
+     assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Growth opens Journey directly');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-item.vjm-selected').getAttribute('data-habit-index'),String(targetedIndex),
+       'Growth links to exactly the same habit');
+     await page.locator('#vigorNav [data-vigor-route="growth"]').click();
+
      assert.equal(await page.locator('#vigorRotationRecap').isVisible(),true,'Rotation recap visible in Growth');
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
@@ -221,6 +230,15 @@ async function main(){
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'My focus'}).click();
      const visibleFocus=await page.locator('#vigorJourneyManager .vjm-item').count();
      assert(visibleFocus>=1&&visibleFocus<=3,'Focus filter shows only daily-priority habits');
+     const sharedFocus=await page.evaluate(()=>{
+       const state=window.vigorCloudBridge.read();
+       const today=new Date();
+       const day=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+       return window.VigorDailyFocus.focusFor(state,day).priorities.filter(key=>key.startsWith('h:')).map(key=>key.slice(2));
+     });
+     const journeyFocus=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(nodes=>nodes.map(n=>n.dataset.habitIndex));
+     assert.deepEqual(journeyFocus,sharedFocus,'Journey My focus uses exactly the same ordered habits as Today');
+
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
      assert(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),'All restores the replacement habit');
 
