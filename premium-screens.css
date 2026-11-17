@@ -127,3 +127,39 @@ body[data-vigor-view="journey"] #vigorJourneyScreen,body[data-vigor-view="fitnes
   #vigorFitnessScreen #zone2 .zone-form{grid-template-columns:1fr}
   #vigorFitnessScreen #zone2 .zone-form button{width:100%}
 }
+
+/* The complete existing Zone 2 and training accordions now belong to Fitness. */
+#vigorFitnessScreen>details.compact-details{
+  display:block;
+  margin:14px 0;
+  border:1px solid var(--border-strong)!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 8%,var(--panel-alt)),var(--panel))!important;
+  border-radius:18px!important;
+}
+#vigorFitnessScreen>details.compact-details>summary{
+  color:var(--text-primary);
+  font-weight:800;
+  font-size:15px;
+  cursor:pointer;
+  min-height:50px;
+  padding:16px;
+}
+#vigorFitnessScreen>details.compact-details>summary:focus-visible{
+  outline:3px solid var(--accent-soft);
+  outline-offset:2px;
+}
+#vigorFitnessScreen>details.compact-details[open]>summary{
+  border-bottom:1px solid var(--border);
+}
+#vigorFitnessScreen #zone2{
+  margin:0!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0 0 18px 18px!important;
+}
+#vigorFitnessScreen #training{
+  margin:0!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0 0 18px 18px!important;
+}

@@ -9,13 +9,24 @@
  const journey=document.createElement('section');journey.className='vigor-screen';journey.id='vigorJourneyScreen';journey.setAttribute('aria-label','Habit Building Journey');
  const fitness=document.createElement('section');fitness.className='vigor-screen';fitness.id='vigorFitnessScreen';fitness.setAttribute('aria-label','Fitness and workout coaching');
  main.append(journey,fitness);
- // Keep one permanent Zone 2 element in Fitness, outside the rerendered summary.
- // Its inputs and buttons must never be detached while the user is tapping them.
+ // Move the ORIGINAL collapsible sections, not their inner controls.
+ // Otherwise empty "Zone 2 minutes" and "All workouts & session logs" shells
+ // remain behind on Today. Retaining the elements also retains every event listener.
  const fitnessContent=document.createElement('div');
  fitnessContent.className='vigor-fitness-content';
  const zone2Movement=$('zone2');
+ const training=$('training');
+ const zoneSection=zone2Movement?.closest('details.compact-details');
+ const trainingSection=training?.closest('details.compact-details');
  fitness.append(fitnessContent);
- if(zone2Movement)fitness.append(zone2Movement);
+ if(zoneSection){
+   fitness.append(zoneSection);
+   zoneSection.open=true;
+ }else if(zone2Movement)fitness.append(zone2Movement);
+ if(trainingSection){
+   fitness.append(trainingSection);
+   trainingSection.open=false;
+ }else if(training)fitness.append(training);
  let selectedHabit=0;
  function read(){try{return window.vigorCloudBridge?.read?.()}catch(e){return null}}
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
@@ -74,7 +85,7 @@
       <div class="vigor-summary"><strong>Coach's note: ${escape(guide.label)}</strong><p>${escape(guide.detail)}</p>
       <p>${escape(guide.basis)}. Your training targets are not changed automatically.</p></div>
       <p class="vigor-detail-note">Session counts reflect completed logs, not an estimate of calories burned or fitness gains. Follow your own recovery needs and professional guidance where appropriate.</p>`;
-  fitness.querySelector('#vigorFitnessOpen')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('training')});
+  fitnessContent.querySelector('#vigorFitnessOpen')?.addEventListener('click',()=>{if(trainingSection)trainingSection.open=true;training?.scrollIntoView({behavior:'smooth',block:'start'})});
   fitness.querySelector('#vigorFitnessHistory')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('progressInsights')});
  }
  function render(){
