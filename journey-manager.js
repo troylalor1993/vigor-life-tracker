@@ -3,7 +3,7 @@
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
  let editorOpen=false,editingIndex=null,selectedIndex=0,view='all',recoveryIndex=null;
- let hideCompleted=false;
+ let hideCompleted=false,sortMode='manual';
  const expandedCards=new Set();
  let recoveryDraft={obstacle:'time',nextStep:''};
  let draft={kind:'build',name:'',cue:'',minimum:'',identity:'',plan:''};
@@ -73,6 +73,33 @@
   if(header)header.after(manager);else root.prepend(manager);
   return manager;
  }
+ function sortHabits(items,mode,context={}){
+   const full=context.full||[],minimums=context.minimums||{},priorities=context.priorities||[];
+   const base=(a,b)=>context.view==='focus'?
+     priorities.indexOf('h:'+a.index)-priorities.indexOf('h:'+b.index):a.index-b.index;
+   const started=item=>!!full[item.index]||!!minimums[item.index];
+   const attention=item=>{
+     // Not enough logged opportunities must never be mistaken for failure.
+     if((item.opportunities||0)<3||item.rate===null)return null;
+     return item.rate;
+   };
+   return items.slice().sort((a,b)=>{
+     if(mode==='unfinished'&&context.view!=='archived'){
+       const diff=Number(started(a))-Number(started(b));
+       if(diff)return diff;
+     }
+     if(mode==='attention'&&context.view!=='archived'){
+       const ar=attention(a),br=attention(b);
+       if(ar===null&&br!==null)return 1;
+       if(br===null&&ar!==null)return -1;
+       if(ar!==null&&br!==null&&ar!==br)return ar-br;
+       // In equal evidence groups, keep unfinished items above already recorded ones.
+       const diff=Number(started(a))-Number(started(b));
+       if(diff)return diff;
+     }
+     return base(a,b);
+   });
+ }
  function render(){
   const root=$('vigorJourneyScreen'),data=getData();
   if(!root||!data||!Array.isArray(data.habitLabels))return;
@@ -104,8 +131,7 @@
       opportunities:eligible.length};
   }).filter(item=>view==='archived'?item.archived:
     !item.archived&&(view==='all'||view==='focus'&&focusIndexes.has(item.index)
-     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace'))
-    .sort((a,b)=>view==='focus'?priorities.indexOf('h:'+a.index)-priorities.indexOf('h:'+b.index):a.index-b.index);
+     ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace'));
   const tabs=mk('div','vjm-filters');
   for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing'],['archived','Archived']]){
     const button=mk('button',view===key?'vjm-filter active':'vjm-filter',label);
@@ -141,13 +167,26 @@
   const minimumsToday=data.discipline?.minimums?.[localDate()]||{};
   const completedCount=visible.filter(item=>!item.archived&&(checkins[item.index]||minimumsToday[item.index])).length;
   const controls=mk('div','vjm-display-controls');
+  const sortLabel=mk('label','vjm-sort-label','Sort');
+  const sort=mk('select','vjm-sort-select');sort.id='vjmSortHabits';
+  sort.setAttribute('aria-label','Sort habits');
+  const choices=[['manual','Manual order'],['unfinished','Unfinished first'],['attention','Needs attention']];
+  choices.forEach(([value,title])=>{
+    const option=mk('option','',title);option.value=value;sort.append(option);
+  });
+  sort.value=sortMode;
+  sort.onchange=()=>{sortMode=sort.value;render()};
+  sortLabel.append(sort);
   const toggle=mk('button','vjm-hide-completed'+(hideCompleted?' active':''),hideCompleted?'Show completed':'Hide completed today');
   toggle.type='button';toggle.id='vjmToggleCompleted';
   toggle.setAttribute('aria-pressed',String(hideCompleted));
   toggle.onclick=()=>{hideCompleted=!hideCompleted;render()};
-  controls.append(mk('span','',completedCount+' of '+visible.length+' followed today'),toggle);
+  const sortActions=mk('div','vjm-sort-actions');
+  sortActions.append(sortLabel,toggle);
+  controls.append(mk('span','',completedCount+' of '+visible.length+' followed today'),sortActions);
   manager.append(controls);
-  const shown=visible.filter(item=>item.archived||!hideCompleted||!checkins[item.index]&&!minimumsToday[item.index]);
+  const eligible=visible.filter(item=>item.archived||!hideCompleted||!checkins[item.index]&&!minimumsToday[item.index]);
+  const shown=sortHabits(eligible,sortMode,{full:checkins,minimums:minimumsToday,view,priorities});
   if(data.habitLabels.length){
     const grid=mk('div','vjm-list');
     const entry=data.dailyCheckins?.[localDate()]||{};
@@ -318,7 +357,7 @@
   queueMicrotask(render);
  });
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
- window.VigorJourneyManager={refresh:render,showHabit:index=>{
+ window.VigorJourneyManager={refresh:render,sortHabits,showHabit:index=>{
    const data=getData();
    if(!data||!Number.isInteger(index)||index<0||index>=data.habitLabels.length)return false;
    selectedIndex=index;view=data.discipline?.settings?.[index]?.archivedAt?'archived':'all';editorOpen=false;recoveryIndex=null;render();
