@@ -36,6 +36,9 @@
  }
  function enhanceJourney(){
   const root=$('vigorJourneyScreen');if(!root)return null;
+  root.querySelector('#vigorJourneyManager')?.remove();
+  const existingSteps=root.querySelector('.vjm-steps');
+  if(existingSteps){const old=existingSteps.querySelector('.vigor-steps');if(old)existingSteps.before(old);existingSteps.remove()}
   const originalPicker=root.querySelector('.vigor-habit-select');
   if(originalPicker)originalPicker.hidden=true;
   // The five-stage educational guide is still available, but it no longer dominates the page.
