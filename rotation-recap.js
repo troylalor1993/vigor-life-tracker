@@ -62,9 +62,9 @@
      if(Number(data.transformationCheckins?.[day]?.walk)>0)sets.walking.add(day);
    }
    const zone=(data.zone2Logs||[]).filter(x=>allowed.has(x.date)).reduce((sum,x)=>sum+Math.max(0,Number(x.minutes)||0),0);
-   const t=data.trainingTargets||{};
+   const t=data.trainingTargetHistory?.[start]||data.trainingTargets||{};
    const goal=(k,f,max)=>Number.isInteger(t[k])&&t[k]>0?Math.min(t[k],max):f;
-   const rows=[['Full-body strength',sets.strength.size,goal('strength',4,8),'workouts'],['Athletic performance',sets.athletic.size,goal('athletic',1,8),'workout'],['Interval conditioning',sets.interval.size,goal('interval',1,8),'session'],['Zone 2 cardio',zone,Number(data.zone2Goal)>0?Number(data.zone2Goal):150,'min'],['Mobility',sets.mobility.size,goal('mobility',length,length),'days'],['Walking / step goal',sets.walking.size,goal('walking',length,length),'days']];
+   const rows=[['Full-body strength',sets.strength.size,goal('strength',4,8),'workouts'],['Athletic performance',sets.athletic.size,goal('athletic',1,8),'workout'],['Interval conditioning',sets.interval.size,goal('interval',1,8),'session'],['Zone 2 cardio',zone,Number(data.trainingTargetHistory?.[start]?.zone||data.zone2Goal)>0?Number(data.trainingTargetHistory?.[start]?.zone||data.zone2Goal):150,'min'],['Mobility',sets.mobility.size,goal('mobility',length,length),'days'],['Walking / step goal',sets.walking.size,goal('walking',length,length),'days']];
    return {rows,score:Math.round(100*rows.reduce((sum,r)=>sum+Math.min(1,r[1]/r[2]),0)/rows.length)};
  }
  function renderTraining(data,today,summary){
@@ -88,7 +88,7 @@
    });
    const saveButton=add(form,'button','Save targets');saveButton.type='submit';
    const feedback=add(form,'p','');feedback.setAttribute('role','status');
-   form.onsubmit=e=>{e.preventDefault();try{window.vigorCloudBridge.saveTrainingTargets(Object.fromEntries(new FormData(form)))}catch(error){feedback.textContent=error.message}};
+   form.onsubmit=e=>{e.preventDefault();try{(()=>{for(let i=1;i<=6;i++){const past=dateOffset(start,-i*summary.length);const old=trainingSummary(data,past,summary.length);if(old.rows.some(r=>r[1]>0)&&!data.trainingTargetHistory?.[past])window.vigorCloudBridge.snapshotTrainingTargets(past,Object.fromEntries(keys.map((k,j)=>[k,old.rows[j][2]])))}window.vigorCloudBridge.saveTrainingTargets(Object.fromEntries(new FormData(form)))})()}catch(error){feedback.textContent=error.message}};
    card.append(panel);
    const history=add(panel,'details','');
    add(history,'summary','Recent rotation training history');
@@ -96,7 +96,7 @@
      const past=dateOffset(start,-i*summary.length);
      const old=trainingSummary(data,past,summary.length);
      if(!old.rows.some(r=>r[1]>0))continue;
-     add(history,'p',past+' to '+dateOffset(past,summary.length-1)+' · '+old.score+'% (using current targets)');
+     add(history,'p',past+' to '+dateOffset(past,summary.length-1)+' · '+old.score+'%'+(data.trainingTargetHistory?.[past]?' (saved targets)':' (estimated using current targets)'));
    }
    add(history,'p','Rotations without recorded training are omitted.');
  }
