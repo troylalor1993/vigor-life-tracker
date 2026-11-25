@@ -1825,7 +1825,17 @@ function applyTheme(){
  $('themeAccent').value=state.accentOverride||selected.swatch;
 }
 
+function preserveTrainingRotation(){
+ const length=state.cycleLength===7?7:8;
+ const date=iso(new Date()), start=plus(state.anchor,Math.floor(days(date,state.anchor)/length)*length);
+ const active=state.trainingActiveRotation;
+ state.trainingTargetHistory||={};
+ if(active&&active.start<start&&!state.trainingTargetHistory[active.start])state.trainingTargetHistory[active.start]=active.targets;
+ const t=state.trainingTargets||{};
+ state.trainingActiveRotation={start,targets:{strength:t.strength||4,athletic:t.athletic||1,interval:t.interval||1,zone:state.zone2Goal||150,mobility:Math.min(t.mobility||length,length),walking:Math.min(t.walking||length,length)}};
+}
 const save=()=>{try{
+  preserveTrainingRotation();
   const serialized=JSON.stringify(state);
   const createdRecovery=snapshotBeforeChange(state);
   localStorage.setItem(key,serialized);
@@ -2053,7 +2063,7 @@ $('addZoneMinutes').onclick=()=>{const minutes=Number($('zoneMinutes').value),da
  state.zone2Logs.push({id:'z2-'+Date.now()+'-'+Math.random().toString(36).slice(2),date,minutes});
  if(save()){$('zoneMinutes').value='';renderZone2();$('zoneFeedback').textContent='✓ '+minutes+' minutes saved for '+date}
 };
-$('saveZoneGoal').onclick=()=>{const goal=Number($('zoneGoalInput').value);if(!Number.isInteger(goal)||goal<1||goal>2000)return alert('Choose a target between 1 and 2,000 minutes');state.zone2Goal=goal;if(save()){$('zoneFeedback').textContent='✓ Zone 2 target saved';renderZone2();$('zoneGoalDetails').open=false}};
+$('saveZoneGoal').onclick=()=>{const goal=Number($('zoneGoalInput').value);if(!Number.isInteger(goal)||goal<1||goal>2000)return alert('Choose a target between 1 and 2,000 minutes');preserveTrainingRotation();state.zone2Goal=goal;if(save()){$('zoneFeedback').textContent='✓ Zone 2 target saved';renderZone2();$('zoneGoalDetails').open=false}};
 
 ['activitySteps','activityCalories'].forEach(id=>$(id).oninput=updateActivityMeters);
 $('saveActivity').onclick=()=>{
@@ -2186,6 +2196,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ refreshTrainingRotation:()=>{const before=JSON.stringify(state.trainingActiveRotation);preserveTrainingRotation();if(before!==JSON.stringify(state.trainingActiveRotation))return save();return true;},
  snapshotTrainingTargets:(start,targets)=>{
   if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||state.trainingTargetHistory?.[start])return false;
   const previous=state.trainingTargetHistory;
@@ -2197,6 +2208,7 @@ window.vigorCloudBridge={
   const limits={strength:8,athletic:8,interval:8,mobility:state.cycleLength===7?7:8,walking:state.cycleLength===7?7:8,zone:2000};
   const clean={};
   for(const k of Object.keys(limits)){const v=Number(targets[k]);if(!Number.isInteger(v)||v<1||v>limits[k])throw Error('Invalid target: '+k);clean[k]=v}
+  preserveTrainingRotation();
   const old=state.trainingTargets,oldZone=state.zone2Goal;
   state.trainingTargets=clean;state.zone2Goal=clean.zone;
   if(!save()){state.trainingTargets=old;state.zone2Goal=oldZone;throw Error('Targets could not be saved.')}
