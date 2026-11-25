@@ -2186,6 +2186,15 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ saveTrainingTargets:targets=>{
+  const limits={strength:8,athletic:8,interval:8,mobility:state.cycleLength===7?7:8,walking:state.cycleLength===7?7:8,zone:2000};
+  const clean={};
+  for(const k of Object.keys(limits)){const v=Number(targets[k]);if(!Number.isInteger(v)||v<1||v>limits[k])throw Error('Invalid target: '+k);clean[k]=v}
+  const old=state.trainingTargets,oldZone=state.zone2Goal;
+  state.trainingTargets=clean;state.zone2Goal=clean.zone;
+  if(!save()){state.trainingTargets=old;state.zone2Goal=oldZone;throw Error('Targets could not be saved.')}
+  renderZone2();render();
+ },
  recordTrainingRoutine:(routine,location,effort)=>{
   const names={A:'Full Body A',B:'Full Body B',C:'Full Body C',D:'Full Body D',athletic:'Athletic performance',interval:'Interval conditioning'};
   if(!Object.hasOwn(names,routine)||!['Gym','Home'].includes(location)||!['full','minimum'].includes(effort))throw Error('Invalid training selection.');
