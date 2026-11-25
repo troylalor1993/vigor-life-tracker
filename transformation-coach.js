@@ -31,17 +31,26 @@
   for(const name of ['Gym','Home']){const o=document.createElement('option');o.textContent=name;mode.append(o)}
   library.append(mode);
   const list = document.createElement('div');library.append(list);
+  function completionButtons(section,routine){
+    const status=document.createElement('p');status.setAttribute('role','status');
+    for(const [label,effort] of [['Record completed workout','full'],['Record short version','minimum']]){
+      const button=document.createElement('button');button.type='button';button.className='secondary';button.textContent=label;
+      button.onclick=()=>{try{status.textContent=window.vigorCloudBridge.recordTrainingRoutine(routine,mode.value,effort)}catch(e){status.textContent=e.message}};
+      section.append(button);
+    }
+    section.append(status);
+  }
   function showLibrary(){
     list.replaceChildren();
     routines.forEach((routine,i)=>{
       const section=document.createElement('details'), heading=document.createElement('summary');
       heading.textContent='Full Body '+['A','B','C','D'][i]+' · 16 working sets';section.append(heading);
       routine.forEach(row=>{const [gym,home,reps]=row.split('|');const p=document.createElement('p');p.textContent=(mode.value==='Home'?home:gym)+' · 2 × '+reps;section.append(p)});
-      list.append(section);
+      completionButtons(section,['A','B','C','D'][i]);list.append(section);
     });
     const section=document.createElement('details'), heading=document.createElement('summary');heading.textContent='Athletic performance · Home';section.append(heading);
-    athletic.forEach(row=>{const p=document.createElement('p');p.textContent=row;section.append(p)});list.append(section);
-    const p=document.createElement('p');p.textContent='Conditioning: start with 6 rounds of 30 seconds brisk walking and 90 seconds easy walking. Progress to jogging only as tolerated. No maximal sprints.';list.append(p);
+    athletic.forEach(row=>{const p=document.createElement('p');p.textContent=row;section.append(p)});completionButtons(section,'athletic');list.append(section);
+    const p=document.createElement('p');p.textContent='Conditioning: start with 6 rounds of 30 seconds brisk walking and 90 seconds easy walking. Progress to jogging only as tolerated. No maximal sprints.';list.append(p);completionButtons(list,'interval');
   }
   mode.addEventListener('change',showLibrary);showLibrary();card.append(library);
   let loadedDate;
