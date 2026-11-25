@@ -136,6 +136,7 @@
  render();
  window.addEventListener('vigor-local-changed',render);
  window.addEventListener('vigor-sync-status',render);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden){window.vigorCloudBridge?.refreshTrainingRotation?.();render()}});
  window.VigorRotationReview={rotationSummary,trainingSummary,refresh:render};
+ window.vigorCloudBridge?.refreshTrainingRotation?.();
 })();
