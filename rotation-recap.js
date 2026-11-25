@@ -62,7 +62,9 @@
      if(Number(data.transformationCheckins?.[day]?.walk)>0)sets.walking.add(day);
    }
    const zone=(data.zone2Logs||[]).filter(x=>allowed.has(x.date)).reduce((sum,x)=>sum+Math.max(0,Number(x.minutes)||0),0);
-   const rows=[['Full-body strength',sets.strength.size,4,'workouts'],['Athletic performance',sets.athletic.size,1,'workout'],['Interval conditioning',sets.interval.size,1,'session'],['Zone 2 cardio',zone,Number(data.zone2Goal)>0?Number(data.zone2Goal):150,'min'],['Mobility',sets.mobility.size,length,'days'],['Walking / step goal',sets.walking.size,length,'days']];
+   const t=data.trainingTargets||{};
+   const goal=(k,f,max)=>Number.isInteger(t[k])&&t[k]>0?Math.min(t[k],max):f;
+   const rows=[['Full-body strength',sets.strength.size,goal('strength',4,8),'workouts'],['Athletic performance',sets.athletic.size,goal('athletic',1,8),'workout'],['Interval conditioning',sets.interval.size,goal('interval',1,8),'session'],['Zone 2 cardio',zone,Number(data.zone2Goal)>0?Number(data.zone2Goal):150,'min'],['Mobility',sets.mobility.size,goal('mobility',length,length),'days'],['Walking / step goal',sets.walking.size,goal('walking',length,length),'days']];
    return {rows,score:Math.round(100*rows.reduce((sum,r)=>sum+Math.min(1,r[1]/r[2]),0)/rows.length)};
  }
  function renderTraining(data,today,summary){
@@ -76,6 +78,17 @@
      add(panel,'p',label+' · '+value+' / '+target+' '+unit);
      const bar=document.createElement('progress');bar.max=target;bar.value=Math.min(value,target);bar.setAttribute('aria-label',label);bar.style.cssText='width:100%;height:8px;accent-color:var(--accent-soft)';panel.append(bar);
    }
+   const edit=add(panel,'details','');
+   add(edit,'summary','Edit training targets');
+   const form=document.createElement('form');edit.append(form);
+   const keys=['strength','athletic','interval','zone','mobility','walking'];
+   result.rows.forEach((row,i)=>{
+     const label=add(form,'label',row[0]+' ');
+     const input=document.createElement('input');input.type='number';input.name=keys[i];input.min='1';input.max=String(i===3?2000:i>=4?summary.length:8);input.step='1';input.required=true;input.value=String(row[2]);label.append(input);form.append(document.createElement('br'));
+   });
+   const saveButton=add(form,'button','Save targets');saveButton.type='submit';
+   const feedback=add(form,'p','');feedback.setAttribute('role','status');
+   form.onsubmit=e=>{e.preventDefault();try{window.vigorCloudBridge.saveTrainingTargets(Object.fromEntries(new FormData(form)))}catch(error){feedback.textContent=error.message}};
    card.append(panel);
    const history=add(panel,'details','');
    add(history,'summary','Recent rotation training history');
