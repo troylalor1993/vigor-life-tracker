@@ -77,6 +77,15 @@
      const bar=document.createElement('progress');bar.max=target;bar.value=Math.min(value,target);bar.setAttribute('aria-label',label);bar.style.cssText='width:100%;height:8px;accent-color:var(--accent-soft)';panel.append(bar);
    }
    card.append(panel);
+   const history=add(panel,'details','');
+   add(history,'summary','Recent rotation training history');
+   for(let i=1;i<=6;i++){
+     const past=dateOffset(start,-i*summary.length);
+     const old=trainingSummary(data,past,summary.length);
+     if(!old.rows.some(r=>r[1]>0))continue;
+     add(history,'p',past+' to '+dateOffset(past,summary.length-1)+' · '+old.score+'% (using current targets)');
+   }
+   add(history,'p','Rotations without recorded training are omitted.');
  }
  function render(){
    let data;try{data=window.vigorCloudBridge?.read?.()}catch(e){card.hidden=true;return}
