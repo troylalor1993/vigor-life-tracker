@@ -3,16 +3,16 @@
   'use strict';
 
   const assignments = [
-    'Day shift · 10-minute walk after a meal.',
-    'Day shift · 5 minutes of mobility. Optional 10-minute post-meal walk.',
-    'First night · 15–20 minutes of conversational walking or cycling before work. Extend to 25 minutes if rested.',
-    'Second night · 5 minutes of mobility or an easy post-meal walk.',
-    'First day off · Protect recovery sleep. Walk for up to 10 minutes after a meal if you feel up to it.',
-    'Lift A · Leg press or box squat, dumbbell bench press, chest-supported row, dumbbell Romanian deadlift.',
-    'Day off · 20–25 minutes of conversational cardio, split if needed. Add 5–10 minutes if rested.',
-    'Lift B · Leg press or supported split squat, incline dumbbell press, lat pulldown, hip thrust.'
+    'Full Body A · Gym or home. Optional easy cardio.',
+    'Day shift · Easy Zone 2 and mobility.',
+    'Full Body B · Gym or home before work if rested.',
+    'Second night · Easy walking and mobility.',
+    'First day off · Protect recovery sleep; optional easy walk.',
+    'Full Body C · Gym or home. Optional Zone 2.',
+    'Athletic performance · Controlled mobility, balance and power preparation; optional low-impact intervals if rested.',
+    'Full Body D · Gym or home. Optional easy cardio.'
   ];
-  const liftInstructions = 'Allow 25–30 minutes. Do 2 sets of 8–12 reps per movement with about 3 reps left. In 15 minutes, do 1 set per movement after warming up. If rested, add 10–15 minutes of easy cardio.';
+  const liftInstructions = 'Two working sets per exercise; leave 1–3 reps in reserve. On busy days use a short version. Do not make up missed sessions at the expense of recovery.';
   const $ = id => document.getElementById(id);
   const card = $('transformationCoach');
   const form = $('transformationForm');
@@ -52,7 +52,7 @@
 
   function summarize(data, dates) {
     const records = dates.map(date => data.transformationCheckins?.[date] || {});
-    const lifts = [records[5], records[7]];
+    const lifts = [records[0], records[2], records[5], records[7]];
     const fullLifts = lifts.filter(entry => entry.effort === 'Done').length;
     const shortLifts = lifts.filter(entry => entry.effort === 'Short version').length;
     const walks = records.filter(entry => Number(entry.walk) >= 10).length;
@@ -63,13 +63,13 @@
     const sleep = records.filter(entry => entry.sleep != null && entry.sleep !== '').map(entry => Number(entry.sleep));
     return [
       dates[0] + ' to ' + dates[7],
-      'Lifts: ' + fullLifts + ' full, ' + shortLifts + ' short (2 planned)',
+      'Lifts: ' + fullLifts + ' full, ' + shortLifts + ' short (4 planned; assignment check-ins, not workout logs)',
       'Post-meal walks: ' + walks + '/4 of at least 10 min · ' + walkMinutes + ' min total',
       'Average weight: ' + average(weights) + (weights.length ? ' lb (' + weights.length + ' recorded)' : ''),
       'Latest waist: ' + (waist ? waist + ' in' : '—'),
       'Average sleep: ' + average(sleep) + (sleep.length ? ' h' : ''),
       ...lifts.flatMap((entry, index) => entry.notes && ['Done', 'Short version'].includes(entry.effort)
-        ? ['Lift ' + (index ? 'B' : 'A') + ' log: ' + entry.notes] : [])
+        ? ['Lift ' + (['A','B','C','D'][index]) + ' log: ' + entry.notes] : [])
     ].join('\n');
   }
 
@@ -84,8 +84,10 @@
     if (!rotation) return;
     const index = rotation.index;
     $('transformationAssignment').textContent = 'Day ' + (index + 1) + ' of 8 · ' + assignments[index] +
-      ([5, 7].includes(index) ? ' ' + liftInstructions : '');
-    $('transformationReview').textContent = summarize(data, reviewDates(rotation));
+      ([0, 2, 5, 7].includes(index) ? ' ' + liftInstructions : '');
+    const dates = reviewDates(rotation);
+    const training = window.VigorRotationReview?.trainingSummary?.(data, dates[0], 8);
+    $('transformationReview').textContent = summarize(data, dates) + (training ? '\nTraining score: '+training.score+'%\n'+training.rows.map(r=>r[0]+': '+r[1]+'/'+r[2]+' '+r[3]).join('\n') : '');
     const record = data.transformationCheckins?.[date] || {};
     const serialized = JSON.stringify(record);
     if (date !== loadedDate || serialized !== savedRecord) {
