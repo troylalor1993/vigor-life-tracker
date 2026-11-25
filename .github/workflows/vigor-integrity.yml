@@ -24,11 +24,14 @@ jobs:
           node --check today-habit-swipe.js
           node --check onboarding-guide.js
           node --check rotation-recap.js
+          node --check transformation-coach.js
           node --check premium-screens.js
           node --check journey-manager.js
           node --check sync-health.js
           node --check firebase-sync.js
           node --check couples-sync.js
+      - name: Test rotation performance scorecard
+        run: node --test tests/rotation-performance.test.cjs
       - name: Test coaching and habit journey
         run: node tests/adaptive-coach.test.cjs
       - name: Test all-habits Today swipe view
