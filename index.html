@@ -2186,6 +2186,21 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ recordTrainingRoutine:(routine,location,effort)=>{
+  const names={A:'Full Body A',B:'Full Body B',C:'Full Body C',D:'Full Body D',athletic:'Athletic performance',interval:'Interval conditioning'};
+  if(!Object.hasOwn(names,routine)||!['Gym','Home'].includes(location)||!['full','minimum'].includes(effort))throw Error('Invalid training selection.');
+  const date=iso(new Date()), name=names[routine];
+  const oldActivities=state.activities.slice(),oldCompletions=state.completions.slice(),oldMinimums=state.discipline.workoutMinimums.slice();
+  let activity=state.activities.find(a=>a.id==='vigor-routine-'+routine||String(a.name).trim().toLowerCase()===name.toLowerCase());
+  if(!activity){activity={id:'vigor-routine-'+routine,name,target:1};state.activities.push(activity)}
+  const matches=x=>x.activityId===activity.id&&x.date===date;
+  if(state.completions.some(matches)||(effort==='minimum'&&state.discipline.workoutMinimums.some(matches)))return 'Already recorded today.';
+  const record={id:'routine-'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:activity.id,date,location,routine};
+  if(effort==='full'){state.completions.push(record);state.discipline.workoutMinimums=state.discipline.workoutMinimums.filter(x=>!matches(x))}
+  else state.discipline.workoutMinimums.push(record);
+  if(!save()){state.activities=oldActivities;state.completions=oldCompletions;state.discipline.workoutMinimums=oldMinimums;throw Error('Training could not be saved.')}
+  render();renderDaily();return effort==='full'?'Workout recorded.':'Short version recorded.';
+ },
  saveTransformationCheckin:(date,entry)=>{
   if(date!==iso(new Date()))throw Error('The date changed. Reopen the check-in and try again.');
   const previous=state.transformationCheckins;
