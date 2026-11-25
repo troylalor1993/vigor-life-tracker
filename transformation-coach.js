@@ -111,13 +111,42 @@
     return rotation.dates.map(date => new Date(Date.parse(date) - 8 * dayMs).toISOString().slice(0, 10));
   }
 
+  function assignmentFor(data,date,rotation,record){
+    const index=rotation.index;
+    const sleep=record.sleep===''||record.sleep==null?null:Number(record.sleep);
+    const energy=record.energy;
+    if(record.pain==='Concerning')return 'Recovery only · Stop painful activity. Seek medical advice for new, severe or persistent symptoms.';
+    if(data.discipline?.restDays?.[date]||index===4||record.pain==='Mild'||(sleep!==null&&sleep<5)||energy==='Low')return 'Recovery day · Rest or easy pain-free walking and mobility. No hard intervals or heavy lifting.';
+    const rows=window.VigorRotationReview?.trainingSummary?.(data,rotation.dates[0],8)?.rows;
+    const strength=rows?.[0], athletic=rows?.[1], interval=rows?.[2];
+    const todayDone=(data.completions||[]).some(c=>c.date===date&&(/^(?:vigor-routine-|fullbody|speed)/.test(c.activityId)||/full[ -]?body|athletic|interval|sprint/i.test((data.activities||[]).find(a=>a.id===c.activityId)?.name||'')));
+    if(todayDone)return 'Training recorded today · Optional easy movement or recovery. No need to repeat the session.';
+    if(sleep===null||!energy)return assignments[index]+' Record sleep and energy before choosing intensity.';
+    const short=sleep<7||energy==='Okay';
+    if([0,2,5,7].includes(index)){
+      if(strength&&strength[1]>=strength[2])return 'Strength target reached · Easy cardio or recovery.';
+      const used=new Set((data.completions||[]).filter(c=>rotation.dates.includes(c.date)).map(c=>c.routine||((data.activities||[]).find(a=>a.id===c.activityId)?.name||'').match(/full[ -]?body\s+([A-D])\b/i)?.[1]?.toUpperCase()));
+      const next=['A','B','C','D'].find(x=>!used.has(x));
+      return next?'Full Body '+next+' · '+(short?'Short version: one set per exercise, easy effort.':'Gym or home · '+liftInstructions):'All four named routines recorded · Recovery or easy cardio.';
+    }
+    if(index===6){
+      if(athletic&&athletic[1]>=athletic[2])return interval&&interval[1]<interval[2]&&!short?'Controlled low-impact intervals if cleared and pain-free.':'Easy cardio or recovery.';
+      return 'Athletic performance · '+(short?'One easy set per drill; skip intervals.':'Controlled drills; optional low-impact intervals if pain-free and cleared.');
+    }
+    return assignments[index];
+  }
+  const painLabel=document.createElement('label');painLabel.textContent='Pain or symptoms';
+  const painSelect=document.createElement('select');painSelect.name='pain';
+  for(const [value,label] of [['','Not assessed'],['None','None'],['Mild','Mild discomfort'],['Concerning','New, severe or concerning symptoms']]){
+    const option=document.createElement('option');option.value=value;option.textContent=label;painSelect.append(option);
+  }
+  painLabel.append(painSelect);form.elements.notes.closest('label').before(painLabel);
   function render() {
     const {data, date, rotation} = getContext();
     card.hidden = !rotation;
     if (!rotation) return;
     const index = rotation.index;
-    $('transformationAssignment').textContent = 'Day ' + (index + 1) + ' of 8 · ' + assignments[index] +
-      ([0, 2, 5, 7].includes(index) ? ' ' + liftInstructions : '');
+    $('transformationAssignment').textContent = 'Day ' + (index + 1) + ' of 8 · ' + assignmentFor(data,date,rotation,data.transformationCheckins?.[date]||{});
     const dates = reviewDates(rotation);
     const training = window.VigorRotationReview?.trainingSummary?.(data, dates[0], 8);
     $('transformationReview').textContent = summarize(data, dates) + (training ? '\nTraining score: '+training.score+'%\n'+training.rows.map(r=>r[0]+': '+r[1]+'/'+r[2]+' '+r[3]).join('\n') : '');
@@ -175,7 +204,7 @@
     const lastCommitment = data.transformationCheckins?.[lastDate]?.next;
     copy([
       'Vigor Life · ' + date + ' · Day ' + (rotation.index + 1) + '/8',
-      assignments[rotation.index],
+      assignmentFor(data,date,rotation,entry),
       ...(lastCommitment ? ['Previous commitment (' + lastDate + '): ' + lastCommitment] : []),
       'Sleep: ' + (entry.sleep === '' ? '—' : entry.sleep + ' h') + ' | Energy: ' + (entry.energy || '—'),
       'Assignment: ' + (entry.effort || '—') + ' | Post-meal walk: ' + (entry.walk === '' ? '—' : entry.walk + ' min'),
