@@ -30,7 +30,7 @@
    const review=data.discipline?.reviews?.[previousStart]||null;
    return {length,latest,before,meaningful,review};
  }
- const progress=$('panel-progress');if(!progress)return;
+ const progress=$('panel-progress');if(!progress){window.VigorRotationReview={rotationSummary,trainingSummary};return;}
  const card=document.createElement('section');card.className='vigor-rotation-recap';card.id='vigorRotationRecap';
  progress.insertBefore(card,progress.firstChild);
  const style=document.createElement('style');
@@ -45,10 +45,11 @@
    for(const c of data.completions||[]){
      if(!allowed.has(c.date))continue;
      const a=activities.get(c.activityId), name=String(a?.name||'').toLowerCase(), id=c.activityId;
-     const key=c.date+'|'+id;
-     if(id==='fullbody'||/full[ -]?body|^workout [a-d](?:\b|$)/i.test(name))sets.strength.add(key);
-     else if(/athletic|agility/i.test(name))sets.athletic.add(key);
-     else if(id==='speed'||/sprint|interval|shuttle/i.test(name))sets.interval.add(key);
+     const named=c.routine||name.match(/(?:full[ -]?body|workout)\s+([a-d])\b/i)?.[1]?.toUpperCase();
+     const key=c.date+'|'+(named||id);
+     if(/^[A-D]$/.test(named||'')||id==='fullbody'||/full[ -]?body|^workout [a-d](?:\b|$)/i.test(name))sets.strength.add(key);
+     else if(named==='athletic'||/athletic|agility/i.test(name))sets.athletic.add(c.date);
+     else if(named==='interval'||id==='speed'||/sprint|interval|shuttle/i.test(name))sets.interval.add(c.date);
      else if(id==='mobility'||/mobility|stretch/i.test(name))sets.mobility.add(c.date);
      else if(/walk/i.test(name))sets.walking.add(c.date);
    }
