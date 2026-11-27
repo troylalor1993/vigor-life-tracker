@@ -39,7 +39,6 @@
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
  function expandAndScroll(id){
   const target=$(id);if(!target)return;
-  const reports=target.closest('#progressReports');if(reports)reports.open=true;
   const details=target.closest('details');if(details)details.open=true;
   target.scrollIntoView({behavior:'smooth',block:'start'});
  }
@@ -77,7 +76,7 @@
   journey.querySelector('#vigorJourneySelect')?.addEventListener('change',e=>{selectedHabit=Number(e.target.value)||0;render()});
   journey.querySelector('#vigorJourneySetup')?.addEventListener('click',()=>navigateToSetup(h?.name||labels[0]||'',h||{}));
   journey.querySelector('#vigorJourneyLog')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('vigorAllHabits')});
-  journey.querySelector('#vigorJourneyGrowth')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('disciplineReview')});
+  journey.querySelector('#vigorJourneyGrowth')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('habitCalendar')});
  }
  function renderFitness(data,day){
   const schedule=window.vigorCloudBridge.getTrainingSchedule(day);

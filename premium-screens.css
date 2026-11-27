@@ -193,7 +193,10 @@ body[data-vigor-view="journey"] #vigorJourneyScreen,body[data-vigor-view="fitnes
 .fitness-plan-list ul{margin:0;padding-inline-start:17px}
 .fitness-plan-list span{color:var(--muted)}
 #progressOverviewStats{grid-template-columns:repeat(3,minmax(0,1fr))}
-#progressReports>section,#progressReports>.card{margin:10px}
+#measurementCharts,#habitCalendar{margin:0 10px 10px}
+#measurementCharts #bodyTargets{margin-top:12px}
+.past-reflection{padding-block:8px;border-bottom:1px solid var(--border)}
+.past-reflection p{margin:4px 0;white-space:pre-wrap}
 #coupleNotLinked details{margin-top:12px}
 #coupleNotLinked summary,.vjm-optional summary{display:list-item;min-height:44px;padding:10px 0;color:var(--accent-soft);font-weight:700;cursor:pointer}
 .vjm-optional .vjm-field{margin-bottom:10px}

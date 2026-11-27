@@ -11,7 +11,7 @@ function pure(file,start,end,exportName){
  return vm.runInNewContext(src.slice(a,b)+'\n({'+exportName+'})')[exportName];
 }
 const onboardingState=pure('onboarding-guide.js',' function onboardingState(', " const anchor=$('neverTwice')",'onboardingState');
-const rotationSummary=pure('rotation-recap.js',' const dateOffset='," const progress=$('panel-progress')",'rotationSummary');
+const rotationSummary=pure('rotation-recap.js',' const dateOffset=',' function trainingSummary(','rotationSummary');
 let tests=0;
 const check=(title,test)=>{test();console.log('PASS',title);tests++};
 const base={habitLabels:['Read','Pray'],activities:[{id:'a',name:'Strength',target:2}],dailyCheckins:{},completions:[],measurements:[],zone2Logs:[],discipline:{setupDone:false,minimums:{},restDays:{},workoutMinimums:[],reviews:{}}};

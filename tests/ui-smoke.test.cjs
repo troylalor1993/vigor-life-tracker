@@ -116,19 +116,18 @@ async function main(){
      assert.equal(await page.locator('#measurements').isVisible(),true,'Measurements are visible before reports');
      assert.equal(await page.locator('#panel-progress').locator(':scope > :first-child').getAttribute('id'),'measurements','Progress starts with measurements');
      assert.equal(await page.locator('#progressOverview').isVisible(),true,'A short progress summary is visible');
-     assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),false,'Detailed reports are hidden initially');
-     await page.locator('#progressReports > summary').click();
-     assert((await page.locator('#vigorPersonalGrowth .vc-life-area').count())>0,'Life-area progress tiles rendered');
-     await page.locator('#vigorPersonalGrowth .vc-growth-details').evaluate(el=>el.open=true);
-     const growthHabit=page.locator('#vigorPersonalGrowth [data-growth-habit]').first();
-     const targetedIndex=Number(await growthHabit.getAttribute('data-growth-habit'));
-     await growthHabit.click();
-     assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Growth opens Journey directly');
-     assert.equal(await page.locator('#vigorJourneyManager .vjm-item.vjm-selected').getAttribute('data-habit-index'),String(targetedIndex),
-       'Growth links to exactly the same habit');
-     await page.locator('#vigorNav [data-vigor-route="growth"]').click();
-
-     assert.equal(await page.locator('#vigorRotationRecap').isVisible(),true,'Rotation recap visible in Growth');
+     const progress=page.locator('#panel-progress');
+     assert.deepEqual(await progress.locator(':scope > details > summary').allTextContents(),
+       ['Weight & waist charts','Habit calendar'],'Progress has only two expandable sections');
+     assert.equal(await progress.locator('#progressReports,#disciplineReview,#progressInsights,#vigorRotationRecap,#vigorPersonalGrowth').count(),0,
+       'Overlapping reports and training score are gone');
+     await progress.getByText('Weight & waist charts',{exact:true}).click();
+     assert.equal(await progress.locator('#weightChart').isVisible(),true,'Charts open directly');
+     assert.equal(await progress.locator('#habitCalendar').isVisible(),false,'Charts leave the calendar closed');
+     await progress.getByText('Habit calendar',{exact:true}).click();
+     assert.equal(await progress.locator('#habitCalendarGrid button').count(),8,'The calendar shows each day of the rotation');
+     await progress.locator('#habitCalendarGrid button').first().click();
+     assert.match(await progress.locator('#habitCalendarDetail').textContent(),/habit entry|full|recovery/i);
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
      const library = page.getByText('Training library · Gym and home',{exact:true});
@@ -286,9 +285,8 @@ async function main(){
        assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Journey renders for '+label);
        const journeyColor=await page.locator('#vigorJourneyScreen .vigor-step').first().evaluate(el=>getComputedStyle(el).backgroundColor);
        await page.locator('#vigorNav [data-vigor-route="growth"]').click();
-       if(!await page.locator('#progressReports').evaluate(el=>el.open))await page.locator('#progressReports > summary').click();
-       assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth renders for '+label);
-       const growthColor=await page.locator('#vigorPersonalGrowth .vc-life-area').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+       assert.equal(await page.locator('#progressOverview').isVisible(),true,'Progress renders for '+label);
+       const growthColor=await page.locator('#progressOverview .insight-stat').first().evaluate(el=>getComputedStyle(el).backgroundColor);
        await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
        assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Fitness renders for '+label);
        const fitnessColor=await page.locator('#vigorFitnessScreen .vigor-summary').first().evaluate(el=>getComputedStyle(el).backgroundColor);
