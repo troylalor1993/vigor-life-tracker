@@ -1347,6 +1347,28 @@ function moveHabit(from,to){
  });
  return true;
 }
+function toggleHabitEffort(index,date,mode){
+ const previousEntry=state.dailyCheckins[date];
+ const previousMinimums=state.discipline.minimums[date];
+ const entry=cleanCheck(previousEntry);
+ const minimums={...previousMinimums};
+ const hadMinimum=!!minimums[index]&&!entry.habits[index];
+ entry.habits[index]=mode==='full'&&!entry.habits[index];
+ if(mode==='minimum'&&!hadMinimum)minimums[index]=true;
+ else delete minimums[index];
+ entry.saved=true;
+ state.dailyCheckins[date]=entry;
+ state.discipline.minimums[date]=minimums;
+ if(!save()){
+  if(previousEntry)state.dailyCheckins[date]=previousEntry;
+  else delete state.dailyCheckins[date];
+  if(previousMinimums)state.discipline.minimums[date]=previousMinimums;
+  else delete state.discipline.minimums[date];
+  return false;
+ }
+ renderDaily();render();
+ return true;
+}
 function renderDaily(){
  const date=todayCheck(),entry=cleanCheck(state.dailyCheckins[date]);
  $('habitGrid').replaceChildren();
@@ -1367,19 +1389,7 @@ function renderDaily(){
   full.setAttribute('aria-pressed',String(!!entry.habits[i]));
   min.setAttribute('aria-pressed',String(small));
   const setMode=mode=>{
-   const previous=cleanCheck(state.dailyCheckins[date]);
-   state.discipline.minimums[date]||={};
-   if(mode==='full'){
-    previous.habits[i]=!previous.habits[i];
-    if(previous.habits[i])delete state.discipline.minimums[date][i];
-   }else{
-    const was=!!state.discipline.minimums[date][i]&&!previous.habits[i];
-    previous.habits[i]=false;
-    if(was)delete state.discipline.minimums[date][i];
-    else state.discipline.minimums[date][i]=true;
-   }
-   previous.saved=true;state.dailyCheckins[date]=previous;
-   if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Saved on this device · see cloud status above'}
+   if(toggleHabitEffort(i,date,mode))$('habitSaveFeedback').textContent='✓ Saved on this device · see cloud status above';
   };
   full.onclick=()=>setMode('full');min.onclick=()=>setMode('minimum');
   actions.append(full,min);item.append(info,actions);$('habitGrid').append(item);
@@ -2172,9 +2182,7 @@ window.vigorCloudBridge={
  recordJourneyHabit:(index,mode)=>{
   if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length||!isHabitActive(index)||!['full','minimum'].includes(mode))
     throw Error('Choose a valid habit and effort.');
-  const day=iso(new Date());
-  updatePriority('h:'+index,day,mode==='minimum'?'min':'full');
-  return true;
+  return toggleHabitEffort(index,iso(new Date()),mode);
  },
  addJourneyHabit:({name,cue,minimum,identity,kind,plan})=>{
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
