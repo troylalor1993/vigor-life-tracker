@@ -203,3 +203,7 @@ body[data-vigor-view="journey"] #vigorJourneyScreen,body[data-vigor-view="fitnes
 .fitness-history-list{list-style:none;margin:0;padding:0 14px 10px}
 .fitness-history-list li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--border);overflow-wrap:anywhere}
 .fitness-history-list time{flex:none;color:var(--muted);font-size:12px}
+
+.measurement-status{margin:12px 0 16px;padding:11px 13px;border:1px solid var(--border-strong);border-radius:11px;font-weight:700}
+.measurement-status[data-state="saved"]{background:#123829;border-color:#4baf7c;color:#d6f9e3}
+.measurement-status[data-state="error"]{background:#3d2025;border-color:#d77887;color:#ffe0e4}
