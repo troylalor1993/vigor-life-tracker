@@ -423,6 +423,19 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="today-training-header"><h2 id="todayTrainingHeading">Today's training</h2><span class="tag" id="todayTrainingDay"></span></div>
 <div id="todayTrainingTasks"></div>
 <p class="subtle" id="todayTrainingStatus" role="status"></p>
+<details id="trainingRoutineEditor">
+<summary>Edit routine</summary>
+<form id="trainingRoutineForm">
+<label for="trainingRoutineDay">Schedule day</label>
+<select id="trainingRoutineDay"></select>
+<label for="trainingRoutineActivities">Activities <small class="subtle">One per line. Leave empty for a rest day.</small></label>
+<textarea id="trainingRoutineActivities" rows="4" maxlength="1500" placeholder="e.g. Full body strength"></textarea>
+<label for="trainingRoutineZone">Zone 2 minutes <small class="subtle">Optional</small></label>
+<input id="trainingRoutineZone" type="number" inputmode="numeric" min="1" max="600" step="1">
+<button type="submit" class="primary">Save routine</button>
+<p class="subtle" id="trainingRoutineFeedback" role="status"></p>
+</form>
+</details>
 </section>
 <section id="neverTwice" class="never-twice" hidden aria-label="Never Miss Twice recovery"><div class="never-twice-heading"><strong>Never Miss Twice</strong><span id="neverTwiceCount" class="tag"></span></div><p class="subtle">You missed a recorded commitment yesterday. Choose its smallest action today to get back on track.</p><div id="neverTwiceActions"></div><p id="neverTwiceFeedback" class="subtle" role="status" aria-live="polite"></p></section>
 <section id="nutritionDiscipline" class="nutrition-discipline" aria-label="Nutrition Discipline">
@@ -1730,7 +1743,7 @@ return '<svg class="trend-chart" viewBox="0 0 320 160" role="img" aria-label="'+
 }
 
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
-const trainingPlan = [
+const previousTrainingPlan = [
  {workouts:[['recovery','Recovery']], minutes:30},
  {workouts:[['A','Full Body A']], minutes:15},
  {workouts:[['B','Full Body B']], minutes:15},
@@ -1741,14 +1754,124 @@ const trainingPlan = [
  {workouts:[['D','Full Body D']], minutes:30}
 ];
 
+function personalTrainingPlans(){
+ if(!state.trainingPlans){
+  const usedPreviousPlan=state.completions.some(entry=>typeof entry.id==='string'&&entry.id.startsWith('daily-training-'))||
+   state.zone2Logs.some(entry=>typeof entry.id==='string'&&entry.id.startsWith('daily-training-zone2-'));
+  if(usedPreviousPlan)state.trainingPlans={8:{...previousTrainingPlan}};
+ }
+ return state.trainingPlans||{};
+}
+
+const emptyTrainingDay={workouts:[],minutes:0};
+const trainingDay=(length,index)=>personalTrainingPlans()[length]?.[index]||emptyTrainingDay;
+const trainingDayIndex=date=>days(date,cycleStartFor(date));
+const trainingDayLabel=(length,index,date)=>length===8
+ ?'Day '+(index+1)+' of 8 · '+shiftLabel(index,date)
+ :parse(date).toLocaleDateString(undefined,{weekday:'long'});
+
+let trainingEditorLength=0;
+let trainingEditorDay=0;
+let trainingDisplayedDay;
+const trainingDrafts=new Map();
+
+function readTrainingDayFields(){
+ return {activities:$('trainingRoutineActivities').value,zone:$('trainingRoutineZone').value};
+}
+
+function trainingDayFields(index){
+ const day=trainingDay(trainingEditorLength,index);
+ return {activities:day.workouts.map(([,label])=>label).join('\n'),zone:day.minutes?String(day.minutes):''};
+}
+
+function captureTrainingDraft(){
+ const draft=readTrainingDayFields(),base=trainingDisplayedDay;
+ if(draft.activities===base.activities&&draft.zone===base.zone)trainingDrafts.delete(trainingEditorDay);
+ else trainingDrafts.set(trainingEditorDay,draft);
+}
+
+function displayTrainingDraft(){
+ trainingDisplayedDay=trainingDayFields(trainingEditorDay);
+ const draft=trainingDrafts.get(trainingEditorDay)||trainingDisplayedDay;
+ $('trainingRoutineActivities').value=draft.activities;
+ $('trainingRoutineZone').value=draft.zone;
+}
+
+function openTrainingRoutine(date){
+ const select=$('trainingRoutineDay');
+ trainingEditorLength=cycleDays();
+ trainingEditorDay=trainingDayIndex(date);
+ trainingDrafts.clear();
+ $('trainingRoutineFeedback').textContent='';
+ select.replaceChildren();
+ const start=cycleStartFor(date);
+ for(let i=0;i<trainingEditorLength;i++){
+  const option=element('option',trainingDayLabel(trainingEditorLength,i,plus(start,i)));
+  option.value=String(i);
+  select.append(option);
+ }
+ select.value=String(trainingEditorDay);
+ displayTrainingDraft();
+}
+
+$('trainingRoutineEditor').querySelector('summary').onclick=()=>{
+ if(!$('trainingRoutineEditor').open)openTrainingRoutine(iso(new Date()));
+};
+$('trainingRoutineDay').onchange=()=>{
+ captureTrainingDraft();
+ trainingEditorDay=Number($('trainingRoutineDay').value);
+ displayTrainingDraft();
+};
+$('trainingRoutineForm').onsubmit=event=>{
+ event.preventDefault();
+ if(trainingEditorLength!==cycleDays()){openTrainingRoutine(iso(new Date()));return}
+ captureTrainingDraft();
+ const plans=personalTrainingPlans();
+ const schedule={...plans[trainingEditorLength]};
+ for(const [index,draft] of trainingDrafts){
+  const day=trainingDay(trainingEditorLength,index);
+  const names=draft.activities.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+  const normalized=names.map(name=>name.toLowerCase());
+  const minutes=Number(draft.zone);
+  let error='';
+  if(new Set(normalized).size!==names.length)error='Use each activity name once per day.';
+  else if(names.length>20||names.some(name=>name.length>80))error='Use up to 20 activities per day and 80 characters per activity.';
+  else if(!Number.isInteger(minutes)||minutes<0||minutes>600)error='Enter 1–600 whole minutes or leave Zone 2 empty.';
+  else if(minutes&&normalized.includes('zone 2'))error='Use the Zone 2 minutes field to schedule Zone 2.';
+  if(error){
+   trainingEditorDay=index;
+   $('trainingRoutineDay').value=String(index);
+   displayTrainingDraft();
+   $('trainingRoutineFeedback').textContent=error;
+   return;
+  }
+  const workouts=names.map((name,i)=>{
+   const existing=day.workouts.find(([,label])=>label.toLowerCase()===normalized[i]);
+   return existing?[existing[0],name,...existing.slice(2)]:['custom-'+Date.now()+'-'+Math.random().toString(36).slice(2),name];
+  });
+  schedule[index]={workouts,minutes};
+ }
+ if(trainingDrafts.size){
+  const previous=state.trainingPlans;
+  state.trainingPlans={...plans,[trainingEditorLength]:schedule};
+  if(!save()){
+   if(previous)state.trainingPlans=previous;
+   else delete state.trainingPlans;
+   return;
+  }
+ }
+ trainingDrafts.clear();
+ $('trainingRoutineEditor').open=false;
+ renderTodayTraining();
+ $('todayTrainingStatus').textContent='Routine saved.';
+};
+
 function renderTodayTraining(){
- const card=$('todayTraining');
- card.hidden=cycleDays()!==8;
- if(card.hidden)return;
  const date=iso(new Date());
- const index=days(date,cycleStartFor(date));
- const plan=trainingPlan[index];
- $('todayTrainingDay').textContent='Day '+(index+1)+' of 8 · '+shiftLabel(index,date);
+ const length=cycleDays(),index=trainingDayIndex(date),plan=trainingDay(length,index);
+ $('todayTraining').hidden=false;
+ $('todayTrainingDay').textContent=trainingDayLabel(length,index,date);
+ if(trainingEditorLength!==length)openTrainingRoutine(date);
  const tasks=$('todayTrainingTasks');
  tasks.replaceChildren();
  for(const [routine,label,name=label,note] of plan.workouts){
@@ -1784,6 +1907,7 @@ function renderTodayTraining(){
   tasks.append(row);
  }
  if(plan.minutes)tasks.append(todayZone2Task(date,plan.minutes));
+ if(!plan.workouts.length&&!plan.minutes)tasks.append(element('p','No activities scheduled for today.','subtle today-training-empty'));
 }
 
 function todayTrainingRow(label,done,canUndo,note){

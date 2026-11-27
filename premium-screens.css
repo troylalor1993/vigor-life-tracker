@@ -44,6 +44,14 @@ main{max-width:1040px}
 .today-training-custom .zone-form{margin-top:6px}
 #todayTrainingStatus{margin:8px 0 0}
 #todayTrainingStatus:empty{margin:0}
+.today-training-empty{margin:0}
+#trainingRoutineEditor{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+#trainingRoutineEditor summary{width:fit-content;cursor:pointer;color:var(--accent-soft);font-weight:650}
+#trainingRoutineForm{display:grid;gap:8px;margin-top:12px;max-width:520px}
+#trainingRoutineForm label{display:grid;gap:3px}
+#trainingRoutineForm input,#trainingRoutineForm select,#trainingRoutineForm textarea{margin:0;width:100%;font-size:16px}
+#trainingRoutineForm button{justify-self:start;min-height:44px}
+#trainingRoutineFeedback{margin:0}
 #vigorStartGuide{border-color:#947343;border-radius:21px}
 #panel-progress>.vc-growth-card{padding:22px;background:linear-gradient(135deg,#28221b,#15181b)!important;border-color:#796442!important}
 #panel-progress>.vc-growth-card h2{font-size:25px}
