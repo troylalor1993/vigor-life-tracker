@@ -33,19 +33,19 @@ async function main(){
      assert.equal(artResponse.status(),200,'sunrise artwork served');
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
      assert.equal(await page.locator('#big3Panel').count(),0,'Focus anchor section is removed');
-     assert.equal(await page.locator('#vigorAllHabits').isVisible(),true,'All habits carousel is prominent on Today');
+     assert.equal(await page.locator('#vigorAllHabits').isVisible(),true,'Full habits checklist is prominent on Today');
      assert.equal(await page.locator('#nutritionDiscipline').count(),0,'Nutrition Discipline card is removed');
      assert.equal(await page.locator('#vigorAllHabits').getByRole('heading',{name:'Followed nutrition plan'}).count(),1,
        'The regular nutrition habit is still available');
      assert.equal(await page.locator('#vigorDailyFocus').count(),0,'Old priority hero is removed');
      assert.equal(await page.locator('#transformationCoach, #vigorCoach').count(),0,'Redundant coaching cards are removed');
      assert.equal(await page.locator('#todayTraining').isVisible(),true,'Daily training checklist is visible');
-     assert.equal(await page.getByText('No activities scheduled for today.',{exact:true}).isVisible(),true,'New accounts start with an empty routine');
+     assert.equal(await page.getByText('Add your workouts to see what to do each day.',{exact:true}).isVisible(),true,'New accounts start with an empty routine');
      const routineEditor=page.locator('#trainingRoutineEditor');
      const routineDay=routineEditor.getByLabel('Schedule day');
-     const routineActivities=routineEditor.getByRole('textbox',{name:/^Activities/});
-     const routineZone=routineEditor.getByRole('spinbutton',{name:/^Zone 2 minutes/});
-     await routineEditor.getByText('Edit routine',{exact:true}).click();
+     const routineActivities=routineEditor.getByRole('textbox',{name:/^Workouts or activities/});
+     const routineZone=routineEditor.getByRole('spinbutton',{name:/^Easy cardio/});
+     await routineEditor.getByText('Set up my workouts',{exact:true}).click();
      assert.equal(await routineDay.locator('option').count(),8,'Shift workers can schedule all eight days');
      await routineActivities.fill('Mobility circuit');
      await routineZone.fill('30');
@@ -53,7 +53,7 @@ async function main(){
      await routineActivities.fill('Tempo run');
      await routineDay.selectOption('0');
      assert.equal(await routineActivities.inputValue(),'Mobility circuit','Editing another day keeps the first draft');
-     await routineEditor.getByRole('button',{name:'Save routine'}).click();
+     await routineEditor.getByRole('button',{name:'Save workout plan'}).click();
      assert.equal(await page.getByRole('button',{name:'Complete Mobility circuit'}).isVisible(),true,'Saved activity appears in Today');
      assert.equal(await page.getByRole('button',{name:'Complete Tempo run'}).count(),0,'Another day has its own activities');
      assert.equal(await page.locator('#vigorStartGuide').isVisible(),true,'First-run guide visible without saved history');
@@ -62,20 +62,16 @@ async function main(){
        return state.habitLabels.filter((_,i)=>!state.discipline?.settings?.[i]?.archivedAt).length;
      });
      assert.equal(await page.locator('#vigorHabitsTrack .vah-card').count(),activeHabits,
-       'Every active habit has one swipe card');
-     assert(activeHabits>=2,'test starts with multiple habits to swipe');
-     await page.locator('#vigorAllHabits .vah-navigation [aria-label="Next habit"]').click();
-     assert.equal(await page.locator('#vigorAllHabits .vah-position').textContent(),'2 of '+activeHabits,
-       'Next arrow navigates between habit cards');
-     await page.locator('#vigorAllHabits .vah-navigation [aria-label="Previous habit"]').click();
-     assert.equal(await page.locator('#vigorAllHabits .vah-position').textContent(),'1 of '+activeHabits,
-       'Previous arrow goes back to first habit');
+       'Every active habit has one checklist row');
+     assert.equal(await page.locator('#vigorAllHabits .vah-track').evaluate(list=>list.scrollWidth<=list.clientWidth),true,
+       'Habits fit without a horizontal swipe');
+     assert.equal(await page.locator('#panel-today #habitEditor').count(),0,'Past habit tools are only in Habits');
      const firstHabit=page.locator('#vigorHabitsTrack .vah-card').first();
      const firstIndex=await firstHabit.getAttribute('data-habit-index');
      await firstHabit.locator('[data-mode="full"]').click();
      const finished=page.locator('#vigorHabitsTrack .vah-card[data-habit-index="'+firstIndex+'"]');
      assert.equal(await finished.locator('[data-mode="full"]').getAttribute('aria-pressed'),'true',
-       'Done is recorded on the swipe card');
+       'Done is recorded on the checklist');
      assert.equal(await finished.locator('[data-mode="minimum"]').getAttribute('aria-pressed'),'false',
        'Minimum is not selected when Done is active');
      assert.equal(await page.locator('#vigorJourneyManager').count(),1,'same existing Journey is present');
@@ -117,7 +113,11 @@ async function main(){
 
      assert.equal(await page.locator('#panel-today').isVisible(),false,'Today panel hidden while in Journey');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
-     assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth visible');
+     assert.equal(await page.locator('#measurements').isVisible(),true,'Measurements are visible before reports');
+     assert.equal(await page.locator('#panel-progress').locator(':scope > :first-child').getAttribute('id'),'measurements','Progress starts with measurements');
+     assert.equal(await page.locator('#progressOverview').isVisible(),true,'A short progress summary is visible');
+     assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),false,'Detailed reports are hidden initially');
+     await page.locator('#progressReports > summary').click();
      assert((await page.locator('#vigorPersonalGrowth .vc-life-area').count())>0,'Life-area progress tiles rendered');
      await page.locator('#vigorPersonalGrowth .vc-growth-details').evaluate(el=>el.open=true);
      const growthHabit=page.locator('#vigorPersonalGrowth [data-growth-habit]').first();
@@ -139,13 +139,23 @@ async function main(){
      await page.getByText('Full Body A · 16 working sets',{exact:true}).click();
      assert.equal(await page.getByText('DB Floor Press · 2 × 6–12',{exact:true}).isVisible(),true,'Home exercise alternatives still work');
      await library.click();
-     assert.equal(await page.locator('#vigorFitnessOpen').isVisible(),true,'Workout checklist action visible');
+     assert.equal(await page.locator('.fitness-plan-list').getByText('Tempo run',{exact:true}).isVisible(),true,'Fitness shows the full personal plan before any workout is logged');
+     assert.equal(await page.getByText("Coach's note:",{exact:false}).count(),0,'Coach’s note is removed');
+     await page.locator('#fitnessEditPlan').click();
+     assert.equal(await page.locator('#fitnessRoutineEditor #trainingRoutineForm').isVisible(),true,'Shared plan can also be edited from Fitness');
+     await routineDay.selectOption('0');
+     await routineActivities.fill('Mobility circuit\nEasy walk');
+     await routineEditor.getByRole('button',{name:'Save workout plan'}).click();
+     assert.equal(await page.locator('.fitness-plan-list').getByText('Easy walk',{exact:true}).isVisible(),true,'Saving in Fitness updates the full plan');
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
+     assert.equal(await page.getByRole('button',{name:'Complete Easy walk'}).isVisible(),true,'The same edit updates Today');
+     await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      // The original collapsed shells must move too, not just their inner nodes.
      assert.equal(await page.locator('#panel-today>details.compact-details').filter({has:page.locator('summary:text-is("Zone 2 minutes")')}).count(),0,'Today has no empty Zone 2 accordion');
      assert.equal(await page.locator('#panel-today>details.compact-details').filter({has:page.locator('summary:text-is("All workouts & session logs")')}).count(),0,'Today has no empty workout log accordion');
      assert.equal(await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#zone2')}).count(),1,'Zone 2 accordion is in Fitness');
      assert.equal(await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).count(),1,'Workout log accordion is in Fitness');
-     await page.locator('#vigorFitnessOpen').click();
+     await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).locator(':scope > summary').click();
      assert.equal(await page.locator('#training').isVisible(),true,'Open workout checklist reveals existing logs without navigating away');
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Fitness remains selected after opening workouts');
      await page.locator('#vigorFitnessScreen>details.compact-details').filter({has:page.locator('#training')}).locator(':scope > summary').click();
@@ -194,7 +204,8 @@ async function main(){
 
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
      assert.equal(await page.locator('#vigorMoreMenu').isVisible(),true,'More menu visible');
-     await page.locator('#vigorMoreMenu [data-vigor-old="faith"]').click();
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
+     await page.locator('#todayBible').click();
      assert.equal(await page.locator('#panel-faith').isVisible(),true,'Faith remains reachable');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
      assert.equal(await page.locator('#todayTraining').isVisible(),true,'Return to Today with training visible');
@@ -209,6 +220,10 @@ async function main(){
      assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Zone 2 starts unchecked');
      await firstWorkout.click();
      assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Checking off training leaves Zone 2 unchecked');
+     await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
+     await page.locator('#fitnessWorkoutHistory > summary').click();
+     assert.equal(await page.locator('#fitnessWorkoutHistory li').filter({hasText:'Mobility circuit'}).isVisible(),true,'A workout logged on Today appears in Fitness history');
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
      await trainingTasks.getByText('Log custom minutes',{exact:true}).click();
      await trainingTasks.getByRole('spinbutton',{name:'Minutes completed'}).fill('7');
      await trainingTasks.getByRole('button',{name:'Log minutes'}).click();
@@ -271,6 +286,7 @@ async function main(){
        assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),true,'Journey renders for '+label);
        const journeyColor=await page.locator('#vigorJourneyScreen .vigor-step').first().evaluate(el=>getComputedStyle(el).backgroundColor);
        await page.locator('#vigorNav [data-vigor-route="growth"]').click();
+       if(!await page.locator('#progressReports').evaluate(el=>el.open))await page.locator('#progressReports > summary').click();
        assert.equal(await page.locator('#vigorPersonalGrowth').isVisible(),true,'Growth renders for '+label);
        const growthColor=await page.locator('#vigorPersonalGrowth .vc-life-area').first().evaluate(el=>getComputedStyle(el).backgroundColor);
        await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
@@ -290,6 +306,9 @@ async function main(){
      // Reorder workouts on the phone, save, then verify persistent array order.
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
      await page.locator('#vigorMoreMenu [data-vigor-old="settings"]').click();
+     assert.deepEqual(await page.locator('#panel-settings > :nth-child(-n+2)').evaluateAll(items=>items.map(el=>el.id)),
+       ['cloudSync','shiftSettings'],'Account and schedule are first in Settings');
+     await page.getByText('Workout log settings',{exact:true}).click();
      await page.locator('#toggleEdit').click();
      const workoutsBefore=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')).activities.map(x=>x.id));
      assert(workoutsBefore.length>=2,'at least two workouts to reorder');
@@ -304,9 +323,9 @@ async function main(){
      assert.deepEqual(workoutsReloaded,workoutsSaved,'workout order survives reload');
 
      // Reorder habits while retaining the original date-indexed check-in data.
-     await page.locator('#vigorNav [data-vigor-route="today"]').click();
-     await page.locator('#daily').evaluate(el=>{const details=el.closest('details');if(details)details.open=true});
-     await page.locator('#editHabits').click();
+     await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+     await page.locator('#vigorJourneyManager .vjm-manage').click();
+     assert.equal(await page.locator('#vigorJourneyScreen #habitEditor').isVisible(),true,'Order can be changed within Habits');
      const habitBefore=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')).habitLabels);
      assert(habitBefore.length>=2,'at least two habits to reorder');
      await page.locator('#habitEditor .habit-add-row').first().locator('.reorder-actions button').nth(1).click();
@@ -326,13 +345,10 @@ async function main(){
      assert.equal(await page.locator('#vigorJourneyScreen .vjm-steps').isVisible(),true,'Five-step guide remains available but compact');
      await page.locator('#vigorJourneyManager .vjm-add').click();
      await page.locator('#vjmName').fill('Read 15 pages');
-     await page.locator('#vjmminimum').fill('Read one page');
-     await page.locator('#vjmcue').fill('After my evening meal');
-     await page.locator('#vjmidentity').fill('I am a reader');
      await page.locator('#vigorJourneyForm .vjm-save').click();
      let newState=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      const buildIndex=newState.habitLabels.indexOf('Read 15 pages');
-     assert(buildIndex>=0,'new habit saved from Journey');
+     assert(buildIndex>=0,'new habit saved with just a name');
      assert.equal(newState.discipline.settings[buildIndex].kind,'build','build habit marked as build');
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
@@ -340,6 +356,7 @@ async function main(){
      await page.locator('#vigorJourneyManager .vjm-add').click();
      await page.locator('#vigorJourneyForm input[value="replace"]').check();
      await page.locator('#vjmName').fill('Choose water instead of soda');
+     await page.locator('#vigorJourneyForm .vjm-optional > summary').click();
      await page.locator('#vjmminimum').fill('Pause and fill a glass of water');
      await page.locator('#vjmplan').fill('When tempted, pause and fill a glass of water.');
      await page.locator('#vigorJourneyForm .vjm-save').click();
@@ -419,13 +436,14 @@ async function main(){
      await restoredHabit.locator('.vjm-expand').click();
      assert.equal(await restoredHabit.locator('.vjm-recovery-note').isVisible(),true,'adjustment survives browser reload');
      await restoredHabit.locator('.vjm-edit').click();
+     await page.locator('#vigorJourneyForm .vjm-optional > summary').click();
      await page.locator('#vjmminimum').fill('Pause for a moment and fill one glass of water');
      await page.locator('#vigorJourneyForm .vjm-save').click();
      const afterEdit=await page.evaluate(()=>JSON.parse(localStorage.getItem('vigor-tracker')));
      assert.equal(afterEdit.discipline.settings[replaceIndex].recovery.nextStep,
        'Rest first, then prepare a glass of water.','editing the habit preserves the recovery plan');
      await page.locator('#vigorJourneyManager .vjm-manage').click();
-     assert.equal(await page.locator('#habitEditor').isVisible(),true,'Journey links to existing remove/reorder editor');
+     assert.equal(await page.locator('#vigorJourneyScreen #habitEditor').isVisible(),true,'Reorder stays in Habits');
      // Archive an active habit without changing the underlying historical records.
      const beforeArchive=await page.evaluate(()=>{
        const d=JSON.parse(localStorage.getItem('vigor-tracker'));
@@ -454,7 +472,7 @@ async function main(){
      assert.equal(await archivedRow.isVisible(),true,'archived habit remains accessible for restore');
      assert.equal(await archivedRow.locator('.vjm-done').count(),0,'archived habit is no longer directly loggable');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
-     assert.equal(await page.locator('#habitGrid [data-habit-index="'+archivedIndex+'"]').count(),0,'archived habit leaves Today checklist');
+     assert.equal(await page.locator('#vigorHabitsTrack [data-habit-index="'+archivedIndex+'"]').count(),0,'archived habit leaves Today checklist');
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Archived'}).click();
@@ -468,7 +486,7 @@ async function main(){
      assert.deepEqual(afterRestore.discipline.minimums,beforeArchive.mins,'restore preserves historical minimums');
      assert(Array.isArray(afterRestore.discipline.settings[archivedIndex].archivePeriods),'archive interval retained for future calculations');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
-     assert.equal(await page.locator('#habitGrid [data-habit-index="'+archivedIndex+'"]').count(),1,'restored habit returns to Today');
+     assert.equal(await page.locator('#vigorHabitsTrack [data-habit-index="'+archivedIndex+'"]').count(),1,'restored habit returns to Today');
      // Sorting only changes the visible Journey order, never saved habit or check-in data.
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      const sortingStateBefore=await page.evaluate(()=>{
@@ -505,18 +523,26 @@ async function main(){
      await page.locator('#vigorMoreMenu [data-vigor-old="settings"]').click();
      await page.locator('#cycleLength').selectOption('7');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
-     assert.equal(await trainingTasks.getByText('No activities scheduled for today.').isVisible(),true,'Weekly schedules use a separate routine');
-     await routineEditor.getByText('Edit routine',{exact:true}).click();
+     assert.equal(await trainingTasks.getByText('Add your workouts to see what to do each day.').isVisible(),true,'Weekly schedules use a separate routine');
+     await routineEditor.getByText('Set up my workouts',{exact:true}).click();
      assert.equal(await routineDay.locator('option').count(),7,'Weekly schedules have seven editable days');
      assert.equal(await routineDay.locator('option').first().textContent(),'Monday','Weekly schedules use weekday names');
      await routineActivities.fill('Weekly strength');
-     await routineEditor.getByRole('button',{name:'Save routine'}).click();
+     await routineEditor.getByRole('button',{name:'Save workout plan'}).click();
      assert.equal(await page.getByRole('button',{name:'Complete Weekly strength'}).isVisible(),true,'Weekly routine appears on Today');
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
      await page.locator('#vigorMoreMenu [data-vigor-old="settings"]').click();
      await page.locator('#cycleLength').selectOption('8');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
      assert.equal(await firstWorkout.getAttribute('aria-pressed'),'true','Switching schedule types preserves workout history');
+     await page.locator('#vigorNav [data-vigor-route="more"]').click();
+     await page.locator('#vigorMoreMenu [data-vigor-old="couples"]').click();
+     assert.equal(await page.locator('#couplePartnerEmail').isVisible(),false,'Invite form stays hidden until chosen');
+     assert.equal(await page.locator('#coupleInviteCode').isVisible(),false,'Join form stays hidden until chosen');
+     await page.getByText('I have a code',{exact:true}).click();
+     assert.equal(await page.locator('#coupleInviteCode').isVisible(),true,'Joining has its own clear entry point');
+     await page.getByText('Invite my partner',{exact:true}).click();
+     assert.equal(await page.locator('#couplePartnerEmail').isVisible(),true,'Inviting has its own clear entry point');
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
      assert(!errors.some(e=>/Cannot read properties of undefined|SyntaxError|ReferenceError/.test(e)),errors.join('; '));

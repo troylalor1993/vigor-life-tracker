@@ -184,3 +184,19 @@ body[data-vigor-view="journey"] #vigorJourneyScreen,body[data-vigor-view="fitnes
   box-shadow:none!important;
   border-radius:0 0 18px 18px!important;
 }
+
+#todayBible,#vigorStartGuide{min-height:44px;margin:0 8px 12px 0}
+#fitnessRoutineStatus:empty,#fitnessRoutineEditor:empty{display:none}
+.fitness-plan-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px;padding:0;list-style:none}
+.fitness-plan-list>li{display:grid;align-content:start;gap:6px;padding:10px;border:1px solid var(--border);border-radius:10px;overflow-wrap:anywhere}
+.fitness-plan-list>li[aria-current="date"]{border-color:var(--accent)}
+.fitness-plan-list ul{margin:0;padding-inline-start:17px}
+.fitness-plan-list span{color:var(--muted)}
+#progressOverviewStats{grid-template-columns:repeat(3,minmax(0,1fr))}
+#progressReports>section,#progressReports>.card{margin:10px}
+#coupleNotLinked details{margin-top:12px}
+#coupleNotLinked summary,.vjm-optional summary{display:list-item;min-height:44px;padding:10px 0;color:var(--accent-soft);font-weight:700;cursor:pointer}
+.vjm-optional .vjm-field{margin-bottom:10px}
+.fitness-history-list{list-style:none;margin:0;padding:0 14px 10px}
+.fitness-history-list li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--border);overflow-wrap:anywhere}
+.fitness-history-list time{flex:none;color:var(--muted);font-size:12px}

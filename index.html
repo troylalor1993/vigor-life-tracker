@@ -423,23 +423,23 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="today-training-header"><h2 id="todayTrainingHeading">Today's training</h2><span class="tag" id="todayTrainingDay"></span></div>
 <div id="todayTrainingTasks"></div>
 <p class="subtle" id="todayTrainingStatus" role="status"></p>
-<details id="trainingRoutineEditor">
-<summary>Edit routine</summary>
+<div id="todayRoutineHome"><details id="trainingRoutineEditor">
+<summary>Edit workout plan</summary>
 <form id="trainingRoutineForm">
 <label for="trainingRoutineDay">Schedule day</label>
 <select id="trainingRoutineDay"></select>
-<label for="trainingRoutineActivities">Activities <small class="subtle">One per line. Leave empty for a rest day.</small></label>
+<label for="trainingRoutineActivities">Workouts or activities <small class="subtle">Write one per line. Leave blank for a rest day.</small></label>
 <textarea id="trainingRoutineActivities" rows="4" maxlength="1500" placeholder="e.g. Full body strength"></textarea>
-<label for="trainingRoutineZone">Zone 2 minutes <small class="subtle">Optional</small></label>
+<label for="trainingRoutineZone">Easy cardio (Zone 2) <small class="subtle">Minutes, optional</small></label>
 <input id="trainingRoutineZone" type="number" inputmode="numeric" min="1" max="600" step="1">
-<button type="submit" class="primary">Save routine</button>
+<button type="submit" class="primary">Save workout plan</button>
 <p class="subtle" id="trainingRoutineFeedback" role="status"></p>
 </form>
-</details>
+</details></div>
 </section>
 <section id="neverTwice" class="never-twice" hidden aria-label="Never Miss Twice recovery"><div class="never-twice-heading"><strong>Never Miss Twice</strong><span id="neverTwiceCount" class="tag"></span></div><p class="subtle">You missed a recorded commitment yesterday. Choose its smallest action today to get back on track.</p><div id="neverTwiceActions"></div><p id="neverTwiceFeedback" class="subtle" role="status" aria-live="polite"></p></section>
-<div class="card" id="daily"><div class="row"><h2>Daily habits</h2><button id="editHabits" class="secondary tiny">Edit habits</button></div><p class="subtle">Quick daily check-in. Check a habit whenever you complete it. Changes save automatically.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div class="habit-workflow-caption">Tap <strong>Done</strong> when you complete a habit, or <strong>Minimum</strong> when you take the smaller first step. Both save automatically; only full completions earn the usual habit points.</div><div id="habitGrid" class="discipline-habit-grid" style="margin-top:12px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><details class="discipline-secondary"><summary>Prepare for your next opportunity</summary><label class="field" for="disciplinePrep">Make tomorrow easier</label><input type="text" id="disciplinePrep" maxlength="160" placeholder="e.g. Put gym clothes beside the door"><label class="discipline-prepare-check"><input type="checkbox" id="disciplinePrepDone"><span>Preparation completed</span></label><p id="disciplinePrepFeedback" class="subtle"></p></details><div id="habitSaveFeedback" class="subtle" aria-live="polite"></div><p class="subtle" id="dailySaveStatus" aria-live="polite">Checkmarks save automatically.</p></div>
-<section class="zone-card" id="zone2"><div class="zone-heading"><h2>Zone 2 Movement</h2><div class="toolbar"><button type="button" id="editZoneGoal" class="secondary tiny">Edit target</button><span class="tag" id="zoneCycleBadge">8-day target</span></div></div><div id="zoneCycle" class="subtle"></div><div class="zone-total"><span id="zoneTotal">0</span> <small>/ <span id="zoneGoalLabel">150</span> minutes</small></div><div class="zone-meter" role="progressbar" aria-label="Zone 2 minutes this rotation" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" id="zoneMeter"><div id="zoneBar"></div></div><div class="zone-remaining" id="zoneRemaining">150 minutes remaining</div><div class="zone-form"><label for="zoneMinutes">Minutes completed<input id="zoneMinutes" type="number" inputmode="numeric" min="1" max="600" step="1" placeholder="e.g. 30"></label><button type="button" class="primary" id="addZoneMinutes">Add minutes</button></div><div id="zoneFeedback" class="subtle" aria-live="polite"></div><div class="zone-log" id="zoneLog"></div><details class="zone-goal-details" id="zoneGoalDetails"><summary id="zoneGoalCaption">Change 8-day goal</summary><label for="zoneGoalInput">Target minutes per rotation<input id="zoneGoalInput" type="number" inputmode="numeric" min="1" max="2000" step="1"></label><button type="button" class="primary" id="saveZoneGoal" style="margin-top:9px">Save Zone 2 target</button></details></section>
+<div class="card" id="daily"><div class="row"><h2>Past habit check-ins</h2><button id="editHabits" class="secondary tiny">Change habit order</button></div><p class="subtle">Quick daily check-in. Check a habit whenever you complete it. Changes save automatically.</p><div class="daily-date-field"><label for="dailyDate">Date</label><div class="daily-date-control"><input id="dailyDate" type="date" aria-label="Daily check-in date"></div></div><div class="habit-workflow-caption">Tap <strong>Done</strong> when you complete a habit, or <strong>Small step</strong> when you do a shorter version. Both save automatically; only full completions earn the usual habit points.</div><div id="habitGrid" class="discipline-habit-grid" style="margin-top:12px"></div><p id="habitProgress" class="subtle"></p><div id="habitEditor" class="habit-edit hidden"></div><details class="discipline-secondary"><summary>Prepare for your next opportunity</summary><label class="field" for="disciplinePrep">Make tomorrow easier</label><input type="text" id="disciplinePrep" maxlength="160" placeholder="e.g. Put gym clothes beside the door"><label class="discipline-prepare-check"><input type="checkbox" id="disciplinePrepDone"><span>Preparation completed</span></label><p id="disciplinePrepFeedback" class="subtle"></p></details><div id="habitSaveFeedback" class="subtle" aria-live="polite"></div><p class="subtle" id="dailySaveStatus" aria-live="polite">Checkmarks save automatically.</p></div>
+<section class="zone-card" id="zone2"><div class="zone-heading"><h2>Easy cardio (Zone 2)</h2><div class="toolbar"><button type="button" id="editZoneGoal" class="secondary tiny">Edit target</button><span class="tag" id="zoneCycleBadge">8-day target</span></div></div><div id="zoneCycle" class="subtle"></div><div class="zone-total"><span id="zoneTotal">0</span> <small>/ <span id="zoneGoalLabel">150</span> minutes</small></div><div class="zone-meter" role="progressbar" aria-label="Zone 2 minutes this rotation" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0" id="zoneMeter"><div id="zoneBar"></div></div><div class="zone-remaining" id="zoneRemaining">150 minutes remaining</div><div class="zone-form"><label for="zoneMinutes">Minutes completed<input id="zoneMinutes" type="number" inputmode="numeric" min="1" max="600" step="1" placeholder="e.g. 30"></label><button type="button" class="primary" id="addZoneMinutes">Add minutes</button></div><div id="zoneFeedback" class="subtle" aria-live="polite"></div><div class="zone-log" id="zoneLog"></div><details class="zone-goal-details" id="zoneGoalDetails"><summary id="zoneGoalCaption">Change 8-day goal</summary><label for="zoneGoalInput">Target minutes per rotation<input id="zoneGoalInput" type="number" inputmode="numeric" min="1" max="2000" step="1"></label><button type="button" class="primary" id="saveZoneGoal" style="margin-top:9px">Save Zone 2 target</button></details></section>
 <div class="activity-card" id="activity" hidden aria-hidden="true"><div class="row"><h2>Daily Activity</h2><div class="toolbar"><button type="button" id="editActivityGoals" class="secondary tiny">Edit targets</button><span class="tag" id="activitySourceTag">Manual / Health import</span></div></div><p class="subtle">Use manual entry or import your daily Apple Health totals with iPhone Shortcuts. No Xcode required.</p><details id="healthImportInfo" class="health-import-panel"><summary>Apple Watch → Import activity</summary><p class="subtle">Run your Vigor Calorie Shortcut, copy its completed link, then import here. Only your daily totals are transferred; no bulk Health records are shared.</p>
 <div class="health-paste">
 <div class="health-import-primary">
@@ -475,10 +475,10 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small id="milestoneRangeCaption">Original milestones</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><details class="milestone-reward-editor"><summary>Manage my 10 milestone rewards</summary><p class="milestone-note">Choose a reward for each milestone. Rewards don't spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div></details></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
-<div class="card" id="training"><div class="row"><h2 id="trainingHeading">Flexible 8-day checklist</h2><div class="toolbar"><button id="quickEdit" class="secondary">✎ Edit workouts/tasks</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle" id="trainingScheduleHint">Complete any workout on whichever day works best for you.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
+<div class="card" id="training"><div class="row"><h2>Workout log</h2><div class="toolbar"><button id="quickEdit" class="secondary">Edit types of workouts</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle" id="trainingScheduleHint">Complete any workout on whichever day works best for you.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
 <div class="card" id="summary"><div class="row"><h2 id="rotationHeading">8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><h3>Daily habits</h3><div id="dailyReport" class="daily-stats"></div><p id="dailyInsight" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename, rearrange with ↑ / ↓, or adjust rotation targets. Tap <strong>Save workout changes</strong> to keep the new order.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New workout or task<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target per rotation<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="secondary" type="button">Add workout</button></div><button type="button" class="primary" id="saveWorkoutChanges" style="width:100%;min-height:48px;margin:12px 0 8px">Save workout changes</button><div id="taskSaveFeedback" class="subtle" role="status" aria-live="polite">Changes not saved yet.</div></div></div>
-<section class="body-goals-card" id="bodyTargets"><div class="row"><div><div class="dashboard-label">YOUR PERSONAL TARGETS</div><h2>Weight & waist goals</h2></div><button id="editBodyTargets" type="button" class="secondary tiny">Edit targets</button></div><p id="bodyGoalSummary" class="subtle"></p><details id="bodyGoalDetails"><summary>Adjust starting measurements and goals</summary><div class="body-goal-fields"><label>Starting weight (lb)<input id="bodyStartWeight" type="number" min="50" max="1000" step=".1"></label><label>Goal weight (lb)<input id="bodyGoalWeight" type="number" min="50" max="1000" step=".1"></label><label>Starting waist (in)<input id="bodyStartWaist" type="number" min="10" max="100" step=".1"></label><label>Goal waist (in)<input id="bodyGoalWaist" type="number" min="10" max="100" step=".1"></label></div><button id="saveBodyTargets" type="button" class="primary">Save targets</button><p class="subtle">Recorded measurements stay intact. Existing milestone rewards and their milestone weights remain separate.</p></details><p id="bodyTargetFeedback" class="body-goal-status" aria-live="polite"></p></section><div class="card" id="measurements"><h2>Rotation measurement check-in</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Log weight and waist once each rotation. Save again to correct your entry.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save rotation check-in</button></p><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
+<section class="body-goals-card" id="bodyTargets"><div class="row"><div><div class="dashboard-label">YOUR PERSONAL TARGETS</div><h2>Weight & waist goals</h2></div><button id="editBodyTargets" type="button" class="secondary tiny">Edit targets</button></div><p id="bodyGoalSummary" class="subtle"></p><details id="bodyGoalDetails"><summary>Adjust starting measurements and goals</summary><div class="body-goal-fields"><label>Starting weight (lb)<input id="bodyStartWeight" type="number" min="50" max="1000" step=".1"></label><label>Goal weight (lb)<input id="bodyGoalWeight" type="number" min="50" max="1000" step=".1"></label><label>Starting waist (in)<input id="bodyStartWaist" type="number" min="10" max="100" step=".1"></label><label>Goal waist (in)<input id="bodyGoalWaist" type="number" min="10" max="100" step=".1"></label></div><button id="saveBodyTargets" type="button" class="primary">Save targets</button><p class="subtle">Recorded measurements stay intact. Existing milestone rewards and their milestone weights remain separate.</p></details><p id="bodyTargetFeedback" class="body-goal-status" aria-live="polite"></p></section><div class="card" id="measurements"><h2>Log weight and waist</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Save one entry per schedule period. Save again to update it.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save measurements</button></p><details><summary>Past measurements</summary><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></details></div>
 <section class="card theme-settings" id="themeSettings">
 <h2>Appearance</h2>
 <p class="theme-sub">Choose a premium colour theme. Your dashboard updates immediately and remembers your selection on this device.</p>
@@ -489,21 +489,21 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 </section>
 
 <section class="cloud-card" id="cloudSync">
-<div class="cloud-header"><div><div class="dashboard-label">PRIVATE CLOUD BACKUP</div><h2>Account & Automatic Sync</h2></div><span id="cloudStatus" class="cloud-badge">Connecting…</span></div>
-<p class="cloud-desc">Your workouts, habits, measurements and rewards sync through your private Firebase account. Changes confirmed in the cloud are loaded on your other devices; unsynced edits stay protected.</p>
+<div class="cloud-header"><div><h2>Account</h2></div><span id="cloudStatus" class="cloud-badge">Connecting…</span></div>
+<p class="cloud-desc">Sign in to save your progress and use it on your other devices.</p>
 <div id="cloudSignedOut">
 <div class="cloud-fields"><label>Email<input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label for="cloudPassword">Password<div class="password-control"><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"><button type="button" id="togglePassword" aria-label="Show password" aria-pressed="false" class="secondary tiny">Show</button></div></label></div>
 <div class="cloud-actions"><button type="button" class="primary" id="cloudSignIn">Sign in</button><button type="button" class="secondary" id="cloudSignUp">Create account</button></div><div class="cloud-password-recovery"><button type="button" class="secondary tiny" id="cloudResetPassword">Forgot password?</button><p class="cloud-small" id="cloudResetFeedback" role="status" aria-live="polite"></p></div>
-<p class="cloud-small">Use a separate account for each of you. Your password is handled by Firebase Authentication.</p></div>
+<p class="cloud-small">Each person needs their own account.</p></div>
 <div id="cloudSignedIn" hidden><p id="cloudIdentity" class="cloud-id"></p><div class="cloud-actions"><button type="button" id="cloudSyncNow" class="primary">Sync now</button><button type="button" id="cloudSignOut" class="secondary">Sign out</button></div></div>
 <div id="cloudChoice" class="cloud-choice" hidden><strong id="cloudChoiceTitle">Choose your progress</strong><p id="cloudChoiceDescription"></p><button type="button" class="primary" id="cloudActionUpload">Upload this device</button><button type="button" class="secondary" id="cloudActionRestore">Restore cloud copy</button></div>
 <p id="cloudMessage" class="cloud-message" role="status" aria-live="polite">Your local tracker data is unchanged.</p>
-<p class="cloud-small">Your personal tracker is private. Couples Accountability is a separate shared space available only to the two connected accounts. If you share a phone, use separate browser profiles so local copies do not mix.</p>
+<p class="cloud-small">Your own tracker is private. Your partner can see what you share in Couples.</p>
 </section>
 <section id="vigorSetup" class="card">
-<div class="row"><h2>Make Vigor Life yours</h2><span class="tag" id="setupProgress">Optional setup</span></div>
+<div class="row"><h2>Habit reminders and small steps</h2><span class="tag" id="setupProgress">Optional setup</span></div>
 <p class="subtle">A simple starting point. Your existing habits and progress stay as they are.</p>
-<details id="setupDetails"><summary>Personalize my habit system</summary>
+<details id="setupDetails"><summary>Choose a habit</summary>
 <label class="field" for="setupTopHabit">Choose an existing habit<select id="setupTopHabit"></select></label>
 <label class="field" for="setupCue">When will you do it?<input id="setupCue" type="text" placeholder="e.g. After waking up"></label>
 <label class="field" for="setupMinimum">What's the smallest version?<input id="setupMinimum" type="text" placeholder="e.g. One minute"></label>
@@ -511,10 +511,10 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 </details></section>
 <section id="shiftRoutineSettings" class="card"><div class="row"><h2>Shift-aware routines</h2><span class="tag">Personal</span></div><p class="subtle">Recommendations adapt to your work cycle. You can change the suggested focus for each kind of day.</p><div id="shiftRoutineEditor"></div><button id="saveShiftRoutines" class="primary" type="button">Save shift routines</button><p id="shiftRoutineFeedback" class="subtle" aria-live="polite"></p></section>
 <section id="recoverySettings" class="card"><h2>Saving & recovery</h2><p class="subtle" id="recoveryDescription">Recent local restore points are kept for accidental changes. They never overwrite your tracker automatically.</p><div id="recoveryList"></div><p id="recoveryStatus" class="subtle" aria-live="polite"></p></section>
-<div class="card" id="shiftSettings"><h2>Shift calendar & backup</h2>
+<div class="card" id="shiftSettings"><h2>My schedule</h2>
 <div id="homeScreenNotice" class="card" style="padding:14px;margin:0 0 14px;border-color:var(--border-strong)">
 <strong class="accent">Your progress travels with your account</strong>
-<p class="subtle" id="homeScreenNoticeText">Sign in to the same Firebase account in Safari or your Home Screen app to access your personal progress. Changes save on this device and sync to the cloud when connected. Check the cloud status above for confirmation.</p>
+<p class="subtle" id="homeScreenNoticeText">Use the same account on every device to see your saved progress.</p>
 </div><label class="field" for="cycleLength">Schedule type</label>
 <select id="cycleLength" aria-label="Choose 7-day or 8-day schedule"><option value="7">Standard 7-day week (Monday–Sunday)</option><option value="8">8-day rotating shift cycle</option></select>
 <label class="field" for="anchor" id="anchorLabel">Date of Day 1 (your first day shift)</label><input id="anchor" type="date">
@@ -534,13 +534,19 @@ function collapsible(id,node,title,open){
  const details=document.createElement('details');details.className='compact-details';details.open=!!open;
  const heading=document.createElement('summary');heading.textContent=title;details.append(heading,node);panels[id].append(details);
 }
+const bibleLink=document.createElement('button');
+bibleLink.type='button';bibleLink.id='todayBible';bibleLink.className='secondary';
+bibleLink.textContent='Read today’s Bible passage';
+bibleLink.onclick=()=>{document.querySelector('[data-panel="faith"]').click();window.scrollTo(0,0)};
+panels.today.append(bibleLink);
 relocate('today',document.querySelector('#todayTraining'));
 relocate('today',document.querySelector('#neverTwice'));
 collapsible('today',document.querySelector('#disciplineOverview'),'My consistency & shift guidance',false);
-collapsible('today',document.querySelector('#daily'),'All habits & preparation',false);
+collapsible('today',document.querySelector('#daily'),'Past habit check-ins and habit order',false);
+document.querySelector('#daily').closest('details').id='habitHistoryTools';
 relocate('today',document.querySelector('#activity'));
-collapsible('today',document.querySelector('#zone2'),'Zone 2 minutes',false);
-collapsible('today',document.querySelector('#training'),'All workouts & session logs',false);
+collapsible('today',document.querySelector('#zone2'),'Log easy cardio',false);
+collapsible('today',document.querySelector('#training'),'Log another workout',false);
 relocate('progress',document.querySelector('.cards'));
 relocate('progress',document.querySelector('#milestones').closest('.card'));
 const insightsCard=document.createElement('section');
@@ -559,34 +565,45 @@ collapsible('progress',document.querySelector('#transformationSummary').closest(
 relocate('progress',document.querySelector('#bodyTargets'));
 relocate('progress',document.querySelector('#measurements'));
 collapsible('progress',document.querySelector('#summary'),'Rotation report',false);
+const progressMain=panels.progress;
+const progressReports=document.createElement('details');
+progressReports.id='progressReports';progressReports.className='compact-details';
+const progressReportsTitle=document.createElement('summary');progressReportsTitle.textContent='See more';
+progressReports.append(progressReportsTitle);
+const progressOverview=document.createElement('section');
+progressOverview.id='progressOverview';progressOverview.className='insight-card';
+progressOverview.innerHTML='<h2 id="progressOverviewHeading">This period</h2><div class="insight-highlights" id="progressOverviewStats"></div>';
+for(const section of [...progressMain.children])if(section.id!=='measurements')progressReports.append(section);
+progressMain.append(progressOverview,progressReports);
 relocate('rewards',document.querySelector('#rewards'));
 relocate('faith',document.querySelector('#devotional'));
 const couplesCard=document.createElement('section');
 couplesCard.id='couplesCard';couplesCard.className='card couples-card';
-couplesCard.innerHTML="<div class=\"dashboard-label\">GROW TOGETHER</div>\n<div class=\"couple-hero\"><div><h2>Our Rotation Together</h2><p class=\"couples-meta\">Faith, health and marriage — one meaningful rotation at a time.</p></div><span class=\"tag\" id=\"coupleWindow\"></span></div>\n<div class=\"couple-summary-grid\"><div><strong id=\"coupleGoalsMet\">0/5</strong><small>Goals achieved</small></div><div><strong id=\"coupleSessions\">0</strong><small>Moments together</small></div><div><strong id=\"coupleStreak\">0</strong><small>Rotation streak</small></div></div>\n<p class=\"couple-sync-note\" id=\"coupleSyncHint\">Connect your accounts below to share goals, prayers, encouragement and rewards in real time.</p>\n<div class=\"couple-verse\"><div class=\"dashboard-label\">SCRIPTURE TO REFLECT ON</div><strong>Ecclesiastes 4:9–10</strong><p>Growing together means supporting one another through hard seasons and celebrating progress together.</p><a href=\"https://www.biblegateway.com/passage/?search=Ecclesiastes%204%3A9-10&version=NLT\" target=\"_blank\" rel=\"noopener noreferrer\">Read in NLT ↗</a></div>\n<div class=\"row\"><h3 style=\"margin:12px 0\">Our Shared Commitments</h3><small id=\"coupleScore\"></small></div>\n<div id=\"coupleGoals\" class=\"couple-goal-grid\"></div>\n<div class=\"discipline-couple\"><p class=\"subtle\">Encourage each other’s consistency, without sharing private fitness records.</p><button id=\"shareDisciplineEncouragement\" type=\"button\" class=\"secondary tiny\">Share a small win</button><p id=\"shareDisciplineFeedback\" class=\"subtle\"></p></div>\n<details class=\"couple-editor\"><summary>Edit shared goals</summary><div class=\"couples-fields\"><input id=\"newCoupleGoal\" type=\"text\" maxlength=\"75\" placeholder=\"New shared goal\"><button type=\"button\" id=\"addCoupleGoal\" class=\"primary\">Add goal</button></div><p class=\"subtle\">Choose a target for each goal. You can complete a goal more than once per rotation.</p></details>\n<div class=\"couple-mini-grid\"><section class=\"couple-mini-card\"><h3>Prayer focus</h3><select id=\"couplePrayerCategory\" aria-label=\"Prayer focus category\"><option value=\"Family\">Family</option><option value=\"Marriage\">Marriage</option><option value=\"Health\">Health</option><option value=\"Peace\">Peace</option><option value=\"Finances\">Finances</option><option value=\"Parenting\">Parenting</option><option value=\"Other\">Other</option></select><textarea id=\"couplePrayer\" rows=\"2\" placeholder=\"What are we praying for?\"></textarea></section>\n<section class=\"couple-mini-card\"><h3>Encourage Taleeba</h3><div class=\"couple-quick-messages\" id=\"coupleQuickMessages\"></div><textarea id=\"coupleEncouragement\" rows=\"2\" placeholder=\"Write a personal encouragement...\"></textarea><button id=\"sendCoupleEncouragement\" type=\"button\" class=\"secondary\">Save encouragement</button></section></div>\n<details class=\"couple-editor\"><summary>Encouragement history</summary><div id=\"coupleMessages\"></div></details>\n<div class=\"couple-reward\"><div class=\"row\"><h3>Our Shared Reward</h3><span class=\"tag\" id=\"coupleRewardStatus\">In progress</span></div><label class=\"field\">Reward to celebrate together<input id=\"coupleRewardName\" type=\"text\" maxlength=\"90\" placeholder=\"e.g. Coffee date\"></label><label class=\"field\">Goals to achieve<input id=\"coupleRewardThreshold\" type=\"number\" min=\"1\" max=\"20\" step=\"1\"></label><div class=\"bar\"><div id=\"coupleRewardBar\" style=\"width:0%\"></div></div><p id=\"coupleRewardProgress\" class=\"subtle\"></p><button id=\"coupleClaimReward\" type=\"button\" class=\"primary\">Claim reward</button></div>\n<details class=\"couple-editor\"><summary>Our 8-day reflection</summary><label class=\"field\">What went well?<textarea id=\"coupleWin\" rows=\"2\" placeholder=\"One thing we're thankful for...\"></textarea></label><label class=\"field\">What can we improve?<textarea id=\"coupleImprove\" rows=\"2\" placeholder=\"One thing to improve together...\"></textarea></label><label class=\"field\">What are we thanking God for?<textarea id=\"coupleGratitude\" rows=\"2\" placeholder=\"Something God has done...\"></textarea></label></details>\n<p id=\"coupleSaveStatus\" class=\"couples-status\" aria-live=\"polite\"></p>";
+couplesCard.innerHTML="<div class=\"dashboard-label\">GROW TOGETHER</div>\n<div class=\"couple-hero\"><div><h2>Our Rotation Together</h2><p class=\"couples-meta\">Faith, health and marriage — one meaningful rotation at a time.</p></div><span class=\"tag\" id=\"coupleWindow\"></span></div>\n<div class=\"couple-summary-grid\"><div><strong id=\"coupleGoalsMet\">0/5</strong><small>Goals achieved</small></div><div><strong id=\"coupleSessions\">0</strong><small>Moments together</small></div><div><strong id=\"coupleStreak\">0</strong><small>Rotation streak</small></div></div>\n<p class=\"couple-sync-note\" id=\"coupleSyncHint\">Connect your accounts below to share goals, prayers, encouragement and rewards in real time.</p>\n<div class=\"couple-verse\"><div class=\"dashboard-label\">SCRIPTURE TO REFLECT ON</div><strong>Ecclesiastes 4:9–10</strong><p>Growing together means supporting one another through hard seasons and celebrating progress together.</p><a href=\"https://www.biblegateway.com/passage/?search=Ecclesiastes%204%3A9-10&version=NLT\" target=\"_blank\" rel=\"noopener noreferrer\">Read in NLT ↗</a></div>\n<div class=\"row\"><h3 style=\"margin:12px 0\">Our Shared Commitments</h3><small id=\"coupleScore\"></small></div>\n<div id=\"coupleGoals\" class=\"couple-goal-grid\"></div>\n<div class=\"discipline-couple\"><p class=\"subtle\">Encourage each other’s consistency, without sharing private fitness records.</p><button id=\"shareDisciplineEncouragement\" type=\"button\" class=\"secondary tiny\">Share a small win</button><p id=\"shareDisciplineFeedback\" class=\"subtle\"></p></div>\n<details class=\"couple-editor\"><summary>Edit shared goals</summary><div class=\"couples-fields\"><input id=\"newCoupleGoal\" type=\"text\" maxlength=\"75\" placeholder=\"New shared goal\"><button type=\"button\" id=\"addCoupleGoal\" class=\"primary\">Add goal</button></div><p class=\"subtle\">Choose a target for each goal. You can complete a goal more than once per rotation.</p></details>\n<div class=\"couple-mini-grid\"><section class=\"couple-mini-card\"><h3>Prayer focus</h3><select id=\"couplePrayerCategory\" aria-label=\"Prayer focus category\"><option value=\"Family\">Family</option><option value=\"Marriage\">Marriage</option><option value=\"Health\">Health</option><option value=\"Peace\">Peace</option><option value=\"Finances\">Finances</option><option value=\"Parenting\">Parenting</option><option value=\"Other\">Other</option></select><textarea id=\"couplePrayer\" rows=\"2\" placeholder=\"What are we praying for?\"></textarea></section>\n<section class=\"couple-mini-card\"><h3>Encourage your partner</h3><div class=\"couple-quick-messages\" id=\"coupleQuickMessages\"></div><textarea id=\"coupleEncouragement\" rows=\"2\" placeholder=\"Write a personal encouragement...\"></textarea><button id=\"sendCoupleEncouragement\" type=\"button\" class=\"secondary\">Save encouragement</button></section></div>\n<details class=\"couple-editor\"><summary>Encouragement history</summary><div id=\"coupleMessages\"></div></details>\n<div class=\"couple-reward\"><div class=\"row\"><h3>Our Shared Reward</h3><span class=\"tag\" id=\"coupleRewardStatus\">In progress</span></div><label class=\"field\">Reward to celebrate together<input id=\"coupleRewardName\" type=\"text\" maxlength=\"90\" placeholder=\"e.g. Coffee date\"></label><label class=\"field\">Goals to achieve<input id=\"coupleRewardThreshold\" type=\"number\" min=\"1\" max=\"20\" step=\"1\"></label><div class=\"bar\"><div id=\"coupleRewardBar\" style=\"width:0%\"></div></div><p id=\"coupleRewardProgress\" class=\"subtle\"></p><button id=\"coupleClaimReward\" type=\"button\" class=\"primary\">Claim reward</button></div>\n<details class=\"couple-editor\"><summary>Our 8-day reflection</summary><label class=\"field\">What went well?<textarea id=\"coupleWin\" rows=\"2\" placeholder=\"One thing we're thankful for...\"></textarea></label><label class=\"field\">What can we improve?<textarea id=\"coupleImprove\" rows=\"2\" placeholder=\"One thing to improve together...\"></textarea></label><label class=\"field\">What are we thanking God for?<textarea id=\"coupleGratitude\" rows=\"2\" placeholder=\"Something God has done...\"></textarea></label></details>\n<p id=\"coupleSaveStatus\" class=\"couples-status\" aria-live=\"polite\"></p>";
 couplesCard.insertAdjacentHTML('afterbegin',`
 <section class="couple-connect" aria-label="Secure partner connection">
 <div class="row"><div><div class="dashboard-label">SHARED ACCOUNTABILITY</div><h2>Connect as a couple</h2></div><span id="coupleCloudBadge" class="tag">Not linked</span></div>
-<p id="coupleConnectHelp" class="subtle">One of you creates an invitation. The other enters the private code using their own account.</p>
+<p id="coupleConnectHelp" class="subtle">Sign in with your own account, then choose how to connect.</p>
 <div id="coupleNotLinked">
+<details name="couple-connect-action"><summary>Invite my partner</summary>
 <label class="field">Partner's email address<input id="couplePartnerEmail" type="email" autocomplete="email" placeholder="partner@example.com"></label>
-<button type="button" id="coupleCreateInvite" class="primary">Create partner invitation</button>
-<div class="couple-or">or</div>
+<button type="button" id="coupleCreateInvite" class="primary">Create invite code</button>
+</details><details name="couple-connect-action"><summary>I have a code</summary>
 <label class="field">Invitation code<input id="coupleInviteCode" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste your partner's private code"></label>
-<div class="couple-connect-actions"><button type="button" id="coupleJoinInvite" class="primary">Join shared space</button><button type="button" id="coupleVerifyEmail" class="secondary">Verify my email</button><button type="button" id="coupleCheckVerify" class="secondary">Check verification</button></div>
-</div>
+<div class="couple-connect-actions"><button type="button" id="coupleJoinInvite" class="primary">Join my partner</button><button type="button" id="coupleVerifyEmail" class="secondary">Verify my email</button><button type="button" id="coupleCheckVerify" class="secondary">Check verification</button></div>
+</details></div>
 <div id="coupleLinked" hidden><p class="subtle">Your own tracker remains private. Only items in this Couples section are shared.</p><div class="couple-connect-actions"><button type="button" class="secondary" id="coupleCopyInvite">Copy invitation code</button><button type="button" class="secondary" id="coupleLeaveDisplay">Connection details</button></div><p id="coupleInvitationDisplay" class="couple-invite-display"></p></div>
 <p id="coupleConnectStatus" class="cloud-message" role="status" aria-live="polite">Sign in under Settings to connect.</p>
 </section>`);
 panels.couples.append(couplesCard);
-relocate('settings',document.querySelector('#themeSettings'));
-relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
 relocate('settings',document.querySelector('#cloudSync'));
-relocate('settings',document.querySelector('#vigorSetup'));
-relocate('settings',document.querySelector('#shiftRoutineSettings'));
-relocate('settings',document.querySelector('#recoverySettings'));
 relocate('settings',document.querySelector('#shiftSettings'));
 relocate('settings',document.querySelector('#shiftAlert'));
+relocate('settings',document.querySelector('#themeSettings'));
+collapsible('settings',document.querySelector('#customizeHeading').closest('.card'),'Workout log settings',false);
+collapsible('settings',document.querySelector('#vigorSetup'),'Habit setup options',false);
+collapsible('settings',document.querySelector('#shiftRoutineSettings'),'Tips for shift work',false);
+collapsible('settings',document.querySelector('#recoverySettings'),'Restore saved data',false);
 let selectedPanel='today';
 function showPanel(id){
  if(!panels[id])return;
@@ -758,7 +775,7 @@ state.couples ||= {goals:[{id:'cg-pray',name:'Pray together'},{id:'cg-walk',name
 const suggestedRewards=[
 {id:'r1',name:'Favourite snack',cost:150},
 {id:'r2',name:'Fast-food meal',cost:350},
-{id:'r3',name:'Dinner date with Taleeba',cost:700}
+{id:'r3',name:'Dinner date',cost:700}
 ];
 if(!Array.isArray(state.rewards))state.rewards=suggestedRewards.map(x=>({...x}));
 else {
@@ -935,6 +952,13 @@ function renderInsights(){
  });
  const stats=$('insightStats');stats.replaceChildren();
  const current=rotations[0],previous=rotations[1];
+ $('progressOverviewHeading').textContent=cycleDays()===7?'This week':'These 8 days';
+ const overview=$('progressOverviewStats');
+ overview.replaceChildren();
+ for(const [label,value] of [['Habits done',current.habitChecks],['Workouts logged',current.workouts.length],['Easy cardio',current.zoneMinutes+' min']]){
+  const tile=element('div',undefined,'insight-stat');
+  tile.append(element('strong',value),element('small',label));overview.append(tile);
+ }
  const withActivity=rotations.filter(r=>r.recorded);
  const totalCheckins=rotations.reduce((n,r)=>n+r.logged.length,0);
  const totalWorkoutCount=rotations.reduce((n,r)=>n+r.workouts.length,0);
@@ -1321,7 +1345,7 @@ function renderDaily(){
   if(entry.habits[i]||small)info.append(element('small',entry.habits[i]?'✓ Full commitment complete':'✓ Minimum effort recorded','discipline-status'));
   const actions=element('div',undefined,'discipline-buttons');
   const full=element('button','Done',entry.habits[i]?'chosen':'secondary tiny');
-  const min=element('button','Minimum',small?'chosen':'secondary tiny');
+  const min=element('button','Small step',small?'chosen':'secondary tiny');
   full.type='button';min.type='button';
   full.setAttribute('aria-pressed',String(!!entry.habits[i]));
   min.setAttribute('aria-pressed',String(small));
@@ -1342,66 +1366,27 @@ function renderDaily(){
  $('disciplinePrep').value=preparation.text||'';
  $('disciplinePrepDone').checked=!!preparation.done;
  $('habitEditor').classList.toggle('hidden',!habitEdit);
- $('editHabits').textContent=habitEdit?'Close editor':'Edit habits';
+ $('editHabits').textContent=habitEdit?'Done changing order':'Change habit order';
  $('habitEditor').replaceChildren();
  if(habitEdit){
-  state.habitLabels.forEach((name,i)=>{
-   if(!isHabitActive(i))return;
-   const row=element('div',undefined,'habit-add-row'),input=element('input'),remove=element('button','Remove','secondary tiny');
+  const active=state.habitLabels.map((_,index)=>index).filter(isHabitActive);
+  active.forEach((i,position)=>{
+   const name=state.habitLabels[i];
+   const row=element('div',undefined,'habit-add-row');
+   const title=element('strong',name);
    const moves=element('div',undefined,'reorder-actions');
    const up=element('button','↑','secondary tiny'),down=element('button','↓','secondary tiny');
    for(const [button,delta,caption] of [[up,-1,'Move up'],[down,1,'Move down']]){
-    button.type='button';button.disabled=i+delta<0||i+delta>=state.habitLabels.length;
+    const destination=active[position+delta];
+    button.type='button';button.disabled=destination===undefined;
     button.setAttribute('aria-label',caption+' '+name);
-    button.onclick=()=>{if(!moveHabit(i,i+delta))return;
+    button.onclick=()=>{if(!moveHabit(i,destination))return;
       if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Habit order saved';}
     };
    }
    moves.append(up,down);
-   input.type='text';input.maxLength=70;input.value=name;input.setAttribute('aria-label','Habit '+(i+1));
-   input.onchange=()=>{const value=input.value.trim();if(!value){input.value=name;return}state.habitLabels[i]=value;if(save())$('habitSaveFeedback').textContent='✓ Habit name saved';};
-   remove.onclick=()=>{
-    if(!confirm('Remove this habit? Previous records for this habit will be removed from the habit checklist history.'))return;
-    state.habitLabels.splice(i,1);
-    Object.values(state.dailyCheckins).forEach(v=>{if(Array.isArray(v.habits))v.habits.splice(i,1)});
-    // Keep habit configurations and minimums aligned with the remaining habits.
-    const old=state.discipline.settings,newSettings={};
-    state.habitLabels.forEach((_,j)=>{const oldIndex=j>=i?j+1:j;if(old[oldIndex])newSettings[j]=old[oldIndex]});
-    state.discipline.settings=newSettings;
-    state.discipline.big3=(state.discipline.big3||[]).map(value=>{
-     if(!value.startsWith('h:'))return value;
-     const index=Number(value.slice(2));
-     if(index===i)return null;
-     return 'h:'+(index>i?index-1:index);
-    }).filter(Boolean);
-    for(const [day,minimums] of Object.entries(state.discipline.minimums)){
-     const updated={};state.habitLabels.forEach((_,j)=>{const k=j>=i?j+1:j;if(minimums[k])updated[j]=true});
-     state.discipline.minimums[day]=updated;
-    }
-    if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Habit removed and saved on this device'}
-   };
-   row.append(input,moves,remove);$('habitEditor').append(row);
-   const details=element('details',undefined,'discipline-config'),sum=element('summary','Customize cue & minimum');
-   details.append(sum);
-   const cfg=disciplineConfig(i);
-   for(const [key,caption] of [['cue','After… (habit cue)'],['minimum','Minimum version (2 minutes)'],['identity','Identity statement']]){
-    const label=element('label',caption),field=element('input');field.type='text';field.maxLength=150;field.value=cfg[key];field.setAttribute('aria-label',caption+' for '+name);field.dataset.key=key;label.append(field);details.append(label);
-   }
-   const button=element('button','Save habit setup','secondary tiny');button.type='button';
-   button.onclick=()=>{
-    const values={};Array.from(details.children).forEach(node=>{const field=node.children?.[0];if(field?.dataset?.key)values[field.dataset.key]=field.value.trim()});
-    if(!values.cue||!values.minimum||!values.identity)return alert('Complete the cue, minimum and identity fields.');
-    state.discipline.settings[i]={...state.discipline.settings[i],...values};
-    if(save()){renderDaily();$('habitSaveFeedback').textContent='✓ Habit cue and minimum saved'}
-   };
-   details.append(button);$('habitEditor').append(details);
+   row.append(title,moves);$('habitEditor').append(row);
   });
-  const addRow=element('div',undefined,'habit-add-row'),newInput=element('input'),addButton=element('button','Add habit','primary tiny');
-  newInput.type='text';newInput.maxLength=70;newInput.placeholder='New daily habit';newInput.setAttribute('aria-label','New daily habit');
-  addButton.onclick=()=>{const label=newInput.value.trim();if(!label)return alert('Enter a habit name');
-   if(state.habitLabels.some(x=>x.toLowerCase()===label.toLowerCase()))return alert('This habit already exists.');
-   state.habitLabels.push(label);if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ "'+label+'" added and saved'}};
-  addRow.append(newInput,addButton);$('habitEditor').append(addRow);
  }
 }
 function saveDisciplinePrep(){
@@ -1465,7 +1450,7 @@ function renderNeverTwice(){
  }
  if(items.length>3){
   const show=element('button','See the other '+(items.length-3)+' habits','secondary tiny');
-  show.onclick=()=>{const details=$('daily').closest('details');if(details)details.open=true;$('daily').scrollIntoView({behavior:'smooth',block:'start'})};
+  show.onclick=()=> $('vigorAllHabits')?.scrollIntoView({behavior:'smooth',block:'start'});
   list.append(show);
  }
 }
@@ -1645,14 +1630,13 @@ const inRange=(d,s)=>d>=s&&d<=endFor(s);
 function displaySchedule(){
  $('scheduleHeadline').textContent=cycleDays()+' days.';
  $('trainingScheduleHint').textContent=cycleDays()===8?'Shift cycle shown for reference. Complete workouts on any day.':'Monday–Sunday schedule. Complete workouts on any day.';
- $('trainingHeading').textContent='Flexible '+cycleDays()+'-day checklist';
  $('rotationHeading').textContent=cycleDays()+'-day rotation summary';
  $('zoneCycleBadge').textContent=cycleDays()+'-day target';
  $('zoneGoalCaption').textContent='Change '+cycleDays()+'-day goal';
  // Couples section now uses a fixed heading and its own rotation date label.
  $('cycleLength').value=String(cycleDays());
  $('anchorLabel').textContent=cycleDays()===8?'Date of Day 1 (first day shift)':'Week starts on (Monday)';
- $('scheduleHint').textContent=cycleDays()===8?'Repeats: 2 day shifts, 2 night shifts, 4 off. Your November 12, 2026 start date stays saved.':'Repeats Monday to Sunday. Workouts stay flexible and can be completed on any day.';
+ $('scheduleHint').textContent=cycleDays()===8?'Repeats every 8 days: 2 day shifts, 2 night shifts, then 4 days off.':'Repeats Monday to Sunday. Workouts stay flexible and can be completed on any day.';
 }
 function shiftLabel(i,date){return cycleDays()===8?shifts[i]:parse(date).toLocaleDateString(undefined,{weekday:'short'});}
 
@@ -1785,8 +1769,17 @@ $('trainingRoutineForm').onsubmit=event=>{
  trainingDrafts.clear();
  $('trainingRoutineEditor').open=false;
  renderTodayTraining();
- $('todayTrainingStatus').textContent='Routine saved.';
+ const status=$('fitnessRoutineEditor')?.contains($('trainingRoutineEditor'))?$('fitnessRoutineStatus'):$('todayTrainingStatus');
+ status.textContent='Workout plan saved.';
 };
+
+function getTrainingSchedule(date=iso(new Date())){
+ const length=cycleDays(),start=cycleStartFor(date);
+ return Array.from({length},(_,index)=>{
+  const day=plus(start,index);
+  return {...trainingDay(length,index),date:day,label:trainingDayLabel(length,index,day)};
+ });
+}
 
 function renderTodayTraining(){
  const date=iso(new Date());
@@ -1829,7 +1822,9 @@ function renderTodayTraining(){
   tasks.append(row);
  }
  if(plan.minutes)tasks.append(todayZone2Task(date,plan.minutes));
- if(!plan.workouts.length&&!plan.minutes)tasks.append(element('p','No activities scheduled for today.','subtle today-training-empty'));
+ const hasPlan=getTrainingSchedule().some(day=>day.workouts.length||day.minutes);
+ $('trainingRoutineEditor').querySelector('summary').textContent=hasPlan?'Edit workout plan':'Set up my workouts';
+ if(!plan.workouts.length&&!plan.minutes)tasks.append(element('p',hasPlan?'Rest day. No workouts planned.':'Add your workouts to see what to do each day.','subtle today-training-empty'));
 }
 
 function todayTrainingRow(label,done,canUndo,note){
@@ -2152,7 +2147,12 @@ $('toggleEdit').onclick=()=>{
  if(edit){if(!commitWorkouts(true))return;return}
  edit=true;render();$('taskSaveFeedback').textContent='Edit your workouts, then tap Save workout changes.';
 };
-$('quickEdit').onclick=()=>{edit=true;showPanel('settings');render();$('customizeHeading').scrollIntoView({behavior:'smooth',block:'start'})};
+$('quickEdit').onclick=()=>{
+ edit=true;document.querySelector('[data-panel="settings"]').click();
+ const heading=$('customizeHeading'),settings=heading.closest('details');
+ if(settings)settings.open=true;
+ render();heading.scrollIntoView({behavior:'smooth',block:'start'});
+};
 $('add').onclick=()=>{
  const name=$('newName').value.trim(),target=Number($('newTarget').value);
  if(!name)return alert('Enter a workout name');
@@ -2223,6 +2223,7 @@ document.addEventListener('visibilitychange',()=>{
  location.reload();
 });
 window.vigorCloudBridge={
+ getTrainingSchedule,
  read:()=>JSON.parse(JSON.stringify(state)),
  refreshTrainingRotation:()=>{const before=JSON.stringify(state.trainingActiveRotation);preserveTrainingRotation();if(before!==JSON.stringify(state.trainingActiveRotation))return save();return true;},
  snapshotTrainingTargets:(start,targets)=>{
@@ -2266,8 +2267,8 @@ window.vigorCloudBridge={
  addJourneyHabit:({name,cue,minimum,identity,kind,plan})=>{
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
    small=String(minimum??'').trim(),why=String(identity??'').trim();
-  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
-   throw Error('Enter a habit name (up to 70 characters) and a small action (up to 150 characters).');
+  if(!label||label.length>70||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
+   throw Error('Use a habit name up to 70 characters. Keep the optional small step to 150 characters.');
   if(!['build','replace'].includes(kind))throw Error('Choose Build or Replace.');
   if(state.habitLabels.length>=100)throw Error('The habit list has reached its limit.');
   if(state.habitLabels.some(x=>x.toLowerCase()===label.toLowerCase()))
@@ -2309,8 +2310,8 @@ window.vigorCloudBridge={
   if(!Number.isInteger(index)||index<0||index>=state.habitLabels.length||!isHabitActive(index))throw Error('Choose a valid active habit.');
   const label=String(name??'').trim(),prompt=String(cue??'').trim(),
    small=String(minimum??'').trim(),why=String(identity??'').trim();
-  if(!label||label.length>70||!small||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
-   throw Error('Enter a habit name (up to 70 characters) and a small action (up to 150 characters).');
+  if(!label||label.length>70||small.length>150||prompt.length>150||why.length>150||String(plan??'').trim().length>180)
+   throw Error('Use a habit name up to 70 characters. Keep the optional small step to 150 characters.');
   if(!['build','replace'].includes(kind))throw Error('Choose Build or Replace.');
   if(state.habitLabels.some((x,i)=>i!==index&&x.toLowerCase()===label.toLowerCase()))
    throw Error('That habit name is already being tracked.');

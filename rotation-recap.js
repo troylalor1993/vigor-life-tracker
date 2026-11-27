@@ -32,7 +32,7 @@
  }
  const progress=$('panel-progress');if(!progress){window.VigorRotationReview={rotationSummary,trainingSummary};return;}
  const card=document.createElement('section');card.className='vigor-rotation-recap';card.id='vigorRotationRecap';
- progress.insertBefore(card,progress.firstChild);
+ ($('progressReports')||progress).append(card);
  const style=document.createElement('style');
  style.textContent='.vigor-rotation-recap{border:1px solid var(--border-strong);border-radius:20px;padding:17px;margin:0 0 14px;background:linear-gradient(135deg,#29241d,var(--panel));color:var(--text-primary)}.vigor-rotation-recap h2{font-size:22px;margin:6px 0}.vigor-rotation-recap p{font-size:13px;color:var(--muted);line-height:1.5}.vrr-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--accent-soft)}.vrr-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:13px 0}.vrr-stats>div{background:var(--input-bg);border:1px solid var(--border);padding:12px 7px;border-radius:12px;min-width:0}.vrr-stats b{display:block;color:var(--accent-soft);font-size:22px}.vrr-stats small{font-size:11px;color:var(--muted);line-height:1.3}.vrr-compare{border-top:1px solid var(--border);padding-top:10px}.vrr-review{background:var(--panel-alt);border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px}.vrr-review p{margin:6px 0}.vigor-rotation-recap button{min-height:44px;padding:10px 13px;border:1px solid var(--border-strong);background:var(--panel-alt);color:var(--text-primary);font-weight:750;border-radius:11px}.vrr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}';
  document.head.append(style);

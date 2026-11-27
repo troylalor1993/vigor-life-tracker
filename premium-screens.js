@@ -6,19 +6,26 @@
  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const panel=$('panel-today');if(!panel||!window.VigorCoaching)return;
  const main=document.querySelector('main');if(!main)return;
- const journey=document.createElement('section');journey.className='vigor-screen';journey.id='vigorJourneyScreen';journey.setAttribute('aria-label','Habit Building Journey');
- const fitness=document.createElement('section');fitness.className='vigor-screen';fitness.id='vigorFitnessScreen';fitness.setAttribute('aria-label','Fitness and workout coaching');
+ const journey=document.createElement('section');journey.className='vigor-screen';journey.id='vigorJourneyScreen';journey.setAttribute('aria-label','Habits');
+ const fitness=document.createElement('section');fitness.className='vigor-screen';fitness.id='vigorFitnessScreen';fitness.setAttribute('aria-label','Fitness');
  main.append(journey,fitness);
  // Move the ORIGINAL collapsible sections, not their inner controls.
  // Otherwise empty "Zone 2 minutes" and "All workouts & session logs" shells
  // remain behind on Today. Retaining the elements also retains every event listener.
+ const habitHistory=$('habitHistoryTools');
  const fitnessContent=document.createElement('div');
  fitnessContent.className='vigor-fitness-content';
  const zone2Movement=$('zone2');
  const training=$('training');
  const zoneSection=zone2Movement?.closest('details.compact-details');
  const trainingSection=training?.closest('details.compact-details');
- fitness.append(fitnessContent);
+ const routineMount=document.createElement('div');routineMount.id='fitnessRoutineEditor';
+ const routineStatus=document.createElement('p');routineStatus.id='fitnessRoutineStatus';routineStatus.setAttribute('role','status');
+ const workoutHistory=document.createElement('details');workoutHistory.id='fitnessWorkoutHistory';workoutHistory.className='compact-details';
+ const historyTitle=document.createElement('summary');historyTitle.textContent='Workout history';
+ const historyList=document.createElement('ul');historyList.className='fitness-history-list';
+ workoutHistory.append(historyTitle,historyList);
+ fitness.append(fitnessContent,routineMount,routineStatus,workoutHistory);
  if(zoneSection){
    fitness.append(zoneSection);
    zoneSection.open=true;
@@ -32,6 +39,7 @@
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
  function expandAndScroll(id){
   const target=$(id);if(!target)return;
+  const reports=target.closest('#progressReports');if(reports)reports.open=true;
   const details=target.closest('details');if(details)details.open=true;
   target.scrollIntoView({behavior:'smooth',block:'start'});
  }
@@ -50,10 +58,9 @@
   if(!active.some(x=>x.i===selectedHabit))selectedHabit=active[0]?.i??0;
   const h=active.length?window.VigorCoaching.habitJourney(data,day,selectedHabit):null;
   const stepDesc=['Choose a meaningful habit and why it matters','Attach a small action to a reliable cue','Repeat with minimum or full efforts','Learn from obstacles and recent check-ins','Protect your routine before adding more'];
-  journey.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">A LIFE BUILT ON PURPOSE</div>
-      <h2>Habit-Building Journey</h2><p>Choose, simplify, practice, reflect, and grow. Your journey is personal—not a race.</p></div>
+  journey.innerHTML=`<div class="vigor-screen-header"><h2>Habits</h2></div>
       ${active.length?`<label class="vigor-habit-select">Habit you're building
-       <select id="vigorJourneySelect" aria-label="Choose a habit to develop">${active.map(({name:x,i})=>'<option value="'+i+'"'+(i===selectedHabit?' selected':'')+'>'+escape(x)+'</option>').join('')}</select></label>`:'<div class="vigor-summary">Add or restore a habit in Journey to begin.</div>'}
+       <select id="vigorJourneySelect" aria-label="Choose a habit to develop">${active.map(({name:x,i})=>'<option value="'+i+'"'+(i===selectedHabit?' selected':'')+'>'+escape(x)+'</option>').join('')}</select></label>`:'<div class="vigor-summary">Add or restore a habit to begin.</div>'}
       ${h?`<div class="vigor-steps">${h.steps.map((step,i)=>`<div class="vigor-step${step.complete?' complete':''}">
        <span class="vigor-step-index">${step.complete?'✓':i+1}</span>
        <div><strong>${escape(step.label)}</strong><small>${escape(stepDesc[i])}</small></div>
@@ -66,27 +73,45 @@
       <button id="vigorJourneyLog" type="button" class="secondary">Log a small win</button>
       <button id="vigorJourneyGrowth" type="button" class="secondary">Review progress</button></div>
       <p class="vigor-detail-note">These stages respond to recorded check-ins, not a clinical measure of habit automaticity. Blank and designated rest days are not treated as failures.</p>`;
+  if(habitHistory)journey.append(habitHistory);
   journey.querySelector('#vigorJourneySelect')?.addEventListener('change',e=>{selectedHabit=Number(e.target.value)||0;render()});
   journey.querySelector('#vigorJourneySetup')?.addEventListener('click',()=>navigateToSetup(h?.name||labels[0]||'',h||{}));
-  journey.querySelector('#vigorJourneyLog')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('daily')});
+  journey.querySelector('#vigorJourneyLog')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('vigorAllHabits')});
   journey.querySelector('#vigorJourneyGrowth')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('disciplineReview')});
  }
  function renderFitness(data,day){
-  const w=window.VigorCoaching.workoutReview(data,day),guide=window.VigorCoaching.progressionGuidance(data,day);
-  const rate=w.target?Math.min(100,Math.round(w.completed/w.target*100)):0;
-  fitnessContent.innerHTML=`<div class="vigor-screen-header"><div class="vigor-eyebrow">BUILD STRENGTH · PROTECT CONSISTENCY</div>
-      <h2>Fitness & Coaching</h2><p>Train with intention. Your workouts adapt around real-life schedules and recovery—not a perfect calendar.</p></div>
-      <div class="vigor-summary"><strong>Workout rotation</strong><h2>${w.completed} of ${w.target} sessions</h2>
-      <p>${escape(w.length+'-day schedule')} · ${w.daysRemaining} day(s) remaining · ${w.minimumEfforts} minimum-effort start(s)</p>
-      <div class="vigor-mini-progress" role="progressbar" aria-label="Rotation workout completion" aria-valuemin="0" aria-valuemax="${Math.max(1,w.target)}" aria-valuenow="${Math.min(w.target,w.completed)}"><span style="width:${rate}%"></span></div></div>
-      <div class="vigor-action-row"><button type="button" id="vigorFitnessOpen">Open workout checklist</button><button class="secondary" type="button" id="vigorFitnessHistory">See performance history</button></div>
-      <h3>Planned workouts</h3>
-      <div class="vigor-workout-list">${w.items.length?w.items.map(x=>'<div class="vigor-workout-row"><strong>'+escape(x.name)+'</strong><span>'+x.current+' / '+x.target+' logged</span></div>').join(''):'<p>No workouts have been configured yet.</p>'}</div>
-      <div class="vigor-summary"><strong>Coach's note: ${escape(guide.label)}</strong><p>${escape(guide.detail)}</p>
-      <p>${escape(guide.basis)}. Your training targets are not changed automatically.</p></div>
-      <p class="vigor-detail-note">Session counts reflect completed logs, not an estimate of calories burned or fitness gains. Follow your own recovery needs and professional guidance where appropriate.</p>`;
-  fitnessContent.querySelector('#vigorFitnessOpen')?.addEventListener('click',()=>{if(trainingSection)trainingSection.open=true;training?.scrollIntoView({behavior:'smooth',block:'start'})});
-  fitness.querySelector('#vigorFitnessHistory')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('progressInsights')});
+  const schedule=window.vigorCloudBridge.getTrainingSchedule(day);
+  const planned=schedule.some(entry=>entry.workouts.length||entry.minutes);
+  const editor=$('trainingRoutineEditor');
+  const editLabel=planned?'Edit workout plan':'Set up my workouts';
+  fitnessContent.innerHTML=`<div class="vigor-screen-header"><h2>Fitness</h2></div>
+    <section class="vigor-summary" aria-labelledby="fitnessPlanHeading">
+      <div class="row"><h3 id="fitnessPlanHeading">My workout plan</h3>
+      <button type="button" id="fitnessEditPlan" class="secondary">${editLabel}</button></div>
+      ${planned?`<ul class="fitness-plan-list">${schedule.map(entry=>{
+        const tasks=entry.workouts.map(([,label])=>escape(label));
+        if(entry.minutes)tasks.push('Easy cardio (Zone 2) · '+entry.minutes+' min');
+        return '<li'+(entry.date===day?' aria-current="date"':'')+'><strong>'+escape(entry.label)+
+          (entry.date===day?' · Today':'')+'</strong>'+(tasks.length?'<ul><li>'+tasks.join('</li><li>')+'</li></ul>':'<span>Rest day</span>')+'</li>';
+      }).join('')}</ul>`:'<p>Add workouts and the days you want to do them.</p>'}
+    </section>`;
+  const names=new Map((data.activities||[]).map(workout=>[workout.id,workout.name]));
+  const sessions=(data.completions||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  historyList.replaceChildren();
+  for(const session of sessions){
+    const item=document.createElement('li');
+    const date=document.createElement('time');date.dateTime=session.date;
+    date.textContent=new Date(session.date+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    item.append(names.get(session.activityId)||'Workout',date);historyList.append(item);
+  }
+  if(!sessions.length){
+    const empty=document.createElement('li');empty.textContent='Your workouts will show here after you log them.';historyList.append(empty);
+  }
+  $('fitnessEditPlan').onclick=()=>{
+    if(!routineMount.contains(editor))routineMount.append(editor);
+    if(!editor.open)editor.querySelector('summary').click();
+    editor.scrollIntoView({block:'start',behavior:'smooth'});
+  };
  }
  function render(){
   const data=read();if(!data)return;
