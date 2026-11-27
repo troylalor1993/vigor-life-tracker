@@ -137,6 +137,35 @@ async function main(){
      assert.equal(await progress.locator('#habitCalendarGrid button').count(),8,'The calendar shows each day of the rotation');
      await progress.locator('#habitCalendarGrid button').first().click();
      assert.match(await progress.locator('#habitCalendarDetail').textContent(),/habit entry|full|recovery/i);
+     const dateField=progress.locator('#measureDate');
+     const todayDate=await dateField.inputValue();
+     const earlierDates=await page.evaluate(()=>{
+       const date=new Date();
+       return [-2,-1].map(offset=>{
+         const past=new Date(date);
+         past.setDate(past.getDate()+offset);
+         return [past.getFullYear(),String(past.getMonth()+1).padStart(2,'0'),String(past.getDate()).padStart(2,'0')].join('-');
+       });
+     });
+     await dateField.fill(earlierDates[0]);
+     await progress.locator('#weight').fill('355.4');
+     await progress.locator('#saveMeasure').click();
+     assert.equal(await progress.locator('#measureStatus').getAttribute('data-state'),'saved');
+     assert.match(await progress.locator('#measureStatus').textContent(),/Saved.*355.4 lb weight/);
+     await dateField.fill(earlierDates[1]);
+     await progress.locator('#waist').fill('52.5');
+     await progress.locator('#saveMeasure').click();
+     assert.match(await progress.locator('#measureStatus').textContent(),/Saved.*52.5 in waist/);
+     await dateField.fill(earlierDates[0]);
+     assert.equal(await progress.locator('#weight').inputValue(),'355.4');
+     await progress.locator('#weight').fill('');
+     await progress.locator('#waist').fill('53');
+     await progress.locator('#saveMeasure').click();
+     assert.match(await progress.locator('#measureStatus').textContent(),/355.4 lb weight.*53 in waist/);
+     const savedMeasurements=await page.evaluate(()=>window.vigorCloudBridge.read().measurements);
+     assert.deepEqual(savedMeasurements.find(x=>x.date===earlierDates[1]),{date:earlierDates[1],waist:52.5});
+     assert.deepEqual(savedMeasurements.find(x=>x.date===earlierDates[0]),{date:earlierDates[0],weight:355.4,waist:53});
+     await dateField.fill(todayDate);
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
      const library = page.getByText('Training library · Gym and home',{exact:true});

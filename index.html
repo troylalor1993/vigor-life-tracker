@@ -476,7 +476,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
 <div class="card" id="training"><div class="row"><h2>Workout log</h2><div class="toolbar"><button id="quickEdit" class="secondary">Edit types of workouts</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle" id="trainingScheduleHint">Complete any workout on whichever day works best for you.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename, rearrange with ↑ / ↓, or adjust rotation targets. Tap <strong>Save workout changes</strong> to keep the new order.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New workout or task<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target per rotation<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="secondary" type="button">Add workout</button></div><button type="button" class="primary" id="saveWorkoutChanges" style="width:100%;min-height:48px;margin:12px 0 8px">Save workout changes</button><div id="taskSaveFeedback" class="subtle" role="status" aria-live="polite">Changes not saved yet.</div></div></div>
-<section class="body-goals-card" id="bodyTargets"><div class="row"><div><div class="dashboard-label">YOUR PERSONAL TARGETS</div><h2>Weight & waist goals</h2></div><button id="editBodyTargets" type="button" class="secondary tiny">Edit targets</button></div><p id="bodyGoalSummary" class="subtle"></p><details id="bodyGoalDetails"><summary>Adjust starting measurements and goals</summary><div class="body-goal-fields"><label>Starting weight (lb)<input id="bodyStartWeight" type="number" min="50" max="1000" step=".1"></label><label>Goal weight (lb)<input id="bodyGoalWeight" type="number" min="50" max="1000" step=".1"></label><label>Starting waist (in)<input id="bodyStartWaist" type="number" min="10" max="100" step=".1"></label><label>Goal waist (in)<input id="bodyGoalWaist" type="number" min="10" max="100" step=".1"></label></div><button id="saveBodyTargets" type="button" class="primary">Save targets</button><p class="subtle">Recorded measurements stay intact. Existing milestone rewards and their milestone weights remain separate.</p></details><p id="bodyTargetFeedback" class="body-goal-status" aria-live="polite"></p></section><div class="card" id="measurements"><h2>Log weight and waist</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Save one entry per schedule period. Save again to update it.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save measurements</button></p><details><summary>Past measurements</summary><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></details></div>
+<section class="body-goals-card" id="bodyTargets"><div class="row"><div><div class="dashboard-label">YOUR PERSONAL TARGETS</div><h2>Weight & waist goals</h2></div><button id="editBodyTargets" type="button" class="secondary tiny">Edit targets</button></div><p id="bodyGoalSummary" class="subtle"></p><details id="bodyGoalDetails"><summary>Adjust starting measurements and goals</summary><div class="body-goal-fields"><label>Starting weight (lb)<input id="bodyStartWeight" type="number" min="50" max="1000" step=".1"></label><label>Goal weight (lb)<input id="bodyGoalWeight" type="number" min="50" max="1000" step=".1"></label><label>Starting waist (in)<input id="bodyStartWaist" type="number" min="10" max="100" step=".1"></label><label>Goal waist (in)<input id="bodyGoalWaist" type="number" min="10" max="100" step=".1"></label></div><button id="saveBodyTargets" type="button" class="primary">Save targets</button><p class="subtle">Recorded measurements stay intact. Existing milestone rewards and their milestone weights remain separate.</p></details><p id="bodyTargetFeedback" class="body-goal-status" aria-live="polite"></p></section><div class="card" id="measurements"><h2>Log weight and waist</h2><p class="subtle">Enter weight, waist, or both. Pick a date to add or update its readings.</p><p id="measureStatus" class="measurement-status" role="status"></p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save measurements</button></p><details><summary>Past measurements</summary><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></details></div>
 <section class="card theme-settings" id="themeSettings">
 <h2>Appearance</h2>
 <p class="theme-sub">Choose a premium colour theme. Your dashboard updates immediately and remembers your selection on this device.</p>
@@ -1568,7 +1568,7 @@ function shiftLabel(i,date){return cycleDays()===8?shifts[i]:parse(date).toLocal
 function metricChart(points,key,unit){
 const values=points.filter(p=>p[key]!=null&&Number.isFinite(Number(p[key]))).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>({date:p.date,value:Number(p[key])}));
 if(!values.length)return '<p class="subtle">Record a check-in to see progress.</p>';
-if(values.length===1)return '<p class="progress-note">First reading: '+values[0].value+' '+unit+' — add another rotation to see a trend.</p>';
+if(values.length===1)return '<p class="progress-note">First reading: '+values[0].value+' '+unit+' · Add another reading to see a trend.</p>';
 const vs=values.map(p=>p.value),lo=Math.min(...vs),hi=Math.max(...vs),span=Math.max(1,hi-lo),dots=values.map((p,i)=>({x:15+i*290/(values.length-1),y:125-(p.value-lo)/span*90,value:p.value,date:p.date}));
 return '<svg class="trend-chart" viewBox="0 0 320 160" role="img" aria-label="'+key+' trend" preserveAspectRatio="xMidYMid meet"><line x1="15" y1="130" x2="310" y2="130" stroke="#55462a"/><polyline fill="none" stroke="var(--accent)" stroke-width="3" points="'+dots.map(p=>p.x+','+p.y).join(' ')+'"/>'+dots.map(p=>'<circle r="3.5" fill="#f0d37e" cx="'+p.x+'" cy="'+p.y+'"><title>'+p.date+': '+p.value+' '+unit+'</title></circle>').join('')+'<text x="15" y="151" font-size="11" fill="#bcb19c">'+values[0].date.slice(5)+'</text><text x="305" y="151" text-anchor="end" font-size="11" fill="#bcb19c">'+values[values.length-1].date.slice(5)+'</text></svg>';
 }
@@ -1799,6 +1799,29 @@ function todayZone2Task(date,target){
  return task;
 }
 
+let measurementDirty=false,measurementValues={};
+function renderMeasurementStatus(date,entry){
+ const status=$('measureStatus');
+ const label=date===iso(new Date())?'today':parse(date).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+ const saved=[];
+ if(entry?.weight!=null)saved.push(entry.weight+' lb weight');
+ if(entry?.waist!=null)saved.push(entry.waist+' in waist');
+ status.dataset.state=saved.length?'saved':'empty';
+ status.textContent=saved.length?'✓ Saved for '+label+' · '+saved.join(' · '):'No measurements saved for '+label+'.';
+}
+function renderMeasurementForm(){
+ const field=$('measureDate');
+ field.max=iso(new Date());
+ if(!field.value)field.value=field.max;
+ const entry=state.measurements.find(item=>item.date===field.value);
+ if(!measurementDirty){
+  measurementValues={weight:entry?.weight==null?null:Number(entry.weight),waist:entry?.waist==null?null:Number(entry.waist)};
+  $('weight').value=entry?.weight??'';
+  $('waist').value=entry?.waist??'';
+  renderMeasurementStatus(field.value,entry);
+ }
+}
+
 function render(){
 const s=start(),end=endFor(s),counts={};
 displaySchedule();
@@ -1896,10 +1919,7 @@ state.activities.forEach(a=>{
  };
  row.append(name,target,moves,del);$('editList').append(row)
 });
-const rotationMeasurement=state.measurements.filter(m=>inRange(m.date,s)).sort((a,b)=>b.date.localeCompare(a.date))[0];
-$('measureStatus').textContent=rotationMeasurement?'✓ Rotation check-in recorded — edit and save to correct it':'Not recorded yet for '+s+' to '+end;
-$('measureDate').min=s;$('measureDate').max=end;$('measureDate').value=rotationMeasurement?.date??(inRange(today,s)?today:s);
-$('weight').value=rotationMeasurement?.weight??'';$('waist').value=rotationMeasurement?.waist??'';
+renderMeasurementForm();
 const sorted=state.measurements.slice().sort((a,b)=>b.date.localeCompare(a.date));
 const latestWeight=sorted.find(m=>m.weight!=null)?.weight,latestWaist=sorted.find(m=>m.waist!=null)?.waist;
 $('transformationSummary').replaceChildren();
@@ -2077,7 +2097,42 @@ $('saveBodyTargets').onclick=()=>{
  state.bodyGoals={startWeight,goalWeight,startWaist,goalWaist};
  if(save()){render();$('bodyGoalDetails').open=false;$('bodyTargetFeedback').textContent='✓ Targets saved and queued for cloud sync'}
 };
-$('saveMeasure').onclick=()=>{const s=start(),date=$('measureDate').value,w=Number($('weight').value),wa=Number($('waist').value);if(!date||!inRange(date,s))return alert('Choose a date within this '+cycleDays()+'-day rotation');if(!Number.isFinite(w)||w<=0||!Number.isFinite(wa)||wa<=0)return alert('Please enter both weight and waist for this rotation');state.measurements=state.measurements.filter(m=>!inRange(m.date,s));state.measurements.push({date,weight:w,waist:wa});save();render()};
+$('measureDate').onchange=()=>{
+ measurementDirty=false;
+ renderMeasurementForm();
+};
+for(const id of ['weight','waist'])$(id).oninput=()=>{measurementDirty=true};
+$('saveMeasure').onclick=()=>{
+ const date=$('measureDate').value;
+ const now=iso(new Date());
+ const status=$('measureStatus');
+ const error=message=>{status.dataset.state='error';status.textContent=message};
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||iso(parse(date))!==date||date<'0001-01-01'||date>now){
+  error('Choose today or an earlier date.');return;
+ }
+ const edits={};
+ for(const [id,label] of [['weight','weight'],['waist','waist']]){
+  const field=$(id),raw=field.value,value=Number(raw);
+  if(field.validity.badInput||(raw&&(!Number.isFinite(value)||value<=0))){
+   error('Enter a valid '+label+' greater than zero.');return;
+  }
+  if(raw&&value!==measurementValues[id])edits[id]=value;
+ }
+ const existing=state.measurements.find(entry=>entry.date===date);
+ if(!Object.keys(edits).length){
+  if(!existing||(!$('weight').value&&!$('waist').value))error('Enter weight, waist, or both.');
+  else renderMeasurementStatus(date,existing);
+  return;
+ }
+ const previous=state.measurements;
+ const entry={...existing,date,...edits};
+ state.measurements=[...previous.filter(item=>item.date!==date),entry];
+ if(!save()){
+  state.measurements=previous;error('Could not save. Try again.');return;
+ }
+ measurementDirty=false;
+ render();
+};
 $('cycleLength').onchange=()=>{
  const next=Number($('cycleLength').value);
  if(next===cycleDays())return;

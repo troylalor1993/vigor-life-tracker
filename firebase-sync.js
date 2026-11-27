@@ -58,7 +58,7 @@ async function remoteData(){
 // Activity logs are matched by record ID/date; daily checklists merge by habit position.
 const encoded=value=>JSON.stringify(value);
 const cloned=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
-function mergePersonal(before,local,remote){
+function mergePersonal(before,local,remote,property){
  if(encoded(local)===encoded(before))return cloned(remote);
  if(encoded(remote)===encoded(before))return cloned(local);
  if(local===undefined)return undefined;
@@ -75,7 +75,10 @@ function mergePersonal(before,local,remote){
     if(encoded(changed.get(id))!==encoded(val))
      merged.set(id,mergePersonal(val,changed.get(id),merged.get(id)));
    }
-   for(const [id,val] of changed)if(!old.has(id))merged.set(id,cloned(val));
+   for(const [id,val] of changed)if(!old.has(id)){
+    const other=merged.get(id);
+    merged.set(id,property==="measurements"&&other?mergePersonal(undefined,val,other):cloned(val));
+   }
    return [...merged.values()].filter(x=>x!==undefined);
   }
   return Array.from({length:Math.max(local.length,remote.length)},(_,i)=>
@@ -86,7 +89,7 @@ function mergePersonal(before,local,remote){
   const result={...cloned(remote)};
   for(const k of new Set([...Object.keys(local),...Object.keys(before&&typeof before==="object"&&!Array.isArray(before)?before:{})])){
    if(encoded(local[k])===encoded(before?.[k]))continue;
-   const next=mergePersonal(before?.[k],local[k],remote[k]);
+   const next=mergePersonal(before?.[k],local[k],remote[k],k);
    if(next===undefined)delete result[k];else result[k]=next;
   }
   return result;
