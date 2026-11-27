@@ -34,6 +34,9 @@ async function main(){
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
      assert.equal(await page.locator('#big3Panel').count(),0,'Focus anchor section is removed');
      assert.equal(await page.locator('#vigorAllHabits').isVisible(),true,'All habits carousel is prominent on Today');
+     assert.equal(await page.locator('#nutritionDiscipline').count(),0,'Nutrition Discipline card is removed');
+     assert.equal(await page.locator('#vigorAllHabits').getByRole('heading',{name:'Followed nutrition plan'}).count(),1,
+       'The regular nutrition habit is still available');
      assert.equal(await page.locator('#vigorDailyFocus').count(),0,'Old priority hero is removed');
      assert.equal(await page.locator('#transformationCoach, #vigorCoach').count(),0,'Redundant coaching cards are removed');
      assert.equal(await page.locator('#todayTraining').isVisible(),true,'Daily training checklist is visible');

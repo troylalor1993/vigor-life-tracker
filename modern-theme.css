@@ -21,7 +21,7 @@ h1,h2,h3{letter-spacing:-.035em}h1{font-weight:800}h2{font-weight:750}
 .app-header h1 .accent{background:linear-gradient(105deg,#f7db91,#c9933f);color:transparent;-webkit-background-clip:text;background-clip:text}
 .app-header>p{font-size:13px;margin-top:9px;color:#ddd1b9}
 #globalSaveStatus{position:absolute;top:24px;right:22px;max-width:42%;font-size:11px;text-align:right;opacity:.9}
-.card,.big3-card,.discipline-overview,.insight-card,.body-goals-card,.activity-card,.zone-card,.nutrition-discipline,.cloud-card,.vc-growth-card,details.compact-details{border-radius:21px!important;border:1px solid var(--border)!important;background:linear-gradient(155deg,rgba(255,255,255,.037),transparent 55%),linear-gradient(170deg,var(--panel-alt),var(--panel))!important;box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.055)}
+.card,.big3-card,.discipline-overview,.insight-card,.body-goals-card,.activity-card,.zone-card,.cloud-card,.vc-growth-card,details.compact-details{border-radius:21px!important;border:1px solid var(--border)!important;background:linear-gradient(155deg,rgba(255,255,255,.037),transparent 55%),linear-gradient(170deg,var(--panel-alt),var(--panel))!important;box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.055)}
 .big3-card{border-color:var(--border-strong)!important;box-shadow:0 18px 45px rgba(0,0,0,.24),inset 0 1px rgba(247,216,152,.13)}
 .discipline-eyebrow,.dashboard-label,.scripture-label,.vc-eyebrow,.vc-growth-eyebrow{font-weight:800;letter-spacing:.12em;color:var(--accent-soft)}
 button,.app-tab{transition:background .2s ease,color .2s ease,border-color .2s ease,transform .16s ease}
