@@ -117,10 +117,6 @@
 #vigorJourneyScreen .vjm-item-more small{display:block;flex:1 1 100%;color:var(--muted)}
 #vigorJourneyScreen .vjm-item-more button{min-height:42px;padding:9px 14px;flex:1;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-alt);color:var(--text-primary);font-size:13px;font-weight:750}
 #vigorJourneyScreen .vjm-item{gap:9px}
-#vigorJourneyScreen .vjm-focus-strip{margin:8px 0 13px;padding:12px;border:1px solid var(--border-strong);border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,var(--panel-alt))}
-#vigorJourneyScreen .vjm-focus-strip>strong{display:block;font-size:13px;margin-bottom:8px;color:var(--text-primary)}
-#vigorJourneyScreen .vjm-focus-chips{display:flex;flex-wrap:wrap;gap:7px}
-#vigorJourneyScreen .vjm-focus-chip{background:var(--panel);border:1px solid var(--border-strong);border-radius:999px;color:var(--accent-soft);font-size:12px;font-weight:700;padding:9px 12px;min-height:42px}
 #vigorJourneyScreen .vjm-display-controls{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:0 0 13px}
 #vigorJourneyScreen .vjm-display-controls span{font-size:12px;color:var(--muted)}
 #vigorJourneyScreen .vjm-hide-completed{font-size:12px;font-weight:800;color:var(--accent-soft);border:1px solid var(--border-strong);border-radius:10px;background:var(--panel-alt);min-height:43px;padding:8px 12px}
@@ -145,13 +141,6 @@
  background:var(--panel-alt);
 }
 #vigorJourneyScreen .vjm-item:has(.vjm-restore){border-style:dashed;opacity:.92}
-#vigorJourneyScreen .vjm-filters{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
-#vigorJourneyScreen .vjm-filter{font-size:11px;min-width:0}
-@media(max-width:500px){
- #vigorJourneyScreen .vjm-filters{display:flex;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:3px}
- #vigorJourneyScreen .vjm-filter{flex:0 0 auto;min-width:82px;scroll-snap-align:start;padding:9px 11px}
-}
-
 /* Sorting is an optional view preference, never a rewrite of the habit order. */
 #vigorJourneyScreen .vjm-sort-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #vigorJourneyScreen .vjm-sort-label{display:grid;gap:4px;color:var(--muted);font-size:11px;font-weight:700}

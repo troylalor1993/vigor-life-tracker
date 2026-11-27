@@ -74,9 +74,7 @@
   return manager;
  }
  function sortHabits(items,mode,context={}){
-   const full=context.full||[],minimums=context.minimums||{},priorities=context.priorities||[];
-   const base=(a,b)=>context.view==='focus'?
-     priorities.indexOf('h:'+a.index)-priorities.indexOf('h:'+b.index):a.index-b.index;
+   const full=context.full||[],minimums=context.minimums||{};
    const started=item=>!!full[item.index]||!!minimums[item.index];
    const attention=item=>{
      // Not enough logged opportunities must never be mistaken for failure.
@@ -99,7 +97,7 @@
        const diff=Number(started(a))-Number(started(b));
        if(diff)return diff;
      }
-     return base(a,b);
+     return a.index-b.index;
    });
  }
  function render(){
@@ -117,10 +115,6 @@
     const date=new Date();date.setHours(12,0,0,0);date.setDate(date.getDate()-15+j);
     return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
   }).filter(day=>data.dailyCheckins?.[day]?.saved&&!data.discipline?.restDays?.[day]);
-  // Exactly the same daily priorities and order used by Today (including defaults).
-  const priorities=window.VigorDailyFocus?.focusFor?.(data,localDate())?.priorities||[];
-  const focusIndexes=new Set(priorities.filter(key=>/^h:\d+$/.test(key))
-    .map(key=>Number(key.slice(2))));
   const tracked=(settings,day)=>!settings.archivedAt||day<settings.archivedAt;
   const visible=data.habitLabels.map((name,index)=>{
     const settings=data.discipline?.settings?.[index]||{},archived=!!settings.archivedAt;
@@ -132,35 +126,18 @@
       rate:eligible.length?Math.round((full+minimum)*100/eligible.length):null,
       opportunities:eligible.length};
   }).filter(item=>view==='archived'?item.archived:
-    !item.archived&&(view==='all'||view==='focus'&&focusIndexes.has(item.index)
+    !item.archived&&(view==='all'
      ||view==='build'&&item.kind==='build'||view==='replace'&&item.kind==='replace'));
   // A completed habit is never dropped or erased; it simply moves to the bottom.
   const tabs=mk('div','vjm-filters');
-  for(const [key,label] of [['all','All habits'],['focus','My focus'],['build','Building'],['replace','Replacing'],['archived','Archived']]){
+  for(const [key,label] of [['all','All habits'],['build','Building'],['replace','Replacing'],['archived','Archived']]){
     const button=mk('button',view===key?'vjm-filter active':'vjm-filter',label);
     button.type='button';button.setAttribute('aria-pressed',String(view===key));
     button.onclick=()=>{view=key;render()};
     tabs.append(button);
   }
-  if(focusIndexes.size){
-    const focus=mk('section','vjm-focus-strip');
-    focus.append(mk('strong','', 'Today’s focus'));
-    const items=mk('div','vjm-focus-chips');
-    priorities.filter(key=>/^h:\d+$/.test(key)).slice(0,3).forEach(key=>{
-      const i=Number(key.slice(2)),name=data.habitLabels[i];
-      if(!name)return;
-      const chip=mk('button','vjm-focus-chip',name);
-      chip.type='button';
-      chip.onclick=()=>{view='focus';expandedCards.add(i);selectedIndex=i;render();
-       $('vigorJourneyManager')?.querySelector('[data-habit-index="'+i+'"]')?.scrollIntoView({behavior:'smooth',block:'center'});
-      };
-      items.append(chip);
-    });
-    focus.append(items);manager.append(focus);
-  }
   manager.append(tabs);
   const summary=mk('p','vjm-filter-summary',
-    view==='focus'?'The habit priorities shown on Today, in the same order. Workouts remain under Fitness.':
     view==='replace'?'A positive action to practise when an unwanted pattern appears.':
     view==='archived'?'Paused habits live here. Restore one whenever you are ready; its earlier records stay intact.':
     view==='build'?'Good routines that you are growing one step at a time.':
@@ -189,7 +166,7 @@
   controls.append(mk('span','',completedCount+' of '+visible.length+' followed today'),sortActions);
   manager.append(controls);
   const eligible=visible.filter(item=>item.archived||!hideCompleted||!checkins[item.index]&&!minimumsToday[item.index]);
-  const shown=sortHabits(eligible,sortMode,{full:checkins,minimums:minimumsToday,view,priorities});
+  const shown=sortHabits(eligible,sortMode,{full:checkins,minimums:minimumsToday,view});
   if(data.habitLabels.length){
     const grid=mk('div','vjm-list');
     const entry=data.dailyCheckins?.[localDate()]||{};
