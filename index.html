@@ -1871,7 +1871,7 @@ function renderTodayTraining(){
  const length=cycleDays(),index=trainingDayIndex(date),plan=trainingDay(length,index);
  $('todayTraining').hidden=false;
  $('todayTrainingDay').textContent=trainingDayLabel(length,index,date);
- if($('trainingRoutineEditor').open&&trainingEditorLength!==length)openTrainingRoutine(date);
+ if(trainingEditorLength!==length)openTrainingRoutine(date);
  const tasks=$('todayTrainingTasks');
  tasks.replaceChildren();
  for(const [routine,label,name=label,note] of plan.workouts){
