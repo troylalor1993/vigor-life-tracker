@@ -924,7 +924,7 @@ function renderProgressOverview(){
  const inCurrentPeriod=date=>date>=start&&date<=today;
  const habitChecks=Object.entries(state.dailyCheckins)
   .filter(([date,entry])=>inCurrentPeriod(date)&&entry?.saved)
-  .reduce((sum,[,entry])=>sum+(entry.habits?.filter(Boolean).length||0),0);
+  .reduce((sum,[,entry])=>sum+(Array.isArray(entry.habits)?entry.habits.filter(Boolean).length:0),0);
  const workouts=state.completions.filter(entry=>inCurrentPeriod(entry.date)).length;
  const minutes=state.zone2Logs.filter(entry=>inCurrentPeriod(entry.date))
   .reduce((sum,entry)=>sum+Number(entry.minutes||0),0);
