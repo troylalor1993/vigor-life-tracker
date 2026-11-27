@@ -118,12 +118,19 @@ async function main(){
      assert.equal(await page.locator('#progressOverview').isVisible(),true,'A short progress summary is visible');
      const progress=page.locator('#panel-progress');
      assert.deepEqual(await progress.locator(':scope > details > summary').allTextContents(),
-       ['Weight & waist charts','Habit calendar'],'Progress has only two expandable sections');
+       ['Weight & waist charts','Weight milestones','Habit calendar'],'Progress has only the three tracking sections');
      assert.equal(await progress.locator('#progressReports,#disciplineReview,#progressInsights,#vigorRotationRecap,#vigorPersonalGrowth').count(),0,
        'Overlapping reports and training score are gone');
      await progress.getByText('Weight & waist charts',{exact:true}).click();
      assert.equal(await progress.locator('#weightChart').isVisible(),true,'Charts open directly');
      assert.equal(await progress.locator('#habitCalendar').isVisible(),false,'Charts leave the calendar closed');
+     assert.equal(await progress.locator('#milestones').isVisible(),false,'Milestones stay collapsed until opened');
+     await progress.getByText('Weight milestones',{exact:true}).click();
+     assert.equal(await progress.locator('#milestones .milestone-item').count(),10,'All ten milestones are available in Progress');
+     await progress.getByText('Manage my 10 milestone rewards',{exact:true}).click();
+     assert.equal(await progress.locator('#milestoneRewards input').count(),10,'Each milestone still has a reward field');
+     assert.equal(await page.locator('#panel-rewards #milestones').count(),0,'Milestones appear in one place');
+     await progress.getByText('Weight milestones',{exact:true}).click();
      await progress.getByText('Habit calendar',{exact:true}).click();
      assert.equal(await progress.locator('#habitCalendarGrid button').count(),8,'The calendar shows each day of the rotation');
      await progress.locator('#habitCalendarGrid button').first().click();
