@@ -16,7 +16,7 @@
     kind:settings.kind==='replace'?'Replacing':'Building'};
   }).filter(Boolean).sort((a,b)=>Number(a.status!=='none')-Number(b.status!=='none')||a.index-b.index);
  }
- const anchor=$('vigorDailyFocus')||$('big3Panel');
+ const anchor=$('transformationCoach');
  if(!anchor)return;
  const deck=document.createElement('section');deck.id='vigorAllHabits';deck.className='vigor-all-habits';
  deck.setAttribute('aria-label','Swipe through all of today’s habits');

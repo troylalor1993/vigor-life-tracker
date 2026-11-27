@@ -2,16 +2,6 @@
 (() => {
   'use strict';
 
-  const assignments = [
-    'Full Body A · Gym or home. Optional easy cardio.',
-    'Day shift · Easy Zone 2 and mobility.',
-    'Full Body B · Gym or home before work if rested.',
-    'Second night · Easy walking and mobility.',
-    'First day off · Protect recovery sleep; optional easy walk.',
-    'Full Body C · Gym or home. Optional Zone 2.',
-    'Athletic performance · Controlled mobility, balance and power preparation; optional low-impact intervals if rested.',
-    'Full Body D · Gym or home. Optional easy cardio.'
-  ];
   const liftInstructions = 'Two working sets per exercise; leave 1–3 reps in reserve. On busy days use a short version. Do not make up missed sessions at the expense of recovery.';
   const routines = [["Bench Press|DB Floor Press|6–12","Back Squat|Goblet Squat|6–15","Overhead Press|DB Overhead Press|6–12","Bent-Over Row|DB Bent-Over Row|8–12","Romanian Deadlift|DB Romanian Deadlift|8–15","Incline Curl|Standing DB Curl|10–15","Overhead Triceps Extension|DB Overhead Extension|10–15","Cable Crunch|Weighted Crunch|12–15"],["Front Squat|Double DB Front Squat|6–15","Deadlift|DB Deadlift|4–15","Incline DB Press|DB Floor Press|8–15","Shoulder Press|Arnold Press|8–12","Assisted Pull-Ups|Single-Arm DB Row|6–15","Preacher Curl|Concentration Curl|10–15","Rope Pushdown|DB Kickback|10–15","Hanging Knee Raise|Reverse Crunch|8–15"],["Bulgarian Split Squat|Stationary Split Squat|8–12/leg","Machine Hip Thrust|DB Glute Bridge|8–20","Landmine Row|Neutral-Grip DB Row|8–15","Lateral Raise|DB Lateral Raise|12–20","Machine Chest Press|DB Squeeze Floor Press|8–15","Hammer Curl|DB Hammer Curl|10–15","Skull Crusher|DB Floor Skull Crusher|10–15","Pallof Press|Bird Dog|8–12/side"],["Reverse Lunges|DB Reverse Lunges|8–12/leg","Seated Leg Curl|Hamstring Walkouts|8–15","Chest Fly|DB Floor Fly|10–15","Chest-Supported Row|Thigh-Supported DB Row|8–15","Reverse Pec Deck|DB Reverse Fly|12–20","Assisted Dips|Close-Grip DB Floor Press|6–15","EZ-Bar Curl|DB Supinated Curl|8–15","Farmer's Walk|DB Farmer's Walk|30–60 sec"]];
   const athletic = ['World’s Greatest Stretch · 1 × 5/side','Supported squat hold · 30 sec','90/90 hip switches · 10','Wall slides · 10','Knee-to-wall ankle mobility · 10/side','Squat to calf raise · 2 × 6–8','Light DB high pull · 2 × 6–8','Wall sprint march · 2 × 10/side','Single-leg reach · 2 × 5/leg','Lateral lunge · 2 × 6/side','Multidirectional steps · 2 × 30 sec','Rotational reach · 2 × 8/side','Dead bug · 2 × 8/side','Bird dog · 2 × 8/side','Modified side plank · 2 × 15–30 sec/side'];
@@ -116,24 +106,23 @@
     const sleep=record.sleep===''||record.sleep==null?null:Number(record.sleep);
     const energy=record.energy;
     if(record.pain==='Concerning')return 'Recovery only · Stop painful activity. Seek medical advice for new, severe or persistent symptoms.';
-    if(data.discipline?.restDays?.[date]||index===4||record.pain==='Mild'||(sleep!==null&&sleep<5)||energy==='Low')return 'Recovery day · Rest or easy pain-free walking and mobility. No hard intervals or heavy lifting.';
+    if(data.discipline?.restDays?.[date]||record.pain==='Mild'||(sleep!==null&&sleep<5)||energy==='Low')return 'Recovery day · Rest or easy pain-free walking and mobility. No hard intervals or heavy lifting.';
     const rows=window.VigorRotationReview?.trainingSummary?.(data,rotation.dates[0],8)?.rows;
     const strength=rows?.[0], athletic=rows?.[1], interval=rows?.[2];
     const todayDone=(data.completions||[]).some(c=>c.date===date&&(/^(?:vigor-routine-|fullbody|speed)/.test(c.activityId)||/full[ -]?body|athletic|interval|sprint/i.test((data.activities||[]).find(a=>a.id===c.activityId)?.name||'')));
     if(todayDone)return 'Training recorded today · Optional easy movement or recovery. No need to repeat the session.';
-    if(sleep===null||!energy)return assignments[index]+' Record sleep and energy before choosing intensity.';
+    const planned=window.vigorCloudBridge?.plannedTrainingDay(index)||'';
+    if(sleep===null||!energy)return planned+' · Record sleep and energy before choosing intensity.';
     const short=sleep<7||energy==='Okay';
-    if([0,2,5,7].includes(index)){
+    if([1,2,5,7].includes(index)){
       if(strength&&strength[1]>=strength[2])return 'Strength target reached · Easy cardio or recovery.';
-      const used=new Set((data.completions||[]).filter(c=>rotation.dates.includes(c.date)).map(c=>c.routine||((data.activities||[]).find(a=>a.id===c.activityId)?.name||'').match(/full[ -]?body\s+([A-D])\b/i)?.[1]?.toUpperCase()));
-      const next=['A','B','C','D'].find(x=>!used.has(x));
-      return next?'Full Body '+next+' · '+(short?'Short version: one set per exercise, easy effort.':'Gym or home · '+liftInstructions):'All four named routines recorded · Recovery or easy cardio.';
+      return planned+' · '+(short?'Short version: one set per exercise, easy effort.':'Gym or home · '+liftInstructions);
     }
     if(index===6){
       if(athletic&&athletic[1]>=athletic[2])return interval&&interval[1]<interval[2]&&!short?'Controlled low-impact intervals if cleared and pain-free.':'Easy cardio or recovery.';
-      return 'Athletic performance · '+(short?'One easy set per drill; skip intervals.':'Controlled drills; optional low-impact intervals if pain-free and cleared.');
+      return planned+' · '+(short?'One easy set per drill; skip intervals.':'Controlled drills; optional low-impact intervals if pain-free and cleared.');
     }
-    return assignments[index];
+    return planned;
   }
   const painLabel=document.createElement('label');painLabel.textContent='Pain or symptoms';
   const painSelect=document.createElement('select');painSelect.name='pain';

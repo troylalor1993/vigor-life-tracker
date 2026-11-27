@@ -452,8 +452,13 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <p class="subtle" id="transformationStatus" role="status"></p>
 <textarea id="transformationCopy" aria-label="Coach update to copy manually" rows="5" readonly hidden></textarea>
 </section>
+<section class="card" id="todayTraining" aria-labelledby="todayTrainingHeading" hidden>
+<div class="row"><h2 id="todayTrainingHeading">Today's training</h2><span class="tag" id="todayTrainingDay"></span></div>
+<div id="todayTrainingTasks"></div>
+<p class="subtle" id="todayTrainingStatus" role="status"></p>
+</section>
 <section class="big3-card" id="big3Panel">
-<div class="big3-top"><div><div class="dashboard-label">YOUR FOCUS ANCHORS</div><h2>Your three focus anchors</h2><p>Every active habit is available in the swipe cards above. These three anchors are extra reminders, not a limit on your habits.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
+<div class="big3-top"><div><div class="dashboard-label">YOUR FOCUS ANCHORS</div><h2>Your three focus anchors</h2><p>Set the priorities used by your habit guidance.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
 <section id="neverTwice" class="never-twice" hidden aria-label="Never Miss Twice recovery"><div class="never-twice-heading"><strong>Never Miss Twice</strong><span id="neverTwiceCount" class="tag"></span></div><p class="subtle">You missed a recorded commitment yesterday. Choose its smallest action today to get back on track.</p><div id="neverTwiceActions"></div><p id="neverTwiceFeedback" class="subtle" role="status" aria-live="polite"></p></section><div id="big3List" class="big3-list"></div><button type="button" id="openSetup" class="secondary tiny" hidden>Personalize my routine</button><p id="big3Status" class="subtle" aria-live="polite"></p>
 <details class="discipline-secondary" id="big3Editor"><summary>Choose my Big 3</summary><div id="big3Selectors" class="big3-selectors"></div><button type="button" id="saveBig3" class="primary">Save priorities</button></details>
 </section>
@@ -562,8 +567,9 @@ function collapsible(id,node,title,open){
  const details=document.createElement('details');details.className='compact-details';details.open=!!open;
  const heading=document.createElement('summary');heading.textContent=title;details.append(heading,node);panels[id].append(details);
 }
+relocate('today',document.querySelector('#todayTraining'));
 relocate('today',document.querySelector('#transformationCoach'));
-relocate('today',document.querySelector('#big3Panel'));
+relocate('today',document.querySelector('#neverTwice'));
 collapsible('today',document.querySelector('#disciplineOverview'),'My consistency & shift guidance',false);
 collapsible('today',document.querySelector('#daily'),'All habits & preparation',false);
 relocate('today',document.querySelector('#nutritionDiscipline'));
@@ -612,6 +618,7 @@ relocate('settings',document.querySelector('#themeSettings'));
 relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
 relocate('settings',document.querySelector('#cloudSync'));
 relocate('settings',document.querySelector('#vigorSetup'));
+collapsible('settings',document.querySelector('#big3Panel'),'Focus anchor settings',false);
 relocate('settings',document.querySelector('#shiftRoutineSettings'));
 relocate('settings',document.querySelector('#recoverySettings'));
 relocate('settings',document.querySelector('#shiftSettings'));
@@ -1063,6 +1070,7 @@ const todayCheck=()=>$('dailyDate').value||today;
 function cleanCheck(v){v=v||{};return {habits:Array.from({length:state.habitLabels.length},(_,i)=>!!v.habits?.[i]),sleep:v.sleep??'',energy:v.energy??'',recovery:v.recovery??'',saved:!!v.saved}}
 
 function renderZone2(){
+ renderTodayTraining();
  const date=todayCheck(),rotationStart=cycleStartFor(date),end=endFor(rotationStart);
  const logs=state.zone2Logs.filter(x=>x.date>=rotationStart&&x.date<=end);
  const total=logs.reduce((sum,x)=>sum+Number(x.minutes||0),0),goal=state.zone2Goal;
@@ -1873,9 +1881,92 @@ return '<svg class="trend-chart" viewBox="0 0 320 160" role="img" aria-label="'+
 }
 
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
+const trainingPlan = [
+ {workouts:[['recovery','Recovery']], minutes:30},
+ {workouts:[['A','Full Body A']], minutes:15},
+ {workouts:[['B','Full Body B']], minutes:15},
+ {workouts:[['recovery','Recovery']], minutes:30},
+ {workouts:[['core','Light core'],['walk','Easy recovery walk']]},
+ {workouts:[['C','Full Body C']], minutes:30},
+ {workouts:[['athletic','Hybrid Athletic + Police Prep','Athletic performance']], note:'Shuttles last'},
+ {workouts:[['D','Full Body D']], minutes:30}
+];
+
+function renderTodayTraining(){
+ const card=$('todayTraining');
+ card.hidden=cycleDays()!==8;
+ if(card.hidden)return;
+ const date=iso(new Date());
+ const index=days(date,cycleStartFor(date));
+ const plan=trainingPlan[index];
+ $('todayTrainingDay').textContent='Day '+(index+1)+' of 8 · '+shiftLabel(index,date);
+ const tasks=$('todayTrainingTasks');
+ tasks.replaceChildren();
+ for(const [routine,label,name=label] of plan.workouts){
+  const standardId='vigor-routine-'+routine;
+  const matchingIds=state.activities.filter(activity=>
+   activity.id===standardId||[label,name].some(value=>value.toLowerCase()===String(activity.name).trim().toLowerCase())
+  ).map(activity=>activity.id);
+  const recordId='daily-training-'+date+'-'+routine;
+  const entries=state.completions.filter(entry=>entry.date===date&&
+   (entry.routine===routine||matchingIds.includes(entry.activityId)));
+  const row=element('div',undefined,'task-compact-head');
+  const title=element('strong',label);
+  const owned=entries.some(entry=>entry.id===recordId);
+  const button=element('button',entries.length?'✓ Done':'Check off','secondary tiny');
+  button.type='button';
+  button.setAttribute('aria-label',(owned?'Undo ':entries.length?'Completed ':'Complete ')+label);
+  button.setAttribute('aria-pressed',String(entries.length>0));
+  button.disabled=entries.length>0&&!owned;
+  button.onclick=()=>{
+   if(date!==iso(new Date())){renderTodayTraining();return}
+   const {activities,completions}=state;
+   const minimums=state.discipline.workoutMinimums;
+   if(owned){
+    state.completions=completions.filter(entry=>entry.id!==recordId);
+   }else{
+    const activityId=matchingIds[0]||standardId;
+    if(!matchingIds.length)state.activities=[...activities,{id:activityId,name,target:1}];
+    state.completions=[...completions,{id:recordId,activityId,date,routine}];
+    state.discipline.workoutMinimums=minimums.filter(entry=>entry.date!==date||!matchingIds.includes(entry.activityId));
+   }
+   if(!save()){
+    Object.assign(state,{activities,completions});
+    state.discipline.workoutMinimums=minimums;
+    return;
+   }
+   render();
+   $('todayTrainingStatus').textContent=owned?'Completion removed.':label+' recorded.';
+  };
+  row.append(title,button);
+  tasks.append(row);
+ }
+ if(plan.note)tasks.append(element('p',plan.note,'subtle'));
+ if(plan.minutes){
+  const minutes=state.zone2Logs.filter(entry=>entry.date===date)
+   .reduce((sum,entry)=>sum+Number(entry.minutes||0),0);
+  const form=element('form',undefined,'zone-form');
+  const label=element('label','Zone 2 · '+plan.minutes+'+ min');
+  const input=element('input');
+  input.type='number';input.inputMode='numeric';input.min='1';input.max='600';input.step='1';input.required=true;
+  input.placeholder='Minutes completed';
+  input.setAttribute('aria-label','Zone 2 minutes completed');
+  label.append(input);
+  const add=element('button','Log minutes','secondary tiny');
+  form.append(label,add);
+  form.onsubmit=event=>{
+   event.preventDefault();
+   if(date!==iso(new Date())){renderTodayTraining();return}
+   if(logZoneMinutes(date,Number(input.value)))$('todayTrainingStatus').textContent='Zone 2 minutes recorded.';
+  };
+  tasks.append(element('p',(minutes>=plan.minutes?'✓ ':'')+minutes+' / '+plan.minutes+' min logged today','subtle'),form);
+ }
+}
+
 function render(){
 const s=start(),end=endFor(s),counts={};
 displaySchedule();
+renderTodayTraining();
 $('shiftAlert').style.display='none';for(const c of state.completions){if(inRange(c.date,s))counts[c.activityId]=(counts[c.activityId]||0)+1}
 const target=state.activities.reduce((a,x)=>a+x.target,0),total=state.activities.reduce((a,x)=>a+Math.min(x.target,counts[x.id]||0),0);
 $('score').textContent=total+'/'+target;$('completionBar').style.width=(target?total/target*100:0)+'%';$('range').textContent=s+' to '+end;
@@ -2059,10 +2150,20 @@ $('coupleClaimReward').onclick=()=>{
 $('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
 $('addReward').onclick=()=>{const name=$('newRewardName').value.trim(),cost=Math.floor(Number($('newRewardCost').value));if(!name||!Number.isFinite(cost)||cost<1||cost>100000)return alert('Enter a reward name and valid cost');state.rewards.push({id:'reward-'+Date.now(),name,cost});save();renderRewards()};
 $('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=()=>{renderDaily();renderActivity();renderZone2()};
-$('addZoneMinutes').onclick=()=>{const minutes=Number($('zoneMinutes').value),date=todayCheck();if(!Number.isInteger(minutes)||minutes<1||minutes>600)return alert('Enter 1–600 whole minutes');if(!date||date>today)return alert('Select today or an earlier day');
- state.zone2Logs.push({id:'z2-'+Date.now()+'-'+Math.random().toString(36).slice(2),date,minutes});
- if(save()){$('zoneMinutes').value='';renderZone2();$('zoneFeedback').textContent='✓ '+minutes+' minutes saved for '+date}
+function logZoneMinutes(date,minutes){
+ if(!Number.isInteger(minutes)||minutes<1||minutes>600){alert('Enter 1–600 whole minutes');return false}
+ if(!date||date>iso(new Date())){alert('Select today or an earlier day');return false}
+ const previous=state.zone2Logs;
+ state.zone2Logs=[...previous,{id:'z2-'+Date.now()+'-'+Math.random().toString(36).slice(2),date,minutes}];
+ if(!save()){state.zone2Logs=previous;return false}
+ renderZone2();
+ $('zoneFeedback').textContent='✓ '+minutes+' minutes saved for '+date;
+ return true;
+}
+$('addZoneMinutes').onclick=()=>{
+ if(logZoneMinutes(todayCheck(),Number($('zoneMinutes').value)))$('zoneMinutes').value='';
 };
+
 $('saveZoneGoal').onclick=()=>{const goal=Number($('zoneGoalInput').value);if(!Number.isInteger(goal)||goal<1||goal>2000)return alert('Choose a target between 1 and 2,000 minutes');preserveTrainingRotation();state.zone2Goal=goal;if(save()){$('zoneFeedback').textContent='✓ Zone 2 target saved';renderZone2();$('zoneGoalDetails').open=false}};
 
 ['activitySteps','activityCalories'].forEach(id=>$(id).oninput=updateActivityMeters);
@@ -2196,6 +2297,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
+ plannedTrainingDay:index=>trainingPlan[index]?.workouts.map(([,label])=>label).join(' + ')||"",
  refreshTrainingRotation:()=>{const before=JSON.stringify(state.trainingActiveRotation);preserveTrainingRotation();if(before!==JSON.stringify(state.trainingActiveRotation))return save();return true;},
  snapshotTrainingTargets:(start,targets)=>{
   if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||state.trainingTargetHistory?.[start])return false;

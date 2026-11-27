@@ -32,7 +32,7 @@ async function main(){
      const artResponse=await page.request.get('http://127.0.0.1:'+port+'/vigor-sunrise.svg');
      assert.equal(artResponse.status(),200,'sunrise artwork served');
      assert.equal(await page.locator('#vigorNav [data-vigor-route]').count(),5,'five primary destinations');
-     assert.equal(await page.locator('#big3Panel').isVisible(),true,'Today priorities visible');
+     assert.equal(await page.locator('#big3Panel').isVisible(),false,'Today has no focus anchor section');
      assert.equal(await page.locator('#vigorAllHabits').isVisible(),true,'All habits carousel is prominent on Today');
      assert.equal(await page.locator('#vigorDailyFocus').isVisible(),false,'Old duplicate priority hero is hidden');
      assert.equal(await page.locator('#vigorStartGuide').isVisible(),true,'First-run guide visible without saved history');
@@ -166,14 +166,14 @@ async function main(){
      await page.locator('#vigorMoreMenu [data-vigor-old="faith"]').click();
      assert.equal(await page.locator('#panel-faith').isVisible(),true,'Faith remains reachable');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
-     assert.equal(await page.locator('#big3Panel').isVisible(),true,'Return to Today');
+     assert.equal(await page.locator('#todayTraining').isVisible(),true,'Return to Today with training visible');
      assert.equal(await page.locator('.app-header h1').isVisible(),true,'Today retains full heading');
      assert.equal(await page.locator('#vigorJourneyScreen').isVisible(),false,'Journey hidden when returning Today');
      // A local habit check must survive a complete browser reload even without signing in.
      await page.locator('#vigorSyncBadge').waitFor({state:'visible'});
      assert.equal(await page.locator('#vigorSyncBadge').textContent(),'Saved on this device','signed-out account is not labeled cloud-synced');
-     const firstPriority=page.locator('#big3List .big3-row').first();
-     await firstPriority.locator('button').filter({hasText:/^Done$/}).click();
+     const firstWorkout=page.locator('#todayTrainingTasks button[aria-pressed]').first();
+     await firstWorkout.click();
      const saved=await page.evaluate(()=>{
        const raw=localStorage.getItem('vigor-tracker');
        if(!raw)return null;
@@ -185,7 +185,7 @@ async function main(){
        saved.state.completions?.length>0,'habit or workout completion persisted');
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav').waitFor({state:'visible'});
-     assert.equal(await page.locator('#big3List .big3-row').first().locator('button').filter({hasText:/^Done$/}).getAttribute('aria-pressed'),'true','completed priority survives reload');
+     assert.equal(await firstWorkout.getAttribute('aria-pressed'),'true','training completion survives reload');
      assert.equal(await page.locator('#vigorSyncBadge').textContent(),'Saved on this device','reload does not claim cloud confirmation');
      await page.locator('#vigorSyncBadge').click();
      assert.equal(await page.locator('#cloudSync').isVisible(),true,'save status opens Account & Automatic Sync');
@@ -271,6 +271,8 @@ async function main(){
      assert.deepEqual(habitReloaded,habitSaved,'habit order survives reload');
 
      // Daily Big 3 can be reordered independently of the full checklists.
+     await page.locator('#vigorSyncBadge').click();
+     await page.locator('#big3Panel').locator('..').locator('summary').first().click();
      await page.locator('#big3Editor').evaluate(el=>el.open=true);
      const firstPriorityValue=await page.locator('#big3Selectors>label select').first().inputValue();
      const secondPriority=await page.locator('#big3Selectors>label select').nth(1).inputValue();

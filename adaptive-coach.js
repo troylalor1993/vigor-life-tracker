@@ -221,7 +221,7 @@
  document.head.append(style);
  const root=document.createElement('section');root.className='vigor-coach';root.id='vigorCoach';root.setAttribute('aria-label','Your adaptive coach and 90-day roadmap');
  let selectedJourneyIndex=null;
- const target=$('big3Panel')||$('daily')||document.querySelector('main > .card');
+ const target=$('transformationCoach')||$('daily')||document.querySelector('main > .card');
  if(!target)return;
  target.after(root);
  function render(){
