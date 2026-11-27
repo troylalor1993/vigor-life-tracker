@@ -16,7 +16,7 @@
      {label:'Record your first small win',done:existingHistory}
    ]};
  }
- const anchor=$('transformationCoach');if(!anchor)return;
+ const anchor=$('neverTwice');if(!anchor)return;
  const box=document.createElement('section');box.className='vigor-start-guide';box.id='vigorStartGuide';
  box.setAttribute('aria-label','Getting started with Vigor Life');
  anchor.before(box);

@@ -69,9 +69,9 @@ body{
 }
 .vigor-focus-hero,#panel-today>.vigor-focus-hero,
 #vigorStartGuide,.vigor-start-guide,.vigor-rotation-recap,#vigorRotationRecap,
-#panel-today>.big3-card,#panel-today>.vigor-coach,
+#panel-today>.big3-card,
 #panel-progress>.vc-growth-card,
-.vigor-screen,.vigor-coach,.vc-growth-card,
+.vigor-screen,.vc-growth-card,
 .card,.big3-card,.discipline-overview,.insight-card,
 .activity-card,.nutrition-discipline,details.compact-details{
   background:
@@ -86,7 +86,7 @@ body{
   border-color:var(--accent)!important;
 }
 .vigor-focus-hero h2,.vigor-screen h2,.vigor-screen .vigor-step strong,
-.vigor-coach h2,.vigor-rotation-recap h2,
+.vigor-rotation-recap h2,
 .vigor-start-guide h2,.vc-growth-card h2,
 #panel-today>.big3-card .big3-row strong{
   color:var(--text-primary)!important;
@@ -94,7 +94,6 @@ body{
 .vigor-focus-hero .vigor-focus-eyebrow,
 .vigor-screen .vigor-eyebrow,
 .vigor-focus-hero .vigor-focus-value,
-.vigor-coach .vc-eyebrow,
 .vigor-start-guide .vsg-eyebrow,
 .vigor-rotation-recap .vrr-eyebrow,
 .vc-growth-card .vc-growth-eyebrow,
@@ -116,8 +115,7 @@ body{
 .vigor-focus-hero button,
 .vigor-screen .vigor-action-row button:not(.secondary),
 .vigor-start-guide .vsg-actions button:not(.vsg-secondary),
-.vc-growth-review button,
-.vigor-coach .vc-actions .vc-nav:not(.alt){
+.vc-growth-review button{
   background:linear-gradient(120deg,var(--accent-soft),var(--accent))!important;
   color:var(--accent-contrast)!important;
   border-color:var(--accent)!important;
@@ -131,12 +129,12 @@ body{
 }
 .vigor-focus-hero .vigor-focus-track,
 .vigor-screen .vigor-mini-progress,
-.vc-life-meter,.vigor-coach .vc-meter,.discipline-track,.bar{
+.vc-life-meter,.discipline-track,.bar{
   background:var(--border)!important;
 }
 .vigor-focus-hero .vigor-focus-fill,
 .vigor-screen .vigor-mini-progress span,
-.vc-life-meter span,.vigor-coach .vc-meter span,
+.vc-life-meter span,
 .discipline-track>div,.bar>div{
   background:linear-gradient(90deg,var(--accent),var(--accent-soft))!important;
 }
@@ -145,8 +143,6 @@ body{
 .vigor-screen .vigor-summary,
 .vigor-screen .vigor-step.complete,
 .vc-life-area,
-.vigor-coach .vc-habit-action,
-.vigor-coach .vc-journey,
 .vigor-rotation-recap .vrr-stats>div,
 .vigor-rotation-recap .vrr-review,
 .vc-growth-card .vc-growth-stats>div,

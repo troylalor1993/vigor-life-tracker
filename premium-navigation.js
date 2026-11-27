@@ -54,9 +54,6 @@
   if(route==='today'){legacy('today')?.click();window.scrollTo({top:0,behavior:'instant'})}
   else if(route==='journey'){
     legacy('today')?.click();
-    if(!document.getElementById('vigorJourneyScreen')){
-      const section=document.querySelector('#vigorCoach .vc-journey');if(section)section.open=true;
-    }
     window.scrollTo({top:0,behavior:'instant'});
   }
   else if(route==='growth'){

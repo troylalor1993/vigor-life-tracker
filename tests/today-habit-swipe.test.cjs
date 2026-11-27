@@ -5,7 +5,7 @@ const vm=require('node:vm');
 const assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'..','today-habit-swipe.js'),'utf8');
 new vm.Script(source);
-const a=source.indexOf(' function todayHabits('),b=source.indexOf(" const anchor=$('transformationCoach')",a);
+const a=source.indexOf(' function todayHabits('),b=source.indexOf(" const anchor=$('neverTwice')",a);
 assert(a>=0&&b>a,'Could not extract Today habit list logic');
 const {todayHabits}=vm.runInNewContext(source.slice(a,b)+'\n({todayHabits})');
 const day='2026-11-17';

@@ -9,16 +9,6 @@ body[data-vigor-view]:not([data-vigor-view="today"]) .app-header h1,
 body[data-vigor-view]:not([data-vigor-view="today"]) .app-header>p{display:none!important}
 body[data-vigor-view]:not([data-vigor-view="today"]) .vigor-identity{margin:0 0 3px!important}
 body[data-vigor-view]:not([data-vigor-view="today"]) #vigorSyncBadge{min-height:32px;margin:5px 0 0;padding:5px 10px;font-size:11px}
-body[data-vigor-view="today"] #panel-today>.vigor-coach{
- padding:16px!important;margin-top:8px!important
-}
-body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-eyebrow{font-size:10px}
-body[data-vigor-view="today"] #panel-today>.vigor-coach h2{font-size:18px!important}
-body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-lead{font-size:14px;font-weight:700}
-body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-actions{display:none!important}
-body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-note{font-size:11px}
-body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-habit-history{margin-top:12px}
-body[data-vigor-view="today"] #panel-today>.vigor-coach .vc-shift{margin-bottom:6px}
 #vigorNav .app-tab{touch-action:manipulation}
 .vigor-screen .vigor-action-row button,
 .vigor-focus-hero button,.vigor-start-guide button,.vigor-sync-badge{
