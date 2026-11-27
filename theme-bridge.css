@@ -73,7 +73,7 @@ body{
 #panel-progress>.vc-growth-card,
 .vigor-screen,.vc-growth-card,
 .card,.big3-card,.discipline-overview,.insight-card,
-.activity-card,.nutrition-discipline,details.compact-details{
+.activity-card,details.compact-details{
   background:
     linear-gradient(140deg,var(--vigor-ui-highlight),transparent 57%),
     linear-gradient(160deg,var(--panel-alt),var(--panel))!important;
