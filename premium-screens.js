@@ -21,7 +21,11 @@
  const trainingSection=training?.closest('details.compact-details');
  const routineMount=document.createElement('div');routineMount.id='fitnessRoutineEditor';
  const routineStatus=document.createElement('p');routineStatus.id='fitnessRoutineStatus';routineStatus.setAttribute('role','status');
- fitness.append(fitnessContent,routineMount,routineStatus);
+ const workoutHistory=document.createElement('details');workoutHistory.id='fitnessWorkoutHistory';workoutHistory.className='compact-details';
+ const historyTitle=document.createElement('summary');historyTitle.textContent='Workout history';
+ const historyList=document.createElement('ul');historyList.className='fitness-history-list';
+ workoutHistory.append(historyTitle,historyList);
+ fitness.append(fitnessContent,routineMount,routineStatus,workoutHistory);
  if(zoneSection){
    fitness.append(zoneSection);
    zoneSection.open=true;
@@ -75,7 +79,7 @@
   journey.querySelector('#vigorJourneyLog')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('vigorAllHabits')});
   journey.querySelector('#vigorJourneyGrowth')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('disciplineReview')});
  }
- function renderFitness(day){
+ function renderFitness(data,day){
   const schedule=window.vigorCloudBridge.getTrainingSchedule(day);
   const planned=schedule.some(entry=>entry.workouts.length||entry.minutes);
   const editor=$('trainingRoutineEditor');
@@ -91,6 +95,18 @@
           (entry.date===day?' · Today':'')+'</strong>'+(tasks.length?'<ul><li>'+tasks.join('</li><li>')+'</li></ul>':'<span>Rest day</span>')+'</li>';
       }).join('')}</ul>`:'<p>Add workouts and the days you want to do them.</p>'}
     </section>`;
+  const names=new Map((data.activities||[]).map(workout=>[workout.id,workout.name]));
+  const sessions=(data.completions||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  historyList.replaceChildren();
+  for(const session of sessions){
+    const item=document.createElement('li');
+    const date=document.createElement('time');date.dateTime=session.date;
+    date.textContent=new Date(session.date+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    item.append(names.get(session.activityId)||'Workout',date);historyList.append(item);
+  }
+  if(!sessions.length){
+    const empty=document.createElement('li');empty.textContent='Your workouts will show here after you log them.';historyList.append(empty);
+  }
   $('fitnessEditPlan').onclick=()=>{
     if(!routineMount.contains(editor))routineMount.append(editor);
     if(!editor.open)editor.querySelector('summary').click();
@@ -100,7 +116,7 @@
  function render(){
   const data=read();if(!data)return;
   const day=today();
-  renderJourney(data,day);renderFitness(day);
+  renderJourney(data,day);renderFitness(data,day);
  }
  render();
  window.addEventListener('vigor-sync-status',render);

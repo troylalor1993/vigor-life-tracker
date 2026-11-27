@@ -168,7 +168,7 @@ $("coupleJoinInvite").onclick=async()=>{
  if(!/^[a-f0-9]{32}$/.test(id))return writeStatus("Invalid code","Enter the full private 32-character invitation code.");
  try{
   await reload(user);await getIdToken(user,true);
-  if(!user.emailVerified)return writeStatus("Verify email","First tap Verify my email, open the email from Firebase, then tap Check verification.");
+  if(!user.emailVerified)return writeStatus("Verify email","First tap Verify my email, open the verification email, then tap Check verification.");
   writeStatus("Joining","Checking your private invitation…");
   const snapshot=await getDoc(pairDoc(id));if(!snapshot.exists())throw Error("No invitation found for that code.");
   const record=snapshot.data();
@@ -186,14 +186,14 @@ $("coupleJoinInvite").onclick=async()=>{
 $("coupleVerifyEmail").onclick=async()=>{
  if(!user)return writeStatus("Sign in needed","Sign in to send a verification message.");
  try{
-  await reload(user);if(user.emailVerified)return writeStatus("Verified","Your email is already verified. Enter your invitation code and tap Join.");
+  await reload(user);if(user.emailVerified)return writeStatus("Verified","Your email is already verified. Enter your invitation code and tap Join my partner.");
   await sendEmailVerification(user);
   writeStatus("Check your inbox","We sent a verification message to "+user.email+". Open the link, then return and tap Check verification.");
  }catch(e){writeStatus("Verification issue",tidyError(e))}
 };
 $("coupleCheckVerify").onclick=async()=>{
  if(!user)return writeStatus("Sign in needed","Sign in under Settings first.");
- try{await reload(user);await getIdToken(user,true);writeStatus(user.emailVerified?"Email verified":"Not verified yet",user.emailVerified?"Enter the private invitation code and tap Join shared space.":"Open the email verification link first, then check again.")}
+ try{await reload(user);await getIdToken(user,true);writeStatus(user.emailVerified?"Email verified":"Not verified yet",user.emailVerified?"Enter the private invitation code and tap Join my partner.":"Open the email verification link first, then check again.")}
  catch(e){writeStatus("Verification issue",tidyError(e))}
 };
 $("coupleCopyInvite").onclick=async()=>{

@@ -220,6 +220,10 @@ async function main(){
      assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Zone 2 starts unchecked');
      await firstWorkout.click();
      assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Checking off training leaves Zone 2 unchecked');
+     await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
+     await page.locator('#fitnessWorkoutHistory > summary').click();
+     assert.equal(await page.locator('#fitnessWorkoutHistory li').filter({hasText:'Mobility circuit'}).isVisible(),true,'A workout logged on Today appears in Fitness history');
+     await page.locator('#vigorNav [data-vigor-route="today"]').click();
      await trainingTasks.getByText('Log custom minutes',{exact:true}).click();
      await trainingTasks.getByRole('spinbutton',{name:'Minutes completed'}).fill('7');
      await trainingTasks.getByRole('button',{name:'Log minutes'}).click();
