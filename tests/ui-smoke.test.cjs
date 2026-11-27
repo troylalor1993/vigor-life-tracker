@@ -182,8 +182,18 @@ async function main(){
      // A local habit check must survive a complete browser reload even without signing in.
      await page.locator('#vigorSyncBadge').waitFor({state:'visible'});
      assert.equal(await page.locator('#vigorSyncBadge').textContent(),'Saved on this device','signed-out account is not labeled cloud-synced');
-     const firstWorkout=page.locator('#todayTrainingTasks button[aria-pressed]').first();
+     const trainingTasks=page.locator('#todayTrainingTasks');
+     const firstWorkout=trainingTasks.getByRole('button',{name:/^(Complete|Undo) Recovery$/});
+     const zone2Check=trainingTasks.getByRole('button',{name:/^(Complete|Undo) Zone 2$/});
+     assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Zone 2 starts unchecked');
      await firstWorkout.click();
+     assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Checking off training leaves Zone 2 unchecked');
+     await trainingTasks.getByText('Log custom minutes',{exact:true}).click();
+     await trainingTasks.getByRole('spinbutton',{name:'Minutes completed'}).fill('7');
+     await trainingTasks.getByRole('button',{name:'Log minutes'}).click();
+     assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','A partial Zone 2 log leaves Zone 2 unchecked');
+     await zone2Check.click();
+     assert.equal(await zone2Check.getAttribute('aria-pressed'),'true','Zone 2 can be checked off on its own');
      const saved=await page.evaluate(()=>{
        const raw=localStorage.getItem('vigor-tracker');
        if(!raw)return null;
@@ -196,6 +206,12 @@ async function main(){
      await page.reload({waitUntil:'domcontentloaded'});
      await page.locator('#vigorNav').waitFor({state:'visible'});
      assert.equal(await firstWorkout.getAttribute('aria-pressed'),'true','training completion survives reload');
+     assert.equal(await zone2Check.getAttribute('aria-pressed'),'true','Zone 2 completion survives reload');
+     assert.deepEqual(saved.state.zone2Logs.map(log=>log.minutes),[7,23],'Zone 2 check-off records only the remaining planned minutes');
+     await zone2Check.click();
+     assert.equal(await zone2Check.getAttribute('aria-pressed'),'false','Zone 2 check-off can be undone');
+     assert.equal(await firstWorkout.getAttribute('aria-pressed'),'true','Undoing Zone 2 leaves the workout checked');
+     assert.equal(await trainingTasks.getByText('7 / 30 min logged',{exact:true}).isVisible(),true,'Undo keeps manually logged minutes');
      assert.equal(await page.locator('#vigorSyncBadge').textContent(),'Saved on this device','reload does not claim cloud confirmation');
      await page.locator('#vigorSyncBadge').click();
      assert.equal(await page.locator('#cloudSync').isVisible(),true,'save status opens Account & Automatic Sync');
