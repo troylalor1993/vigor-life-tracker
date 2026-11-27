@@ -541,6 +541,14 @@ async function main(){
      assert.equal(await page.locator('#coupleInviteCode').isVisible(),true,'Joining has its own clear entry point');
      await page.getByText('Invite my partner',{exact:true}).click();
      assert.equal(await page.locator('#couplePartnerEmail').isVisible(),true,'Inviting has its own clear entry point');
+     await page.locator('#vigorNav [data-vigor-route="journey"]').click();
+     await page.locator('#habitHistoryTools > summary').click();
+     await page.locator('#habitReflections > summary').click();
+     await page.locator('#disciplineWin').fill('I got outdoors.');
+     await page.locator('#saveDisciplineReview').click();
+     assert.equal(await page.locator('#disciplineReviewFeedback').textContent(),'Reflection saved.');
+     assert.equal(await page.evaluate(()=>Object.values(window.vigorCloudBridge.read().discipline.reviews)
+       .some(entry=>entry.win==='I got outdoors.')),true,'Reflections still save from Habits');
      const bounds=await page.locator('#vigorNav').boundingBox();
      assert(bounds&&bounds.x>=-1&&bounds.x+bounds.width<=viewport.width+2,'navigation fits screen');
      assert(!errors.some(e=>/Cannot read properties of undefined|SyntaxError|ReferenceError/.test(e)),errors.join('; '));
