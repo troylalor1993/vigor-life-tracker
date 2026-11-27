@@ -457,11 +457,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div id="todayTrainingTasks"></div>
 <p class="subtle" id="todayTrainingStatus" role="status"></p>
 </section>
-<section class="big3-card" id="big3Panel">
-<div class="big3-top"><div><div class="dashboard-label">YOUR FOCUS ANCHORS</div><h2>Your three focus anchors</h2><p>Set the priorities used by your habit guidance.</p></div><span id="big3Shift" class="discipline-chip"></span></div>
-<section id="neverTwice" class="never-twice" hidden aria-label="Never Miss Twice recovery"><div class="never-twice-heading"><strong>Never Miss Twice</strong><span id="neverTwiceCount" class="tag"></span></div><p class="subtle">You missed a recorded commitment yesterday. Choose its smallest action today to get back on track.</p><div id="neverTwiceActions"></div><p id="neverTwiceFeedback" class="subtle" role="status" aria-live="polite"></p></section><div id="big3List" class="big3-list"></div><button type="button" id="openSetup" class="secondary tiny" hidden>Personalize my routine</button><p id="big3Status" class="subtle" aria-live="polite"></p>
-<details class="discipline-secondary" id="big3Editor"><summary>Choose my Big 3</summary><div id="big3Selectors" class="big3-selectors"></div><button type="button" id="saveBig3" class="primary">Save priorities</button></details>
-</section>
+<section id="neverTwice" class="never-twice" hidden aria-label="Never Miss Twice recovery"><div class="never-twice-heading"><strong>Never Miss Twice</strong><span id="neverTwiceCount" class="tag"></span></div><p class="subtle">You missed a recorded commitment yesterday. Choose its smallest action today to get back on track.</p><div id="neverTwiceActions"></div><p id="neverTwiceFeedback" class="subtle" role="status" aria-live="polite"></p></section>
 <section id="nutritionDiscipline" class="nutrition-discipline" aria-label="Nutrition Discipline">
 <div class="nutrition-heading"><div><div class="dashboard-label">NUTRITION DISCIPLINE</div><h2>Make the next choice easier.</h2></div><span id="nutritionShiftBadge" class="tag">Your routine</span></div>
 <p class="subtle">Build better defaults around junk food and added sugar—without all-or-nothing rules.</p>
@@ -618,7 +614,6 @@ relocate('settings',document.querySelector('#themeSettings'));
 relocate('settings',document.querySelector('#customizeHeading').closest('.card'));
 relocate('settings',document.querySelector('#cloudSync'));
 relocate('settings',document.querySelector('#vigorSetup'));
-collapsible('settings',document.querySelector('#big3Panel'),'Focus anchor settings',false);
 relocate('settings',document.querySelector('#shiftRoutineSettings'));
 relocate('settings',document.querySelector('#recoverySettings'));
 relocate('settings',document.querySelector('#shiftSettings'));
@@ -1428,7 +1423,7 @@ function renderDaily(){
  $('dailySaveStatus').textContent=entry.saved?'✓ Saved on this device · see cloud status above':'No habits recorded for this date';
  renderDisciplineOverview(date);
  renderDisciplineReview();
- renderBig3();
+ renderNeverTwice();
  renderHabitCalendar();
  renderNutrition();
  const preparation=state.discipline.prep[date]||{};
@@ -1517,68 +1512,6 @@ function currentShiftPlan(date){
  const shift=disciplineShiftFor(date);
  return state.discipline.shiftPlans[shift]||shiftPlanDefaults[shift]||shiftPlanDefaults['Day off'];
 }
-function big3Choices(){
- return [...state.habitLabels.map((name,i)=>isHabitActive(i)?({value:'h:'+i,label:name}):null).filter(Boolean),
-  ...state.activities.map(a=>({value:'w:'+a.id,label:'Workout: '+a.name}))];
-}
-function big3Defaults(){
- const active=state.habitLabels.map((name,i)=>isHabitActive(i)?{name,i}:null).filter(Boolean);
- const find=(pattern)=>active.find(x=>pattern.test(x.name))?.i;
- const prayer=find(/pray/i),bible=find(/bible|scripture/i),nutrition=find(/nutrition|meal|protein/i);
- const a=(prayer??bible??active[0]?.i),b=active.find(x=>x.i!==a)?.i;
- return [
-  a===undefined?null:'h:'+a,
-  state.activities[0]?'w:'+state.activities[0].id:b===undefined?null:'h:'+b,
-  nutrition===undefined?(active.find(x=>x.i!==a&&x.i!==b)?.i===undefined?null:'h:'+active.find(x=>x.i!==a&&x.i!==b).i):'h:'+nutrition
- ].filter(Boolean);
-}
-function big3Selected(){
- const known=new Set(big3Choices().map(x=>x.value));
- const result=[];
- const configured=state.discipline.big3||[];
- for(const value of [...configured,...big3Defaults(),...big3Choices().map(x=>x.value)]){
-  if(known.has(value)&&!result.includes(value))result.push(value);
-  if(result.length===Math.min(3,known.size))break;
- }
- return result;
-}
-function priorityStatus(value,date){
- if(value.startsWith('h:')){
-  const i=Number(value.slice(2)),entry=cleanCheck(state.dailyCheckins[date]);
-  return entry.habits[i]?'full':state.discipline.minimums[date]?.[i]?'min':'none';
- }
- const id=value.slice(2);
- return state.completions.some(x=>x.activityId===id&&x.date===date)?'full':
- (state.discipline.workoutMinimums||[]).some(x=>x.activityId===id&&x.date===date)?'min':'none';
-}
-function updatePriority(value,date,mode){
- if(value.startsWith('h:')){
-  const i=Number(value.slice(2));if(!Number.isInteger(i)||i<0||i>=state.habitLabels.length)return;
-  const entry=cleanCheck(state.dailyCheckins[date]);
-  state.discipline.minimums[date]||={};
-  const current=priorityStatus(value,date);
-  if(current===mode){
-   entry.habits[i]=false;delete state.discipline.minimums[date][i];
-  }else if(mode==='full'){entry.habits[i]=true;delete state.discipline.minimums[date][i]}
-  else {entry.habits[i]=false;state.discipline.minimums[date][i]=true}
-  entry.saved=true;state.dailyCheckins[date]=entry;
- }else{
-  const id=value.slice(2),match=x=>x.activityId===id&&x.date===date;
-  const current=priorityStatus(value,date);
-  if(mode==='full'){
-   if(current==='full'){
-    // Only remove one logged completion when undoing a Big 3 entry.
-    const index=state.completions.findLastIndex(match);
-    if(index>=0)state.completions.splice(index,1);
-   }else state.completions.push({id:'big3-'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:id,date});
-   state.discipline.workoutMinimums=state.discipline.workoutMinimums.filter(x=>!match(x));
-  }else{
-   state.discipline.workoutMinimums=state.discipline.workoutMinimums.filter(x=>!match(x));
-   if(current!=='min')state.discipline.workoutMinimums.push({id:'big3min-'+Date.now()+'-'+Math.random().toString(36).slice(2),activityId:id,date});
-  }
- }
- if(save()){renderDaily();render();$('big3Status').textContent='✓ Saved on this device · check cloud status above'}
-}
 // Never Miss Twice is based only on days actually recorded. An unlogged day
 // or a planned recovery day is not silently classified as a failed habit.
 function recoveryCandidates(date){
@@ -1624,63 +1557,6 @@ function renderNeverTwice(){
   list.append(show);
  }
 }
-function renderBig3(){
- const date=todayCheck(),selected=big3Selected(),names=new Map(big3Choices().map(x=>[x.value,x.label]));
- const list=$('big3List');list.replaceChildren();
- let total=0;
- for(const key of selected){
-  const status=priorityStatus(key,date);if(status!=='none')total++;
-  const item=element('div',undefined,'big3-row'),information=element('div');
-  item.dataset.priorityKey=key;
-  const title=element('strong',names.get(key)||'Your priority');
-  const sub=key.startsWith('h:')?disciplineConfig(Number(key.slice(2))).minimum:'Warm up and complete one movement';
-  information.append(title,element('small',status==='full'?'✓ Full commitment complete':status==='min'?'◐ Minimum effort completed':'Minimum: '+sub));
-  const actions=element('div',undefined,'big3-actions');
-  for(const [mode,label] of [['full','Done'],['min','Minimum']]){
-   const b=element('button',label,status===mode?'chosen':'secondary tiny');
-   b.type='button';b.setAttribute('aria-pressed',String(status===mode));
-   b.onclick=()=>updatePriority(key,date,mode);actions.append(b);
-  }
-  item.append(information,actions);list.append(item);
- }
- $('big3Shift').textContent=disciplineShiftFor(date);
- $('big3Status').textContent=total+' of '+selected.length+' priorities started · '+currentShiftPlan(date);
- renderNeverTwice();
- const selectors=$('big3Selectors');selectors.replaceChildren();
- const choices=big3Choices();
- selected.forEach((selectedValue,index)=>{
-  const label=element('label','Priority '+(index+1)),select=element('select');
-  select.setAttribute('aria-label','Daily priority '+(index+1));
-  for(const choice of choices){const o=element('option',choice.label);o.value=choice.value;select.append(o)}
-  select.value=selectedValue;
-  const orderButtons=element('span',undefined,'reorder-actions');
-  const up=element('button','↑','secondary tiny'),down=element('button','↓','secondary tiny');
-  for(const [button,direction,text] of [[up,-1,'Move up'],[down,1,'Move down']]){
-    button.type='button';
-    button.disabled=direction<0?index===0:index===selected.length-1;
-    button.setAttribute('aria-label',text+' priority '+(index+1));
-    button.onclick=()=>{
-      const neighbor=direction<0?label.previousElementSibling:label.nextElementSibling;
-      if(!neighbor)return;
-      if(direction<0)neighbor.before(label);else neighbor.after(label);
-      Array.from(selectors.children).forEach((entry,i)=>{
-        entry.firstChild.textContent='Priority '+(i+1);
-        const buttons=entry.querySelectorAll('.reorder-actions button');
-        if(buttons[0])buttons[0].disabled=i===0;
-        if(buttons[1])buttons[1].disabled=i===selectors.children.length-1;
-      });
-    };
-  }
-  orderButtons.append(up,down);
-  label.append(select,orderButtons);selectors.append(label);
- });
-}
-$('saveBig3').onclick=()=>{
- const choices=Array.from($('big3Selectors').children).map(row=>row.children[0].value);
- if(new Set(choices).size!==choices.length)return alert('Choose three different priorities.');
- state.discipline.big3=choices;
- if(save()){renderBig3();$('big3Editor').open=false;$('big3Status').textContent='✓ Your Daily Big 3 are saved.'}
-};
 let chosenHabitCalendarDate=today;
 function renderHabitCalendar(){
  const startDate=cycleStartFor(today),end=endFor(startDate),grid=$('habitCalendarGrid');
@@ -1715,9 +1591,6 @@ $('markRecoveryDay').onclick=()=>{
  else state.discipline.restDays[date]=true;
  if(save()){renderHabitCalendar();$('habitCalendarDetail').textContent=date+': '+(state.discipline.restDays[date]?'Recovery day recorded.':'Recovery marker removed.')}
 };
-$('openSetup').onclick=()=>{
- showPanel('settings');$('setupDetails').open=true;$('vigorSetup').scrollIntoView({behavior:'smooth',block:'start'});
-};
 function renderShiftRoutines(){
  const editor=$('shiftRoutineEditor');editor.replaceChildren();
  for(const [type,defaultValue] of Object.entries(shiftPlanDefaults)){
@@ -1733,11 +1606,10 @@ $('saveShiftRoutines').onclick=()=>{
   const input=row.children[0].children[0];plans[input.dataset.shift]=input.value.trim().slice(0,150)||shiftPlanDefaults[input.dataset.shift];
  }
  state.discipline.shiftPlans=plans;
- if(save()){renderDisciplineOverview(todayCheck());renderBig3();$('shiftRoutineFeedback').textContent='✓ Shift recommendations saved and queued for cloud sync'}
+ if(save()){renderDisciplineOverview(todayCheck());$('shiftRoutineFeedback').textContent='✓ Shift recommendations saved and queued for cloud sync'}
 };
 function renderSetup(){
  $('setupProgress').textContent=state.discipline.setupDone?'Personalized':'Optional setup';
- $('openSetup').hidden=!!state.discipline.setupDone;
  const select=$('setupTopHabit'),previous=select.value;
  select.replaceChildren();
  state.habitLabels.forEach((name,i)=>{if(!isHabitActive(i))return;const option=element('option',name);option.value=name;select.append(option)});
@@ -2101,7 +1973,7 @@ $('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb
 $('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
 $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('tr');[m.date,m.weight??'—',m.waist??'—'].forEach(v=>tr.append(element('td',String(v))));const cell=element('td'),remove=element('button','Delete','secondary tiny');remove.onclick=()=>{if(confirm('Delete this measurement?')){state.measurements=state.measurements.filter(x=>x.date!==m.date);save();render()}};cell.append(remove);tr.append(cell);$('history').append(tr)});
 $('anchor').value=state.anchor;
-renderRewards();renderCouples();renderInsights();renderBig3();
+renderRewards();renderCouples();renderInsights();renderNeverTwice();
 }
 $('addCoupleGoal').onclick=()=>{
  const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a shared goal.');
