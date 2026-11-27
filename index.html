@@ -420,7 +420,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <p id="disciplineFocus" class="discipline-focus">Choose one small action to start.</p><button type="button" id="disciplineRestart" class="secondary tiny" hidden>Restart with a minimum</button>
 </section>
 <section class="card" id="todayTraining" aria-labelledby="todayTrainingHeading" hidden>
-<div class="row"><h2 id="todayTrainingHeading">Today's training</h2><span class="tag" id="todayTrainingDay"></span></div>
+<div class="today-training-header"><h2 id="todayTrainingHeading">Today's training</h2><span class="tag" id="todayTrainingDay"></span></div>
 <div id="todayTrainingTasks"></div>
 <p class="subtle" id="todayTrainingStatus" role="status"></p>
 </section>
@@ -1045,7 +1045,8 @@ function renderZone2(){
  if(!logs.length)$('zoneLog').append(element('div','No sessions recorded this rotation.'));
  [...logs].sort((a,b)=>b.date.localeCompare(a.date)).forEach(x=>{
   const row=element('div',undefined,'zone-log-row'),label=element('span',x.date+' · '+x.minutes+' min'),remove=element('button','Undo','secondary tiny');
-  remove.onclick=()=>{state.zone2Logs=state.zone2Logs.filter(v=>v.id!==x.id);if(save()){renderZone2();$('zoneFeedback').textContent='✓ Entry removed'}};row.append(label,remove);$('zoneLog').append(row);
+  remove.onclick=()=>{if(removeZoneLog(x.id))$('zoneFeedback').textContent='✓ Entry removed'};
+  row.append(label,remove);$('zoneLog').append(row);
  });
 }
 function activityFor(date){return state.dailyActivity[date]||{}}
@@ -1736,7 +1737,7 @@ const trainingPlan = [
  {workouts:[['recovery','Recovery']], minutes:30},
  {workouts:[['core','Light core'],['walk','Easy recovery walk']]},
  {workouts:[['C','Full Body C']], minutes:30},
- {workouts:[['athletic','Hybrid Athletic + Police Prep','Athletic performance']], note:'Shuttles last'},
+ {workouts:[['athletic','Hybrid Athletic + Police Prep','Athletic performance','Shuttles last']]},
  {workouts:[['D','Full Body D']], minutes:30}
 ];
 
@@ -1750,7 +1751,7 @@ function renderTodayTraining(){
  $('todayTrainingDay').textContent='Day '+(index+1)+' of 8 · '+shiftLabel(index,date);
  const tasks=$('todayTrainingTasks');
  tasks.replaceChildren();
- for(const [routine,label,name=label] of plan.workouts){
+ for(const [routine,label,name=label,note] of plan.workouts){
   const standardId='vigor-routine-'+routine;
   const matchingIds=state.activities.filter(activity=>
    activity.id===standardId||[label,name].some(value=>value.toLowerCase()===String(activity.name).trim().toLowerCase())
@@ -1758,14 +1759,8 @@ function renderTodayTraining(){
   const recordId='daily-training-'+date+'-'+routine;
   const entries=state.completions.filter(entry=>entry.date===date&&
    (entry.routine===routine||matchingIds.includes(entry.activityId)));
-  const row=element('div',undefined,'task-compact-head');
-  const title=element('strong',label);
   const owned=entries.some(entry=>entry.id===recordId);
-  const button=element('button',entries.length?'✓ Done':'Check off','secondary tiny');
-  button.type='button';
-  button.setAttribute('aria-label',(owned?'Undo ':entries.length?'Completed ':'Complete ')+label);
-  button.setAttribute('aria-pressed',String(entries.length>0));
-  button.disabled=entries.length>0&&!owned;
+  const {row,button}=todayTrainingRow(label,entries.length>0,owned,note);
   button.onclick=()=>{
    if(date!==iso(new Date())){renderTodayTraining();return}
    const {activities,completions}=state;
@@ -1786,29 +1781,56 @@ function renderTodayTraining(){
    render();
    $('todayTrainingStatus').textContent=owned?'Completion removed.':label+' recorded.';
   };
-  row.append(title,button);
   tasks.append(row);
  }
- if(plan.note)tasks.append(element('p',plan.note,'subtle'));
- if(plan.minutes){
-  const minutes=state.zone2Logs.filter(entry=>entry.date===date)
-   .reduce((sum,entry)=>sum+Number(entry.minutes||0),0);
-  const form=element('form',undefined,'zone-form');
-  const label=element('label','Zone 2 · '+plan.minutes+'+ min');
-  const input=element('input');
-  input.type='number';input.inputMode='numeric';input.min='1';input.max='600';input.step='1';input.required=true;
-  input.placeholder='Minutes completed';
-  input.setAttribute('aria-label','Zone 2 minutes completed');
-  label.append(input);
-  const add=element('button','Log minutes','secondary tiny');
-  form.append(label,add);
-  form.onsubmit=event=>{
-   event.preventDefault();
-   if(date!==iso(new Date())){renderTodayTraining();return}
-   if(logZoneMinutes(date,Number(input.value)))$('todayTrainingStatus').textContent='Zone 2 minutes recorded.';
-  };
-  tasks.append(element('p',(minutes>=plan.minutes?'✓ ':'')+minutes+' / '+plan.minutes+' min logged today','subtle'),form);
- }
+ if(plan.minutes)tasks.append(todayZone2Task(date,plan.minutes));
+}
+
+function todayTrainingRow(label,done,canUndo,note){
+ const row=element('div',undefined,'today-training-task');
+ const labelGroup=element('div');
+ labelGroup.append(element('strong',label));
+ if(note)labelGroup.append(element('small',note,'today-training-note'));
+ const button=element('button',done?'✓ Done':'Mark done','secondary today-training-toggle');
+ button.type='button';
+ button.setAttribute('aria-label',(canUndo?'Undo ':done?'Completed ':'Complete ')+label);
+ button.setAttribute('aria-pressed',String(done));
+ button.disabled=done&&!canUndo;
+ row.append(labelGroup,button);
+ return {row,button};
+}
+
+function todayZone2Task(date,target){
+ const recordId='daily-training-zone2-'+date;
+ const logs=state.zone2Logs.filter(entry=>entry.date===date);
+ const minutes=logs.reduce((sum,entry)=>sum+Number(entry.minutes||0),0);
+ const done=minutes>=target;
+ const quickLog=logs.find(entry=>entry.id===recordId);
+ const canUndo=done&&!!quickLog;
+ const task=element('div',undefined,'today-training-zone2');
+ const {row,button}=todayTrainingRow('Zone 2',done,canUndo,minutes+' / '+target+' min logged');
+ button.onclick=()=>{
+  if(date!==iso(new Date())){renderTodayTraining();return}
+  const saved=canUndo?removeZoneLog(recordId):logZoneMinutes(date,target-minutes,recordId);
+  if(saved)$('todayTrainingStatus').textContent=canUndo?'Zone 2 check-off undone.':'Zone 2 completed.';
+ };
+ const details=element('details',undefined,'today-training-custom');
+ details.append(element('summary','Log custom minutes'));
+ const form=element('form',undefined,'zone-form');
+ const label=element('label','Minutes completed');
+ const input=element('input');
+ input.type='number';input.inputMode='numeric';input.min='1';input.max='600';input.step='1';input.required=true;
+ label.append(input);
+ const add=element('button','Log minutes','secondary tiny');
+ form.append(label,add);
+ form.onsubmit=event=>{
+  event.preventDefault();
+  if(date!==iso(new Date())){renderTodayTraining();return}
+  if(logZoneMinutes(date,Number(input.value)))$('todayTrainingStatus').textContent='Zone 2 minutes recorded.';
+ };
+ details.append(form);
+ task.append(row,details);
+ return task;
 }
 
 function render(){
@@ -1998,11 +2020,22 @@ $('coupleClaimReward').onclick=()=>{
 $('editRewards').onclick=()=>{rewardEdit=!rewardEdit;renderRewards()};
 $('addReward').onclick=()=>{const name=$('newRewardName').value.trim(),cost=Math.floor(Number($('newRewardCost').value));if(!name||!Number.isFinite(cost)||cost<1||cost>100000)return alert('Enter a reward name and valid cost');state.rewards.push({id:'reward-'+Date.now(),name,cost});save();renderRewards()};
 $('dailyDate').value=today;$('dailyDate').max=today;$('dailyDate').onchange=()=>{renderDaily();renderActivity();renderZone2()};
-function logZoneMinutes(date,minutes){
+function removeZoneLog(id){
+ const previous=state.zone2Logs;
+ state.zone2Logs=previous.filter(entry=>entry.id!==id);
+ if(!save()){state.zone2Logs=previous;return false}
+ renderZone2();
+ return true;
+}
+
+function logZoneMinutes(date,minutes,id='z2-'+Date.now()+'-'+Math.random().toString(36).slice(2)){
  if(!Number.isInteger(minutes)||minutes<1||minutes>600){alert('Enter 1–600 whole minutes');return false}
  if(!date||date>iso(new Date())){alert('Select today or an earlier day');return false}
  const previous=state.zone2Logs;
- state.zone2Logs=[...previous,{id:'z2-'+Date.now()+'-'+Math.random().toString(36).slice(2),date,minutes}];
+ const existing=previous.find(entry=>entry.id===id);
+ state.zone2Logs=existing
+  ?previous.map(entry=>entry===existing?{...entry,minutes:Number(entry.minutes)+minutes}:entry)
+  :[...previous,{id,date,minutes}];
  if(!save()){state.zone2Logs=previous;return false}
  renderZone2();
  $('zoneFeedback').textContent='✓ '+minutes+' minutes saved for '+date;

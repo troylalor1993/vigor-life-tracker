@@ -24,6 +24,26 @@ main{max-width:1040px}
 #panel-today>.big3-card .big3-row{border-color:#5e5342!important;padding:14px 12px;background:linear-gradient(115deg,#30302e,#252525)!important}
 #panel-today>.big3-card .big3-row .big3-actions{gap:7px}
 #panel-today>.big3-card .big3-row button{border-radius:11px}
+#todayTraining .today-training-header{
+ display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;
+}
+#todayTrainingHeading{margin:0}
+#todayTrainingTasks{margin-top:14px}
+.today-training-task{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;
+}
+.today-training-task strong{display:block;line-height:1.35;overflow-wrap:anywhere}
+.today-training-note{display:block;margin-top:4px;color:var(--muted)}
+.today-training-toggle{min-width:92px;min-height:44px;white-space:nowrap}
+.today-training-toggle[aria-pressed="true"]{
+ color:var(--accent-soft);border-color:var(--accent);
+}
+#todayTrainingTasks>*+*{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.today-training-custom{margin-top:6px}
+.today-training-custom summary{width:fit-content;padding:5px 0;color:var(--accent-soft);font-size:13px;cursor:pointer}
+.today-training-custom .zone-form{margin-top:6px}
+#todayTrainingStatus{margin:8px 0 0}
+#todayTrainingStatus:empty{margin:0}
 #vigorStartGuide{border-color:#947343;border-radius:21px}
 #panel-progress>.vc-growth-card{padding:22px;background:linear-gradient(135deg,#28221b,#15181b)!important;border-color:#796442!important}
 #panel-progress>.vc-growth-card h2{font-size:25px}
