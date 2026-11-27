@@ -407,12 +407,12 @@ async function main(){
      // Archive an active habit without changing the underlying historical records.
      const beforeArchive=await page.evaluate(()=>{
        const d=JSON.parse(localStorage.getItem('vigor-tracker'));
+       const activeIndex=d.habitLabels.findIndex((_,i)=>!d.discipline.settings[i]?.archivedAt);
        return {labels:d.habitLabels.slice(),checks:d.dailyCheckins,mins:d.discipline.minimums,
-         priorities:d.discipline.big3.slice(),settings:d.discipline.settings};
+         priorities:d.discipline.big3.slice(),activeIndex};
      });
-     const archivedPriority=beforeArchive.priorities.find(key=>/^h:\d+$/.test(key));
-     assert(archivedPriority,'expected at least one active habit priority');
-     const archivedIndex=Number(archivedPriority.slice(2));
+     const archivedIndex=beforeArchive.activeIndex;
+     assert(archivedIndex>=0,'expected at least one active habit');
      await page.locator('#vigorNav [data-vigor-route="journey"]').click();
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
      let archivedRow=page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]');
@@ -424,7 +424,8 @@ async function main(){
      assert.deepEqual(afterArchive.habitLabels,beforeArchive.labels,'habit labels preserved by archive');
      assert.deepEqual(afterArchive.dailyCheckins,beforeArchive.checks,'check-in history preserved by archive');
      assert.deepEqual(afterArchive.discipline.minimums,beforeArchive.mins,'minimum history preserved by archive');
-     assert(!afterArchive.discipline.big3.includes('h:'+archivedIndex),'archived habit removed from active priority choices');
+     assert.deepEqual(afterArchive.discipline.big3,beforeArchive.priorities.filter(key=>key!=='h:'+archivedIndex),
+       'archiving preserves any other saved priority preferences');
      assert.equal(await page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]').count(),0,'archived item leaves active Journey');
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Archived'}).click();
      archivedRow=page.locator('#vigorJourneyManager .vjm-item[data-habit-index="'+archivedIndex+'"]');
