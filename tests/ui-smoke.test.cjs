@@ -125,11 +125,14 @@ async function main(){
      assert.equal(await progress.locator('#weightChart').isVisible(),true,'Charts open directly');
      assert.equal(await progress.locator('#habitCalendar').isVisible(),false,'Charts leave the calendar closed');
      assert.equal(await progress.locator('#milestones').isVisible(),true,'Milestones are visible when Progress opens');
-     assert.equal(await progress.locator('#milestones .milestone-item').count(),10,'All ten milestones are available in Progress');
-     await progress.getByText('Manage my 10 milestone rewards',{exact:true}).click();
-     assert.equal(await progress.locator('#milestoneRewards input').count(),10,'Each milestone still has a reward field');
+     assert.equal(await progress.locator('#milestones .milestone-item').count(),12,'All twelve milestones are available in Progress');
+     await progress.getByText('Manage milestone rewards',{exact:true}).click();
+     assert.equal(await progress.locator('#milestoneRewards input').count(),12,'Each milestone still has a reward field');
+     const milestones=await progress.locator('#milestones .milestone-item strong').allTextContents();
+     assert.deepEqual(milestones,['359.2 lb','348.3 lb','337.5 lb','326.7 lb','315.8 lb','305 lb',
+       '294.2 lb','283.3 lb','272.5 lb','261.7 lb','250.8 lb','240 lb']);
      assert.equal(await page.locator('#panel-rewards #milestones').count(),0,'Milestones appear in one place');
-     await progress.getByText('Manage my 10 milestone rewards',{exact:true}).click();
+     await progress.getByText('Manage milestone rewards',{exact:true}).click();
      await progress.getByText('Habit calendar',{exact:true}).click();
      assert.equal(await progress.locator('#habitCalendarGrid button').count(),8,'The calendar shows each day of the rotation');
      await progress.locator('#habitCalendarGrid button').first().click();

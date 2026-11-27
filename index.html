@@ -472,7 +472,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 </section>
 <h3 style="margin:18px 0 10px">Rewards to work toward</h3>
 <div id="rewardGrid" class="reward-grid"></div><details class="reward-history"><summary>View redeemed rewards</summary><ul id="rewardHistory"></ul></details><div id="rewardEditor" class="hidden"><h3>Customize rewards</h3><div id="rewardEditList"></div><div class="reward-edit-row"><input id="newRewardName" maxlength="75" placeholder="Add reward" aria-label="New reward"><input id="newRewardCost" type="number" min="1" value="100" aria-label="Point cost"><button id="addReward" class="secondary tiny">Add</button></div></div><p id="rewardWarning" class="subtle" aria-live="polite"></p></div><div class="card" id="measurementCharts"><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
-<div class="card"><div class="row"><h2>Your weight milestones</h2><small id="milestoneRangeCaption">Original milestones</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><details class="milestone-reward-editor"><summary>Manage my 10 milestone rewards</summary><p class="milestone-note">Choose a reward for each milestone. Rewards don't spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div></details></div>
+<div class="card"><div class="row"><h2>Your weight milestones</h2><small id="milestoneRangeCaption">Original milestones</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><details class="milestone-reward-editor"><summary>Manage milestone rewards</summary><p class="milestone-note">Choose a reward for each milestone. Rewards don't spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div><details id="previousMilestoneRewards" hidden><summary>Previous milestone rewards</summary><div id="previousMilestoneRewardList" class="milestone-rewards"></div></details></details></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
 <div class="card" id="training"><div class="row"><h2>Workout log</h2><div class="toolbar"><button id="quickEdit" class="secondary">Edit types of workouts</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle" id="trainingScheduleHint">Complete any workout on whichever day works best for you.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename, rearrange with ↑ / ↓, or adjust rotation targets. Tap <strong>Save workout changes</strong> to keep the new order.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New workout or task<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target per rotation<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="secondary" type="button">Add workout</button></div><button type="button" class="primary" id="saveWorkoutChanges" style="width:100%;min-height:48px;margin:12px 0 8px">Save workout changes</button><div id="taskSaveFeedback" class="subtle" role="status" aria-live="polite">Changes not saved yet.</div></div></div>
@@ -773,9 +773,15 @@ else {
  if(untouchedOld||untouchedLegacy)state.rewards=suggestedRewards.map(x=>({...x}));
 }
 state.rewardRedemptions ||= [];
-state.milestoneRewards ||= {};
-const milestoneRewardSuggestions={'344':'AirPods','318':'New shoes','292':'Weekend getaway','266':'Apple MacBook Pro','240':'Vacation'};
-Object.entries(milestoneRewardSuggestions).forEach(([weight,name])=>{if(!(weight in state.milestoneRewards))state.milestoneRewards[weight]=name});
+const milestoneCount=12;
+if(!state.milestoneRewards){
+ const marks=weightMilestones();
+ const suggestions=['AirPods','New shoes','Weekend getaway','Apple MacBook Pro','Vacation'];
+ state.milestoneRewards=Object.fromEntries(suggestions.map((name,i)=>{
+  const index=Math.round((i+1)*milestoneCount/suggestions.length)-1;
+  return [marks[index],name];
+ }));
+}
 state.milestoneClaims ||= {};
 // Existing per-day checkmarks remain in the saved legacy data, without altering or deleting them.
 let offset=0,edit=false,habitEdit=false,rewardEdit=false;
@@ -791,24 +797,30 @@ function rewardStats(){
  return {earned,spent,balance:earned-spent,rotation:rotationHabits*5+rotationWorkouts*20,rotationStart,rotationEnd};
 }
 
-// Ten personalized weight milestones (every 13 lb when starting at 370, finishing at 240).
 function weightMilestones(){
- const b=state.bodyGoals||{startWeight:370,goalWeight:240};
- const start=Number(b.startWeight),goal=Number(b.goalWeight);
- if(!Number.isFinite(start)||!Number.isFinite(goal)||start<=goal)return [357,344,331,318,305,292,279,266,253,240];
- return [...new Set(Array.from({length:10},(_,i)=>Math.round((start-(start-goal)*(i+1)/10)*10)/10))];
+ const b=state.bodyGoals||{};
+ let start=Number(b.startWeight),goal=Number(b.goalWeight);
+ if(!Number.isFinite(start)||!Number.isFinite(goal)||start<=goal){start=370;goal=240}
+ const step=(start-goal)/milestoneCount;
+ const precision=Math.min(9,Math.max(1,Math.ceil(-Math.log10(step))));
+ return Array.from({length:milestoneCount},(_,i)=>i===milestoneCount-1?goal:Number((start-step*(i+1)).toFixed(precision)));
 }
 function renderMilestoneRewards(){
- const holder=$('milestoneRewards');holder.replaceChildren();
+ const holder=$('milestoneRewards'),previous=$('previousMilestoneRewardList');
+ holder.replaceChildren();previous.replaceChildren();
+ const current=weightMilestones();
+ const saved=new Set([...Object.keys(state.milestoneClaims),...Object.keys(state.milestoneRewards).filter(weight=>state.milestoneRewards[weight])]);
+ const oldMarks=[...saved].map(Number).filter(mark=>Number.isFinite(mark)&&mark>0&&!current.includes(mark)).sort((a,b)=>b-a);
+ $('previousMilestoneRewards').hidden=!oldMarks.length;
  const weights=state.measurements.map(m=>Number(m.weight)).filter(n=>Number.isFinite(n)&&n>0);
  const best=weights.length?Math.min(...weights):null;
- weightMilestones().forEach(mark=>{
+ function rewardTile(mark){
   const id=String(mark),unlocked=best!==null&&best<=mark,claimed=state.milestoneClaims[id];
   const tile=element('div',undefined,'milestone-reward'+(claimed?' claimed':''));
   const heading=element('h3',mark+' lb milestone');
   const status=element('p',claimed?'✓ Claimed '+claimed.date:unlocked?'Unlocked — well done!':'Locked until '+mark+' lb');
   const label=element('label','Your reward'),input=element('input');input.type='text';input.maxLength=100;
-  input.placeholder='Enter your reward';input.value=state.milestoneRewards[id]||'';
+  input.placeholder='Enter your reward';input.value=state.milestoneRewards[id]??claimed?.name??'';
   input.setAttribute('aria-label','Reward for '+mark+' pounds');
   input.onchange=()=>{state.milestoneRewards[id]=input.value.trim();save()};
   const button=element('button',claimed?'✓ Claimed':unlocked?'Claim reward':'Not yet unlocked','secondary tiny');
@@ -818,8 +830,10 @@ function renderMilestoneRewards(){
    if(!confirm('Mark the '+mark+' lb reward as claimed?'))return;
    state.milestoneRewards[id]=reward;state.milestoneClaims[id]={name:reward,date:today};save();renderMilestoneRewards();
   };
-  label.append(input);tile.append(heading,status,label,button);holder.append(tile);
- });
+  label.append(input);tile.append(heading,status,label,button);return tile;
+ }
+ holder.append(...current.map(rewardTile));
+ previous.append(...oldMarks.map(rewardTile));
 }
 
 // A couple uses one shared rotation, independent of either partner's personal work schedule.
@@ -1892,7 +1906,7 @@ $('transformationSummary').replaceChildren();
 const body=state.bodyGoals||(state.bodyGoals={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38});
 const weightDiff=latestWeight==null?null:body.startWeight-Number(latestWeight),waistDiff=latestWaist==null?null:body.startWaist-Number(latestWaist);
 $('bodyGoalSummary').textContent=body.startWeight+' → '+body.goalWeight+' lb · '+body.startWaist+' → '+body.goalWaist+' in waist';
-$('milestoneRangeCaption').textContent='10 milestones · '+state.bodyGoals.startWeight+' to '+state.bodyGoals.goalWeight+' lb';
+$('milestoneRangeCaption').textContent=milestoneCount+' milestones · '+state.bodyGoals.startWeight+' to '+state.bodyGoals.goalWeight+' lb';
 ['bodyStartWeight','bodyGoalWeight','bodyStartWaist','bodyGoalWaist'].forEach((id,i)=>{$(id).value=[body.startWeight,body.goalWeight,body.startWaist,body.goalWaist][i]});
 $('transformationSummary').append(element('span',weightDiff==null?'Weight: log first check-in':(weightDiff>=0?weightDiff.toFixed(1)+' lb lost':Math.abs(weightDiff).toFixed(1)+' lb above start'),'tag'));
 $('transformationSummary').append(element('span',waistDiff==null?'Waist: log first check-in':(waistDiff>=0?waistDiff.toFixed(1)+' in reduced':Math.abs(waistDiff).toFixed(1)+' in above start'),'tag'));
