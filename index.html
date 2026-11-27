@@ -1799,7 +1799,6 @@ function todayZone2Task(date,target){
  return task;
 }
 
-let measurementDirty=false,measurementValues={};
 function renderMeasurementStatus(date,entry){
  const status=$('measureStatus');
  const label=date===iso(new Date())?'today':parse(date).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
@@ -1814,12 +1813,11 @@ function renderMeasurementForm(){
  field.max=iso(new Date());
  if(!field.value)field.value=field.max;
  const entry=state.measurements.find(item=>item.date===field.value);
- if(!measurementDirty){
-  measurementValues={weight:entry?.weight==null?null:Number(entry.weight),waist:entry?.waist==null?null:Number(entry.waist)};
-  $('weight').value=entry?.weight??'';
-  $('waist').value=entry?.waist??'';
-  renderMeasurementStatus(field.value,entry);
- }
+ renderMeasurementStatus(field.value,entry);
+}
+function clearMeasurementInputs(){
+ $('weight').value='';
+ $('waist').value='';
 }
 
 function render(){
@@ -2098,10 +2096,9 @@ $('saveBodyTargets').onclick=()=>{
  if(save()){render();$('bodyGoalDetails').open=false;$('bodyTargetFeedback').textContent='✓ Targets saved and queued for cloud sync'}
 };
 $('measureDate').onchange=()=>{
- measurementDirty=false;
+ clearMeasurementInputs();
  renderMeasurementForm();
 };
-for(const id of ['weight','waist'])$(id).oninput=()=>{measurementDirty=true};
 $('saveMeasure').onclick=()=>{
  const date=$('measureDate').value;
  const now=iso(new Date());
@@ -2116,21 +2113,19 @@ $('saveMeasure').onclick=()=>{
   if(field.validity.badInput||(raw&&(!Number.isFinite(value)||value<=0))){
    error('Enter a valid '+label+' greater than zero.');return;
   }
-  if(raw&&value!==measurementValues[id])edits[id]=value;
+  if(raw)edits[id]=value;
+ }
+ if(!Object.keys(edits).length){
+  error('Enter weight, waist, or both.');return;
  }
  const existing=state.measurements.find(entry=>entry.date===date);
- if(!Object.keys(edits).length){
-  if(!existing||(!$('weight').value&&!$('waist').value))error('Enter weight, waist, or both.');
-  else renderMeasurementStatus(date,existing);
-  return;
- }
  const previous=state.measurements;
  const entry={...existing,date,...edits};
  state.measurements=[...previous.filter(item=>item.date!==date),entry];
  if(!save()){
   state.measurements=previous;error('Could not save. Try again.');return;
  }
- measurementDirty=false;
+ clearMeasurementInputs();
  render();
 };
 $('cycleLength').onchange=()=>{
