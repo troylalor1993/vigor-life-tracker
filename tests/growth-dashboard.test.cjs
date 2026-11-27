@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'..','growth-dashboard.js'),'utf8');
 new vm.Script(source);
 const from=source.indexOf(' const todayKey=');
-const to=source.indexOf(' const clean=');
+const to=source.indexOf(' window.VigorGrowth=');
 assert(from>=0&&to>from,'Growth logic not found');
 const {growthOverview}=vm.runInNewContext(source.slice(from,to)+'\n({growthOverview})');
 const base={

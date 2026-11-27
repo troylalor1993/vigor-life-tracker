@@ -12,7 +12,10 @@
  // Move the ORIGINAL collapsible sections, not their inner controls.
  // Otherwise empty "Zone 2 minutes" and "All workouts & session logs" shells
  // remain behind on Today. Retaining the elements also retains every event listener.
+ const journeyContent=document.createElement('div');
+ journey.append(journeyContent);
  const habitHistory=$('habitHistoryTools');
+ if(habitHistory)journey.append(habitHistory);
  const fitnessContent=document.createElement('div');
  fitnessContent.className='vigor-fitness-content';
  const zone2Movement=$('zone2');
@@ -39,7 +42,6 @@
  function setRoute(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
  function expandAndScroll(id){
   const target=$(id);if(!target)return;
-  const reports=target.closest('#progressReports');if(reports)reports.open=true;
   const details=target.closest('details');if(details)details.open=true;
   target.scrollIntoView({behavior:'smooth',block:'start'});
  }
@@ -58,7 +60,7 @@
   if(!active.some(x=>x.i===selectedHabit))selectedHabit=active[0]?.i??0;
   const h=active.length?window.VigorCoaching.habitJourney(data,day,selectedHabit):null;
   const stepDesc=['Choose a meaningful habit and why it matters','Attach a small action to a reliable cue','Repeat with minimum or full efforts','Learn from obstacles and recent check-ins','Protect your routine before adding more'];
-  journey.innerHTML=`<div class="vigor-screen-header"><h2>Habits</h2></div>
+  journeyContent.innerHTML=`<div class="vigor-screen-header"><h2>Habits</h2></div>
       ${active.length?`<label class="vigor-habit-select">Habit you're building
        <select id="vigorJourneySelect" aria-label="Choose a habit to develop">${active.map(({name:x,i})=>'<option value="'+i+'"'+(i===selectedHabit?' selected':'')+'>'+escape(x)+'</option>').join('')}</select></label>`:'<div class="vigor-summary">Add or restore a habit to begin.</div>'}
       ${h?`<div class="vigor-steps">${h.steps.map((step,i)=>`<div class="vigor-step${step.complete?' complete':''}">
@@ -73,11 +75,10 @@
       <button id="vigorJourneyLog" type="button" class="secondary">Log a small win</button>
       <button id="vigorJourneyGrowth" type="button" class="secondary">Review progress</button></div>
       <p class="vigor-detail-note">These stages respond to recorded check-ins, not a clinical measure of habit automaticity. Blank and designated rest days are not treated as failures.</p>`;
-  if(habitHistory)journey.append(habitHistory);
   journey.querySelector('#vigorJourneySelect')?.addEventListener('change',e=>{selectedHabit=Number(e.target.value)||0;render()});
   journey.querySelector('#vigorJourneySetup')?.addEventListener('click',()=>navigateToSetup(h?.name||labels[0]||'',h||{}));
   journey.querySelector('#vigorJourneyLog')?.addEventListener('click',()=>{setRoute('today');expandAndScroll('vigorAllHabits')});
-  journey.querySelector('#vigorJourneyGrowth')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('disciplineReview')});
+  journey.querySelector('#vigorJourneyGrowth')?.addEventListener('click',()=>{setRoute('growth');expandAndScroll('habitCalendar')});
  }
  function renderFitness(data,day){
   const schedule=window.vigorCloudBridge.getTrainingSchedule(day);

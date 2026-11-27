@@ -471,12 +471,10 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div id="unlockedList" class="unlocked-list"></div>
 </section>
 <h3 style="margin:18px 0 10px">Rewards to work toward</h3>
-<div id="rewardGrid" class="reward-grid"></div><details class="reward-history"><summary>View redeemed rewards</summary><ul id="rewardHistory"></ul></details><div id="rewardEditor" class="hidden"><h3>Customize rewards</h3><div id="rewardEditList"></div><div class="reward-edit-row"><input id="newRewardName" maxlength="75" placeholder="Add reward" aria-label="New reward"><input id="newRewardCost" type="number" min="1" value="100" aria-label="Point cost"><button id="addReward" class="secondary tiny">Add</button></div></div><p id="rewardWarning" class="subtle" aria-live="polite"></p></div><div class="cards"><div class="card"><small>Cycle completed</small><div id="score" class="metric">0/0</div><small>Activities</small></div><div class="card"><small>Latest weight</small><div id="lastWeight" class="metric">—</div><small id="weightGoalCaption">Goal 240 lb</small></div><div class="card"><small>Latest waist</small><div id="lastWaist" class="metric">—</div><small id="waistGoalCaption">Goal 38 in</small></div></div>
-<div class="card"><h2>Transformation progress</h2><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
+<div id="rewardGrid" class="reward-grid"></div><details class="reward-history"><summary>View redeemed rewards</summary><ul id="rewardHistory"></ul></details><div id="rewardEditor" class="hidden"><h3>Customize rewards</h3><div id="rewardEditList"></div><div class="reward-edit-row"><input id="newRewardName" maxlength="75" placeholder="Add reward" aria-label="New reward"><input id="newRewardCost" type="number" min="1" value="100" aria-label="Point cost"><button id="addReward" class="secondary tiny">Add</button></div></div><p id="rewardWarning" class="subtle" aria-live="polite"></p></div><div class="card" id="measurementCharts"><div id="transformationSummary" class="row"></div><div class="trend-grid"><div><div class="dashboard-label">WEIGHT OVER TIME</div><div id="weightChart"></div></div><div><div class="dashboard-label">WAIST OVER TIME</div><div id="waistChart"></div></div></div></div>
 <div class="card"><div class="row"><h2>Your weight milestones</h2><small id="milestoneRangeCaption">Original milestones</small></div><div id="milestones" class="milestone-list"></div><p id="nextMilestone" class="progress-note"></p><details class="milestone-reward-editor"><summary>Manage my 10 milestone rewards</summary><p class="milestone-note">Choose a reward for each milestone. Rewards don't spend habit points.</p><div id="milestoneRewards" class="milestone-rewards"></div></details></div>
 <div class="card" id="shiftAlert" style="display:none;border-color:#9b793b"><strong class="accent">Set your actual shift rotation</strong><p>The app is using a temporary Day 1 date. Enter your real first day shift below so the calendar matches your schedule.</p><a href="#shiftSettings" class="goldlink">Set Day 1 date ↓</a></div>
 <div class="card" id="training"><div class="row"><h2>Workout log</h2><div class="toolbar"><button id="quickEdit" class="secondary">Edit types of workouts</button><button id="prev" class="secondary">←</button><button id="next" class="secondary">→</button><button id="current" class="secondary">Today</button></div></div><p id="range"></p><div class="bar"><div id="completionBar"></div></div><div id="daystrip" class="daystrip"></div><p class="subtle" id="trainingScheduleHint">Complete any workout on whichever day works best for you.</p><div class="task-grid" id="tasks"></div><p class="subtle task-grid-help">Tap + to record a session. Use Details to choose another date or undo a logged session.</p></div>
-<div class="card" id="summary"><div class="row"><h2 id="rotationHeading">8-day rotation summary</h2><small id="summaryWindow"></small></div><div id="rotationSummary" class="summary-grid"></div><p id="rotationComparison" class="progress-note"></p><h3>Daily habits</h3><div id="dailyReport" class="daily-stats"></div><p id="dailyInsight" class="progress-note"></p><label class="field">What worked this rotation? What will you improve?<textarea id="rotationNote" placeholder="One win and one thing to improve..." rows="3"></textarea></label><p class="subtle">Reflection saves when you finish editing this field.</p></div>
 <div class="card"><div class="row"><h2 id="customizeHeading">Edit workouts & tasks</h2><button class="secondary" id="toggleEdit">Edit list</button></div><div id="editArea" class="hidden"><p>Rename, rearrange with ↑ / ↓, or adjust rotation targets. Tap <strong>Save workout changes</strong> to keep the new order.</p><div id="editList"></div><div class="editgrid spaced"><label class="field">New workout or task<input id="newName" type="text" placeholder="e.g. Mobility"></label><label class="field">Target per rotation<input id="newTarget" type="number" min="1" max="30" value="1"></label><button id="add" class="secondary" type="button">Add workout</button></div><button type="button" class="primary" id="saveWorkoutChanges" style="width:100%;min-height:48px;margin:12px 0 8px">Save workout changes</button><div id="taskSaveFeedback" class="subtle" role="status" aria-live="polite">Changes not saved yet.</div></div></div>
 <section class="body-goals-card" id="bodyTargets"><div class="row"><div><div class="dashboard-label">YOUR PERSONAL TARGETS</div><h2>Weight & waist goals</h2></div><button id="editBodyTargets" type="button" class="secondary tiny">Edit targets</button></div><p id="bodyGoalSummary" class="subtle"></p><details id="bodyGoalDetails"><summary>Adjust starting measurements and goals</summary><div class="body-goal-fields"><label>Starting weight (lb)<input id="bodyStartWeight" type="number" min="50" max="1000" step=".1"></label><label>Goal weight (lb)<input id="bodyGoalWeight" type="number" min="50" max="1000" step=".1"></label><label>Starting waist (in)<input id="bodyStartWaist" type="number" min="10" max="100" step=".1"></label><label>Goal waist (in)<input id="bodyGoalWaist" type="number" min="10" max="100" step=".1"></label></div><button id="saveBodyTargets" type="button" class="primary">Save targets</button><p class="subtle">Recorded measurements stay intact. Existing milestone rewards and their milestone weights remain separate.</p></details><p id="bodyTargetFeedback" class="body-goal-status" aria-live="polite"></p></section><div class="card" id="measurements"><h2>Log weight and waist</h2><p id="measureStatus" class="subtle" aria-live="polite"></p><p class="subtle">Save one entry per schedule period. Save again to update it.</p><div class="fields"><label class="field">Date<input id="measureDate" type="date"></label><label class="field">Weight (lb)<input id="weight" type="number" min="50" max="1000" step=".1" placeholder="Your weight"></label><label class="field">Waist (in)<input id="waist" type="number" min="10" max="100" step=".1" placeholder="Your waist"></label></div><p><button id="saveMeasure" class="primary">Save measurements</button></p><details><summary>Past measurements</summary><table><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th></th></tr></thead><tbody id="history"></tbody></table></details></div>
 <section class="card theme-settings" id="themeSettings">
@@ -547,35 +545,24 @@ document.querySelector('#daily').closest('details').id='habitHistoryTools';
 relocate('today',document.querySelector('#activity'));
 collapsible('today',document.querySelector('#zone2'),'Log easy cardio',false);
 collapsible('today',document.querySelector('#training'),'Log another workout',false);
-relocate('progress',document.querySelector('.cards'));
-relocate('progress',document.querySelector('#milestones').closest('.card'));
-const insightsCard=document.createElement('section');
-insightsCard.id='progressInsights';insightsCard.className='insight-card';
-insightsCard.innerHTML='<div class="dashboard-label">YOUR HISTORY, MADE USEFUL</div><h2>Progress Insights</h2><p id="insightLead" class="insight-lead"></p><div id="insightStats" class="insight-highlights"></div><h3>What is going well</h3><div id="insightStrengths"></div><h3>Where to focus next</h3><div id="insightPriorities"></div><details class="insight-history"><summary>See last 4 rotations</summary><div style="overflow-x:auto"><table><thead><tr><th>Rotation</th><th>Habits</th><th>Workouts</th><th>Zone 2</th></tr></thead><tbody id="insightHistory"></tbody></table></div></details><p class="insight-note">Insights use recorded entries only; blank days are not treated as failures. Your history saves locally and syncs when your private Firebase account is connected.</p>';
-panels.progress.append(insightsCard);
-const disciplineReview=document.createElement('section');
-disciplineReview.id='disciplineReview';disciplineReview.className='insight-card';
-disciplineReview.innerHTML='<div class="dashboard-label">SYSTEMS OVER MOTIVATION</div><h2>Discipline review</h2><p class="subtle">Based on recorded days only. A minimum counts as showing up, not completing the full goal.</p><div class="discipline-review-metrics"><div><strong id="reviewConsistency">—</strong><small>Showed up</small></div><div><strong id="reviewFull">—</strong><small>Fully completed</small></div><div><strong id="reviewMinimum">—</strong><small>Minimum actions</small></div></div><div id="disciplineReviewContent"></div><details class="discipline-secondary"><summary>Improve your habit system this rotation</summary><label class="field" for="disciplineWin">What worked well this rotation?</label><textarea id="disciplineWin" rows="2" maxlength="240" placeholder="One small win worth repeating…"></textarea><label class="field" for="disciplineObstacle">What most often got in your way?</label><select id="disciplineObstacle"><option value="">Select if useful</option><option>Fatigue / recovery</option><option>Not enough time</option><option>Forgot</option><option>Environment / distractions</option><option>Plan was too difficult</option><option>Other</option></select><label class="field" for="disciplineAdjustment">One change for next rotation</label><textarea id="disciplineAdjustment" rows="2" maxlength="300" placeholder="Make the next action easier…"></textarea><button type="button" id="saveDisciplineReview" class="primary">Save rotation review</button><p id="disciplineReviewFeedback" class="subtle"></p></details></section>';
-panels.progress.append(disciplineReview);
-const habitCalendar=document.createElement('section');habitCalendar.className='insight-card';habitCalendar.id='habitCalendar';
-habitCalendar.innerHTML='<div class="dashboard-label">YOUR EIGHT-DAY RHYTHM</div><h2>Habit calendar</h2><p class="subtle">Full, minimum, and unrecorded days are different. A blank day is not a failure.</p><div class="habit-calendar-legend"><span>● Full</span><span>◐ Minimum</span><span>☾ Recovery</span><span>○ Unrecorded</span></div><div id="habitCalendarGrid" class="habit-calendar-grid"></div><div id="habitCalendarDetail" class="subtle"></div><button id="markRecoveryDay" type="button" class="secondary tiny">Mark today as recovery</button>';
-panels.progress.append(habitCalendar);
-collapsible('progress',document.querySelector('#transformationSummary').closest('.card'),'Weight & waist charts',false);
-
-relocate('progress',document.querySelector('#bodyTargets'));
-relocate('progress',document.querySelector('#measurements'));
-collapsible('progress',document.querySelector('#summary'),'Rotation report',false);
-const progressMain=panels.progress;
-const progressReports=document.createElement('details');
-progressReports.id='progressReports';progressReports.className='compact-details';
-const progressReportsTitle=document.createElement('summary');progressReportsTitle.textContent='See more';
-progressReports.append(progressReportsTitle);
+const habitCalendar=document.createElement('div');
+habitCalendar.className='insight-card';habitCalendar.id='habitCalendar';
+habitCalendar.innerHTML='<div class="habit-calendar-legend"><span>● Done</span><span>◐ Small step</span><span>☾ Recovery</span><span>○ Unrecorded</span></div><div id="habitCalendarGrid" class="habit-calendar-grid"></div><p id="habitCalendarDetail" class="subtle" aria-live="polite"></p><button id="markRecoveryDay" type="button" class="secondary tiny">Mark today as recovery</button>';
+const reflections=document.createElement('details');
+reflections.id='habitReflections';reflections.className='discipline-secondary';
+reflections.innerHTML='<summary>Reflections</summary><label class="field" for="disciplineWin">What went well?</label><textarea id="disciplineWin" rows="2" maxlength="240"></textarea><label class="field" for="disciplineObstacle">What got in your way?</label><input id="disciplineObstacle" type="text" maxlength="150"><label class="field" for="disciplineAdjustment">What will you try next?</label><textarea id="disciplineAdjustment" rows="2" maxlength="300"></textarea><button type="button" id="saveDisciplineReview" class="primary">Save reflection</button><p id="disciplineReviewFeedback" class="subtle" role="status"></p><details id="pastReflections" hidden><summary>Past reflections</summary><div id="pastReflectionList"></div></details>';
+document.querySelector('#daily').append(reflections);
 const progressOverview=document.createElement('section');
 progressOverview.id='progressOverview';progressOverview.className='insight-card';
 progressOverview.innerHTML='<h2 id="progressOverviewHeading">This period</h2><div class="insight-highlights" id="progressOverviewStats"></div>';
-for(const section of [...progressMain.children])if(section.id!=='measurements')progressReports.append(section);
-progressMain.append(progressOverview,progressReports);
+relocate('progress',document.querySelector('#measurements'));
+panels.progress.append(progressOverview);
+const charts=document.querySelector('#measurementCharts');
+charts.append(document.querySelector('#bodyTargets'));
+collapsible('progress',charts,'Weight & waist charts',false);
+collapsible('progress',habitCalendar,'Habit calendar',false);
 relocate('rewards',document.querySelector('#rewards'));
+collapsible('rewards',document.querySelector('#milestones').closest('.card'),'Weight milestones',false);
 relocate('faith',document.querySelector('#devotional'));
 const couplesCard=document.createElement('section');
 couplesCard.id='couplesCard';couplesCard.className='card couples-card';
@@ -932,82 +919,22 @@ function renderCouples(){
  ['Win','Improve','Gratitude'].forEach(k=>{$('couple'+k).value=reflection[k.toLowerCase()]||''});
 }
 
-function renderInsights(){
- const currentStart=cycleStartFor(today);
- const rotationStarts=Array.from({length:4},(_,i)=>plus(currentStart,-i*cycleDays()));
- const goal=state.zone2Goal||150,completed=state.completions||[],zones=state.zone2Logs||[];
- const checkins=state.dailyCheckins||{},dailyActivity=state.dailyActivity||{},habits=state.habitLabels||[];
- const rotations=rotationStarts.map((begin,index)=>{
-   const last=endFor(begin),dates=Array.from({length:cycleDays()},(_,i)=>plus(begin,i)),validDates=dates.filter(d=>d<=today);
-   const logged=validDates.filter(d=>checkins[d]?.saved);
-   const habitChecks=logged.reduce((sum,d)=>sum+(Array.isArray(checkins[d]?.habits)?checkins[d].habits.filter(Boolean).length:0),0);
-   const workouts=completed.filter(c=>c.date>=begin&&c.date<=last&&c.date<=today);
-   const zoneEntries=zones.filter(z=>z.date>=begin&&z.date<=last&&z.date<=today);
-   const zoneMinutes=zoneEntries.reduce((sum,z)=>sum+Number(z.minutes||0),0);
-   const activityDays=validDates.filter(d=>dailyActivity[d]?.saved);
-   const stepDays=activityDays.filter(d=>Number.isFinite(Number(dailyActivity[d].steps))&&dailyActivity[d].steps!==null);
-   const stepMet=stepDays.filter(d=>Number(dailyActivity[d].steps)>=state.activityGoals.steps).length;
-   return {begin,last,current:index===0,logged,dates:validDates,habitChecks,workouts,zoneMinutes,zoneEntries,stepDays,stepMet,
-    recorded:logged.length>0||workouts.length>0||zoneEntries.length>0||activityDays.length>0||state.measurements.some(m=>m.date>=begin&&m.date<=last)};
- });
- const stats=$('insightStats');stats.replaceChildren();
- const current=rotations[0],previous=rotations[1];
+function renderProgressOverview(){
+ const start=cycleStartFor(today);
+ const inCurrentPeriod=date=>date>=start&&date<=today;
+ const habitChecks=Object.entries(state.dailyCheckins)
+  .filter(([date,entry])=>inCurrentPeriod(date)&&entry?.saved)
+  .reduce((sum,[,entry])=>sum+(Array.isArray(entry.habits)?entry.habits.filter(Boolean).length:0),0);
+ const workouts=state.completions.filter(entry=>inCurrentPeriod(entry.date)).length;
+ const minutes=state.zone2Logs.filter(entry=>inCurrentPeriod(entry.date))
+  .reduce((sum,entry)=>sum+Number(entry.minutes||0),0);
  $('progressOverviewHeading').textContent=cycleDays()===7?'This week':'These 8 days';
  const overview=$('progressOverviewStats');
  overview.replaceChildren();
- for(const [label,value] of [['Habits done',current.habitChecks],['Workouts logged',current.workouts.length],['Easy cardio',current.zoneMinutes+' min']]){
+ for(const [label,value] of [['Habits done',habitChecks],['Workouts logged',workouts],['Easy cardio',minutes+' min']]){
   const tile=element('div',undefined,'insight-stat');
   tile.append(element('strong',value),element('small',label));overview.append(tile);
  }
- const withActivity=rotations.filter(r=>r.recorded);
- const totalCheckins=rotations.reduce((n,r)=>n+r.logged.length,0);
- const totalWorkoutCount=rotations.reduce((n,r)=>n+r.workouts.length,0);
- const sumZone=rotations.reduce((n,r)=>n+r.zoneMinutes,0);
- const currentZoneGap=Math.max(0,goal-current.zoneMinutes);
- [['Recorded days',totalCheckins+'/'+rotations.reduce((n,r)=>n+r.dates.length,0)],
- ['Workouts logged',String(totalWorkoutCount)],['Zone 2 logged',sumZone+' min'],['Current Zone 2',current.zoneMinutes+'/'+goal+' min']]
- .forEach(([label,value])=>{const box=element('div',undefined,'insight-stat');box.append(element('strong',value),element('small',label));stats.append(box)});
- const lead=$('insightLead');
- lead.textContent=withActivity.length?'Reviewing '+withActivity.length+' rotation'+(withActivity.length===1?'':'s')+' with entries. All comparisons use the dates you actually logged.':'Not enough history yet. Log workouts, daily habits or Zone 2 minutes to begin receiving personalized insights.';
- const strengths=$('insightStrengths'),priorities=$('insightPriorities');strengths.replaceChildren();priorities.replaceChildren();
- const line=(parent,label,text)=>{const row=element('div',undefined,'insight-line');row.append(element('b',label+' '),element('span',text));parent.append(row)};
- const habitStats=habits.map((name,i)=>{
-  const recordedDates=rotations.flatMap(r=>r.logged);
-  const hit=recordedDates.filter(d=>checkins[d].habits?.[i]).length;
-  return {name,hit,total:recordedDates.length,rate:recordedDates.length?hit/recordedDates.length:0};
- });
- const observed=habitStats.filter(x=>x.total>=2).sort((a,b)=>b.rate-a.rate);
- if(observed.length&&observed[0].hit>0){
-  const h=observed[0];line(strengths,'Consistent habit:',h.name+' — '+h.hit+' of '+h.total+' logged days ('+Math.round(h.rate*100)+'%).');
- }
- if(previous.recorded&&current.recorded&&current.workouts.length>previous.workouts.length){
-  line(strengths,'Workouts trending up:',current.workouts.length+' logged this rotation versus '+previous.workouts.length+' the previous rotation. Current rotation may still be in progress.');
- }
- if(current.zoneMinutes>=goal)line(strengths,'Zone 2 target met:',current.zoneMinutes+' minutes logged in this rotation.');
- else if(current.zoneEntries.length&&current.zoneMinutes>0)line(strengths,'Aerobic effort recorded:',current.zoneMinutes+' minutes logged this rotation.');
- 
- const weights=(state.measurements||[]).filter(m=>m.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
- if(weights.length>=2){
-  const first=weights[0],last=weights[weights.length-1],delta=Number(last.weight)-Number(first.weight);
-  if(delta<0)line(strengths,'Weight trend:',Math.abs(delta).toFixed(1)+' lb lower between your first and latest recorded weigh-ins.');
- }
- if(!strengths.childElementCount)line(strengths,'Getting started:','Your progress will appear here once you record a few days of activity.');
- if(observed.length&&observed[observed.length-1].rate<.7){
-  const h=observed[observed.length-1];line(priorities,'One habit to strengthen:',h.name+' was checked on '+h.hit+' of '+h.total+' logged days. Try linking it to an existing routine.');
- }
- if(currentZoneGap>0){
-  const daysRemaining=Math.max(1,cycleDays()-current.dates.length),perDay=Math.ceil(currentZoneGap/daysRemaining);
-  line(priorities,'Zone 2 plan:',currentZoneGap+' minutes remain to reach '+goal+'. Consider '+perDay+' minutes per remaining day, or split into shorter sessions as recovery allows.');
- }
- if(current.stepDays.length&&current.stepMet<current.stepDays.length){
-  line(priorities,'Step target:',current.stepMet+' of '+current.stepDays.length+' days with step records met your goal. A short walk may help close smaller gaps.');
- }
- if(totalCheckins<3)line(priorities,'Improve the data:','Log a few more daily check-ins to make habit patterns more reliable.');
- if(!priorities.childElementCount)line(priorities,'Keep it sustainable:','You are meeting your recorded targets. Maintain manageable training and recovery habits.');
- const history=$('insightHistory');history.replaceChildren();
- rotations.forEach(r=>{
-  const row=element('tr');[r.begin.slice(5)+(r.current?' · now':''),r.logged.length?r.habitChecks+' checks / '+r.logged.length+' days':'—',r.workouts.length?String(r.workouts.length):'—',r.zoneEntries.length?r.zoneMinutes+' min':'—'].forEach(value=>row.append(element('td',value)));history.append(row);
- });
 }
 
 function renderRewards(){
@@ -1242,45 +1169,30 @@ function renderDisciplineOverview(date){
   if(save()){renderDaily();render();$('habitSaveFeedback').textContent='✓ Restart recorded on this device'}
  };
 }
-function renderDisciplineReview(){
- const m=disciplineMetrics();
- $('reviewConsistency').textContent=m.rate===null?'—':m.rate+'%';
- $('reviewFull').textContent=m.opportunities?Math.round(m.full/m.opportunities*100)+'%':'—';
- $('reviewMinimum').textContent=String(m.small);
- const out=$('disciplineReviewContent');out.replaceChildren();
- const note=(label,text)=>{
-  const line=element('div',undefined,'discipline-review-note');
-  line.append(element('b',label+' '),element('span',text));out.append(line);
- };
- if(!m.recorded.length)note('Begin with one day.','Your review will grow as you record habits. No penalty for missing entries.');
- else{
-  note('Showing up:',m.showed+' of '+m.opportunities+' opportunities across '+m.recorded.length+' recorded days.');
-  const current=cycleStartFor(today),previous=plus(current,-cycleDays());
-  const currentDates=m.recorded.filter(x=>x>=current&&x<=endFor(current));
-  const previousDates=m.recorded.filter(x=>x>=previous&&x<current);
-  note('This rotation:',currentDates.length+' recorded days. '+(previousDates.length?'Previous rotation: '+previousDates.length+' recorded days.':'Keep recording to build a useful comparison.'));
-  if(m.small>0)note('Your minimums count:',m.small+' occasions when you took a smaller action instead of doing nothing.');
- }
- note('Next improvement:',m.rate===null?'Choose a cue for one habit, then start with its minimum version.':m.rate<70?'Reduce friction: prepare your environment and choose achievable minimums.':'Protect what is working. Make one small improvement next rotation.');
- const miniWorkouts=(state.discipline.workoutMinimums||[]).filter(x=>x.date<=today&&x.date>=plus(cycleStartFor(today),-cycleDays()*3)).length;
- if(miniWorkouts)note('Workout starts:',miniWorkouts+' minimum workout starts recorded. These support consistency without counting as full training sessions.');
- const shift=disciplineShiftFor(today);
- note('Shift-aware plan:',shift==='Night shift'?'Keep habits anchored to waking and recovery; choose shorter minimums on demanding nights.':shift==='Day shift'?'Prepare the night before and aim for predictable cues after your shift.':shift==='Recovery day'?'Prioritize recovery and a smaller commitment after night shifts.':'Use extra flexibility to schedule longer sessions and prepare your environment.');
-
- const key=cycleStartFor(today),review=state.discipline.reviews[key]||{};
+function renderReflections(){
+ const key=cycleStartFor(today),reviews=state.discipline.reviews;
+ const review=reviews[key]||{};
  $('disciplineWin').value=review.win||'';
  $('disciplineObstacle').value=review.obstacle||'';
  $('disciplineAdjustment').value=review.adjustment||'';
+ const history=$('pastReflectionList');
+ history.replaceChildren();
+ for(const date of [...new Set([...Object.keys(reviews),...Object.keys(state.rotationNotes||{})])].sort().reverse()){
+  const entry=reviews[date]||{};
+  const notes=[...(date===key?[]:[entry.win,entry.obstacle,entry.adjustment]),state.rotationNotes?.[date]].filter(Boolean);
+  if(!notes.length)continue;
+  const row=element('div',undefined,'past-reflection');
+  row.append(element('strong',date),...notes.map(note=>element('p',note)));
+  history.append(row);
+ }
+ $('pastReflections').hidden=!history.childElementCount;
 }
 function saveDisciplineReview(){
  const key=cycleStartFor(today);
- state.discipline.reviews[key]={win:$('disciplineWin').value.trim(),obstacle:$('disciplineObstacle').value,adjustment:$('disciplineAdjustment').value.trim()};
- if(save())$('disciplineReviewFeedback').textContent='✓ Rotation review saved on this device · see cloud status above';
+ state.discipline.reviews[key]={win:$('disciplineWin').value.trim(),obstacle:$('disciplineObstacle').value.trim(),adjustment:$('disciplineAdjustment').value.trim()};
+ if(save())$('disciplineReviewFeedback').textContent='Reflection saved.';
 }
 $('saveDisciplineReview').onclick=saveDisciplineReview;
-$('disciplineWin').onchange=saveDisciplineReview;
-$('disciplineObstacle').onchange=saveDisciplineReview;
-$('disciplineAdjustment').onchange=saveDisciplineReview;
 // Rearrange habits without separating historical check-ins, minimums or Big 3 links.
 function moveHabit(from,to){
  const size=state.habitLabels.length;
@@ -1359,7 +1271,7 @@ function renderDaily(){
  $('habitProgress').textContent=totals.full+' completed · '+totals.small+' minimums · '+totals.total+' habits';
  $('dailySaveStatus').textContent=entry.saved?'✓ Saved on this device · see cloud status above':'No habits recorded for this date';
  renderDisciplineOverview(date);
- renderDisciplineReview();
+ renderReflections();
  renderNeverTwice();
  renderHabitCalendar();
  const preparation=state.discipline.prep[date]||{};
@@ -1630,7 +1542,6 @@ const inRange=(d,s)=>d>=s&&d<=endFor(s);
 function displaySchedule(){
  $('scheduleHeadline').textContent=cycleDays()+' days.';
  $('trainingScheduleHint').textContent=cycleDays()===8?'Shift cycle shown for reference. Complete workouts on any day.':'Monday–Sunday schedule. Complete workouts on any day.';
- $('rotationHeading').textContent=cycleDays()+'-day rotation summary';
  $('zoneCycleBadge').textContent=cycleDays()+'-day target';
  $('zoneGoalCaption').textContent='Change '+cycleDays()+'-day goal';
  // Couples section now uses a fixed heading and its own rotation date label.
@@ -1880,7 +1791,7 @@ displaySchedule();
 renderTodayTraining();
 $('shiftAlert').style.display='none';for(const c of state.completions){if(inRange(c.date,s))counts[c.activityId]=(counts[c.activityId]||0)+1}
 const target=state.activities.reduce((a,x)=>a+x.target,0),total=state.activities.reduce((a,x)=>a+Math.min(x.target,counts[x.id]||0),0);
-$('score').textContent=total+'/'+target;$('completionBar').style.width=(target?total/target*100:0)+'%';$('range').textContent=s+' to '+end;
+$('completionBar').style.width=(target?total/target*100:0)+'%';$('range').textContent=s+' to '+end;
 $('daystrip').replaceChildren();for(let i=0;i<cycleDays();i++){const d=plus(s,i),chip=element('div',undefined,'daychip'+(d===today?' active':''));chip.append(element('b','Day '+(i+1)));chip.append(element('span',shiftLabel(i,d)));chip.append(element('br'));chip.append(element('small',d.slice(5)));$('daystrip').append(chip)}
 $('tasks').replaceChildren();
 state.activities.forEach(a=>{
@@ -1980,8 +1891,6 @@ const latestWeight=sorted.find(m=>m.weight!=null)?.weight,latestWaist=sorted.fin
 $('transformationSummary').replaceChildren();
 const body=state.bodyGoals||(state.bodyGoals={startWeight:370,goalWeight:240,startWaist:55,goalWaist:38});
 const weightDiff=latestWeight==null?null:body.startWeight-Number(latestWeight),waistDiff=latestWaist==null?null:body.startWaist-Number(latestWaist);
-$('weightGoalCaption').textContent='Goal '+body.goalWeight+' lb';
-$('waistGoalCaption').textContent='Goal '+body.goalWaist+' in';
 $('bodyGoalSummary').textContent=body.startWeight+' → '+body.goalWeight+' lb · '+body.startWaist+' → '+body.goalWaist+' in waist';
 $('milestoneRangeCaption').textContent='10 milestones · '+state.bodyGoals.startWeight+' to '+state.bodyGoals.goalWeight+' lb';
 ['bodyStartWeight','bodyGoalWeight','bodyStartWaist','bodyGoalWaist'].forEach((id,i)=>{$(id).value=[body.startWeight,body.goalWeight,body.startWaist,body.goalWaist][i]});
@@ -1992,27 +1901,9 @@ $('milestones').replaceChildren();const marks=weightMilestones(),next=marks.find
 marks.forEach(mark=>{const reached=latestWeight!=null&&latestWeight<=mark,chip=element('div',undefined,'milestone-item'+(reached?' reached':mark===next?' next':''));chip.append(element('strong',mark+' lb'));chip.append(element('small',reached?'✓ Reached':mark===next?'Next goal':'Upcoming'));$('milestones').append(chip)});
 $('nextMilestone').textContent=latestWeight==null?'Log your first rotation check-in to begin tracking milestones.':next?Math.max(0,Number(latestWeight)-next).toFixed(1)+' lb to the next milestone ('+next+' lb).':'Your '+state.bodyGoals.goalWeight+' lb milestone is reached.';
 renderMilestoneRewards();
-const previous=plus(s,-cycleDays()),prevEnd=endFor(previous),previousCounts={};state.completions.forEach(c=>{if(inRange(c.date,previous))previousCounts[c.activityId]=(previousCounts[c.activityId]||0)+1});
-const previousTotal=state.activities.reduce((sum,a)=>sum+Math.min(a.target,previousCounts[a.id]||0),0);
-const bonus=state.activities.reduce((sum,a)=>sum+Math.max(0,(counts[a.id]||0)-a.target),0);
-const lastMeasurement=state.measurements.filter(m=>inRange(m.date,previous)).sort((a,b)=>b.date.localeCompare(a.date))[0];
-const nowMeasurement=state.measurements.filter(m=>inRange(m.date,s)).sort((a,b)=>b.date.localeCompare(a.date))[0];
-$('rotationSummary').replaceChildren();[['Targets',total+'/'+target],['Bonus sessions','+'+bonus],['Check-in',nowMeasurement?'✓ Recorded':'Pending']].forEach(([name,value])=>{const box=element('div');box.append(element('small',name),element('div',value,'metric'));$('rotationSummary').append(box)});
-const changes=[];if(nowMeasurement&&lastMeasurement){changes.push('Weight '+(Number(nowMeasurement.weight)-Number(lastMeasurement.weight)).toFixed(1)+' lb');changes.push('Waist '+(Number(nowMeasurement.waist)-Number(lastMeasurement.waist)).toFixed(1)+' in')}
-$('rotationComparison').textContent='Previous cycle ('+previous+' to '+prevEnd+'): '+previousTotal+'/'+target+' targets'+(changes.length?' · Change since then: '+changes.join(', '):' · Compare body measurements after two check-ins')+'.';
-$('summaryWindow').textContent=s+' to '+end;
-const note=$('rotationNote');note.value=state.rotationNotes[s]||'';note.oninput=()=>{state.rotationNotes[s]=note.value;save()};
-const rotationDates=Array.from({length:cycleDays()},(_,i)=>plus(s,i)),logs=rotationDates.map(d=>state.dailyCheckins[d]).filter(x=>x?.saved);
-const habitCount=logs.reduce((v,x)=>v+(Array.isArray(x.habits)?x.habits.filter(Boolean).length:0),0);
-$('dailyReport').replaceChildren();
-[['Days checked in',logs.length+'/'+cycleDays()],['Habits completed',String(habitCount)]].forEach(([label,val])=>{const node=element('div');node.append(element('small',label),element('b',val));$('dailyReport').append(node)});
-$('dailyInsight').textContent=logs.length?'Look at your consistency across the rotation, and choose one helpful improvement for next time.':'Check daily habits to begin seeing your consistency across your selected schedule.';
-
-$('lastWeight').textContent=(sorted.find(m=>m.weight!=null)?.weight??'—')+' lb';
-$('lastWaist').textContent=(sorted.find(m=>m.waist!=null)?.waist??'—')+' in';
 $('history').replaceChildren();sorted.slice(0,12).forEach(m=>{const tr=element('tr');[m.date,m.weight??'—',m.waist??'—'].forEach(v=>tr.append(element('td',String(v))));const cell=element('td'),remove=element('button','Delete','secondary tiny');remove.onclick=()=>{if(confirm('Delete this measurement?')){state.measurements=state.measurements.filter(x=>x.date!==m.date);save();render()}};cell.append(remove);tr.append(cell);$('history').append(tr)});
 $('anchor').value=state.anchor;
-renderRewards();renderCouples();renderInsights();renderNeverTwice();
+renderRewards();renderCouples();renderProgressOverview();renderNeverTwice();
 }
 $('addCoupleGoal').onclick=()=>{
  const name=$('newCoupleGoal').value.trim();if(!name)return alert('Enter a shared goal.');
@@ -2355,7 +2246,7 @@ window.vigorCloudBridge={
   }
   if(stepDays+calorieDays){
    if(!save())throw Error('Could not save the imported StepsApp records');
-   renderActivity();renderDaily();render();renderInsights();
+   renderActivity();renderDaily();render();
   }
   return {stepDays,calorieDays,skipped};
  },
@@ -2370,7 +2261,7 @@ window.vigorCloudBridge={
   }
   if(!save())throw Error('Could not save Health activity on this device');
   if($('dailyDate'))$('dailyDate').value=date;
-  renderDaily();renderActivity();render();renderInsights();
+  renderDaily();renderActivity();render();
   return true;
  },
  applyPersonal:payload=>{
