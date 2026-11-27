@@ -110,8 +110,10 @@ async function main(){
      assert.deepEqual(journeyOrder,expectedOrder,'Journey lists unfinished habits above completed habits');
      assert.equal(await page.locator('#vigorJourneyManager .vjm-item-more').first().isVisible(),false,
        'extra habit controls collapsed by default');
-     assert.equal(await page.locator('#vigorJourneyManager .vjm-focus-strip').isVisible(),true,
-       'compact Today focus strip is available');
+     assert.equal(await page.locator('#vigorJourneyManager .vjm-focus-strip').count(),0,'Today’s Focus box is removed');
+     assert.deepEqual(await page.locator('#vigorJourneyManager .vjm-filter').allTextContents(),
+       ['All habits','Building','Replacing','Archived'],'Habit filters are available without a focus list');
+     assert.equal(journeyOrder.length,activeHabits,'All active habits are shown by default');
 
      assert.equal(await page.locator('#panel-today').isVisible(),false,'Today panel hidden while in Journey');
      await page.locator('#vigorNav [data-vigor-route="growth"]').click();
@@ -352,21 +354,6 @@ async function main(){
      assert.equal(await page.locator('#vigorJourneyManager .vjm-plan').count(),1,'replacement plan displayed');
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'Building'}).click();
      assert.equal(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),0,'Build filter hides replacement habits');
-     await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'My focus'}).click();
-     const visibleFocus=await page.locator('#vigorJourneyManager .vjm-item').count();
-     assert(visibleFocus>=1&&visibleFocus<=3,'Focus filter shows only daily-priority habits');
-     const sharedFocus=await page.evaluate(()=>{
-       const state=window.vigorCloudBridge.read();
-       const today=new Date();
-       const day=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
-       const full=state.dailyCheckins?.[day]?.habits||[],minimums=state.discipline?.minimums?.[day]||{};
-       return window.VigorDailyFocus.focusFor(state,day).priorities.filter(key=>key.startsWith('h:'))
-         .map(key=>key.slice(2)).sort((a,b)=>
-           Number(!!full[Number(a)]||!!minimums[Number(a)])-Number(!!full[Number(b)]||!!minimums[Number(b)]));
-     });
-     const journeyFocus=await page.locator('#vigorJourneyManager .vjm-item').evaluateAll(nodes=>nodes.map(n=>n.dataset.habitIndex));
-     assert.deepEqual(journeyFocus,sharedFocus,'Journey My focus uses the same Big 3 habits with completed ones last');
-
      await page.locator('#vigorJourneyManager .vjm-filter').filter({hasText:'All habits'}).click();
      assert(await page.locator('#vigorJourneyManager .vjm-item').filter({hasText:'Choose water instead of soda'}).count(),'All restores the replacement habit');
 

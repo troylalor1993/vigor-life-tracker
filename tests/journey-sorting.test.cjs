@@ -16,7 +16,7 @@ const habits=[
  {index:4,name:'Stretch',rate:0,opportunities:1}
 ];
 const context={full:[true,false,false,false,false],minimums:{2:true},
- view:'all',priorities:['h:3','h:1','h:0']};
+ view:'all'};
 const indices=arr=>Array.from(arr,x=>x.index);
 const check=(name,fn)=>{fn();console.log('PASS',name)};
 check('manual order always moves recorded habits to the bottom, preserving order within groups',()=>{
@@ -47,10 +47,6 @@ check('not-yet-recorded habits never rank as failed',()=>{
 check('minimum efforts count as started for unfinished sorting',()=>{
  const sorted=sortHabits(habits,'unfinished',context);
  assert(sorted.findIndex(h=>h.index===2)>sorted.findIndex(h=>h.index===4));
-});
-check('focus manual follows exactly Today priority order',()=>{
- const focused=habits.filter(h=>[0,1,3].includes(h.index));
- assert.deepEqual(indices(sortHabits(focused,'manual',{...context,view:'focus'})),[3,1,0]);
 });
 check('archived list stays in saved order regardless of sort choice',()=>{
  assert.deepEqual(indices(sortHabits(habits,'attention',{...context,view:'archived'})),[0,1,2,3,4]);
