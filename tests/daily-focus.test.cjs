@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const source=fs.readFileSync(path.resolve(__dirname,'../daily-focus.js'),'utf8');
 new vm.Script(source);
 const begin=source.indexOf(' function focusFor(');
-const end=source.indexOf(" const anchor=$('big3Panel')");
+const end=source.indexOf(" window.VigorDailyFocus");
 assert(begin>=0&&end>begin,'Could not extract focus logic');
 const {focusFor}=vm.runInNewContext(source.slice(begin,end)+'\n({focusFor})');
 const check=(name,run)=>{run();console.log('PASS',name)};
