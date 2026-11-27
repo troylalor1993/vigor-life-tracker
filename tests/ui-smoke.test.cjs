@@ -35,6 +35,8 @@ async function main(){
      assert.equal(await page.locator('#big3Panel').count(),0,'Focus anchor section is removed');
      assert.equal(await page.locator('#vigorAllHabits').isVisible(),true,'All habits carousel is prominent on Today');
      assert.equal(await page.locator('#vigorDailyFocus').count(),0,'Old priority hero is removed');
+     assert.equal(await page.locator('#transformationCoach, #vigorCoach').count(),0,'Redundant coaching cards are removed');
+     assert.equal(await page.locator('#todayTraining').isVisible(),true,'Daily training checklist is visible');
      assert.equal(await page.locator('#vigorStartGuide').isVisible(),true,'First-run guide visible without saved history');
      const activeHabits=await page.evaluate(()=>{
        const state=window.vigorCloudBridge.read();
@@ -108,6 +110,14 @@ async function main(){
      assert.equal(await page.locator('#vigorRotationRecap').isVisible(),true,'Rotation recap visible in Growth');
      await page.locator('#vigorNav [data-vigor-route="fitness"]').click();
      assert.equal(await page.locator('#vigorFitnessScreen').isVisible(),true,'Dedicated Fitness screen visible');
+     const library = page.getByText('Training library · Gym and home',{exact:true});
+     assert.equal(await library.isVisible(),true,'Training library is available in Fitness');
+     await library.click();
+     const trainingLocation = page.getByRole('combobox',{name:'Training location'});
+     await trainingLocation.selectOption('Home');
+     await page.getByText('Full Body A · 16 working sets',{exact:true}).click();
+     assert.equal(await page.getByText('DB Floor Press · 2 × 6–12',{exact:true}).isVisible(),true,'Home exercise alternatives still work');
+     await library.click();
      assert.equal(await page.locator('#vigorFitnessOpen').isVisible(),true,'Workout checklist action visible');
      // The original collapsed shells must move too, not just their inner nodes.
      assert.equal(await page.locator('#panel-today>details.compact-details').filter({has:page.locator('summary:text-is("Zone 2 minutes")')}).count(),0,'Today has no empty Zone 2 accordion');

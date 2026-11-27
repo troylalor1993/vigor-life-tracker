@@ -419,39 +419,6 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <div class="discipline-track"><div id="disciplineBar"></div></div>
 <p id="disciplineFocus" class="discipline-focus">Choose one small action to start.</p><button type="button" id="disciplineRestart" class="secondary tiny" hidden>Restart with a minimum</button>
 </section>
-<style>
-#transformationCoach details{margin-top:12px}
-#transformationCoach form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
-#transformationCoach form label{display:grid;gap:4px;min-width:0}
-#transformationCoach input,#transformationCoach select,#transformationCoach textarea{width:100%;min-width:0}
-#transformationCoach form label:has(textarea),#transformationCoach form .row{grid-column:1/-1}
-#transformationReview{white-space:pre-line}
-</style>
-<section class="card" id="transformationCoach" hidden aria-labelledby="transformationTitle">
-<h2 id="transformationTitle">Transformation plan</h2>
-<p id="transformationAssignment"></p>
-<details id="transformationDetails"><summary>Log coach check-in</summary>
-<form id="transformationForm">
-<label>Sleep hours<input name="sleep" type="number" min="0" max="24" step=".25"></label>
-<label>Energy<select name="energy"><option value="">Choose</option><option>Low</option><option>Okay</option><option>High</option></select></label>
-<label>Assignment<select name="effort"><option value="">Choose</option><option>Done</option><option>Short version</option><option>Missed</option></select></label>
-<label>Post-meal walk minutes<input name="walk" type="number" min="0" max="180"></label>
-<label>Food plan<select name="food"><option value="">Choose</option><option>Followed</option><option>Partly followed</option><option>Missed</option></select></label>
-<label>Pain, lift sets/reps/load or obstacle<textarea name="notes" maxlength="500" rows="2"></textarea></label>
-<label>Next commitment<input name="next" maxlength="120" placeholder="e.g. Lift A at 10 a.m."></label>
-<div class="row"><button class="primary" type="submit">Save check-in</button><button class="secondary" type="button" id="copyCoachUpdate">Copy coach update</button></div>
-</form>
-</details>
-<details><summary>Rotation review</summary>
-<label>Review period<select id="transformationPeriod">
-<option value="current">Current rotation</option><option value="previous">Last completed rotation</option>
-</select></label>
-<p id="transformationReview"></p>
-<button class="secondary" type="button" id="copyCoachReview">Copy rotation review</button>
-</details>
-<p class="subtle" id="transformationStatus" role="status"></p>
-<textarea id="transformationCopy" aria-label="Coach update to copy manually" rows="5" readonly hidden></textarea>
-</section>
 <section class="card" id="todayTraining" aria-labelledby="todayTrainingHeading" hidden>
 <div class="row"><h2 id="todayTrainingHeading">Today's training</h2><span class="tag" id="todayTrainingDay"></span></div>
 <div id="todayTrainingTasks"></div>
@@ -564,7 +531,6 @@ function collapsible(id,node,title,open){
  const heading=document.createElement('summary');heading.textContent=title;details.append(heading,node);panels[id].append(details);
 }
 relocate('today',document.querySelector('#todayTraining'));
-relocate('today',document.querySelector('#transformationCoach'));
 relocate('today',document.querySelector('#neverTwice'));
 collapsible('today',document.querySelector('#disciplineOverview'),'My consistency & shift guidance',false);
 collapsible('today',document.querySelector('#daily'),'All habits & preparation',false);
@@ -2169,7 +2135,6 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.vigorCloudBridge={
  read:()=>JSON.parse(JSON.stringify(state)),
- plannedTrainingDay:index=>trainingPlan[index]?.workouts.map(([,label])=>label).join(' + ')||"",
  refreshTrainingRotation:()=>{const before=JSON.stringify(state.trainingActiveRotation);preserveTrainingRotation();if(before!==JSON.stringify(state.trainingActiveRotation))return save();return true;},
  snapshotTrainingTargets:(start,targets)=>{
   if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||state.trainingTargetHistory?.[start])return false;
@@ -2202,15 +2167,6 @@ window.vigorCloudBridge={
   else state.discipline.workoutMinimums.push(record);
   if(!save()){state.activities=oldActivities;state.completions=oldCompletions;state.discipline.workoutMinimums=oldMinimums;throw Error('Training could not be saved.')}
   render();renderDaily();return effort==='full'?'Workout recorded.':'Short version recorded.';
- },
- saveTransformationCheckin:(date,entry)=>{
-  if(date!==iso(new Date()))throw Error('The date changed. Reopen the check-in and try again.');
-  const previous=state.transformationCheckins;
-  state.transformationCheckins={...previous,[date]:entry};
-  if(!save()){
-   state.transformationCheckins=previous;
-   throw Error('Check-in could not be saved.');
-  }
  },
  setJourneyArchived:({index,archived})=>setHabitArchived(index,!!archived),
  recordJourneyHabit:(index,mode)=>{
@@ -2385,8 +2341,8 @@ window.vigorCloudBridge={
 <script src="./today-habit-swipe.js" defer></script>
 <script src="./onboarding-guide.js" defer></script>
 <script src="./rotation-recap.js" defer></script>
-<script src="./transformation-coach.js" defer></script>
 <script src="./premium-screens.js" defer></script>
+<script src="./transformation-coach.js" defer></script>
 <script src="./journey-manager.js" defer></script>
 <script src="./sync-health.js" defer></script>
 

@@ -10,7 +10,7 @@ function pure(file,start,end,exportName){
  assert(a>=0&&b>a,'Could not find pure logic in '+file);
  return vm.runInNewContext(src.slice(a,b)+'\n({'+exportName+'})')[exportName];
 }
-const onboardingState=pure('onboarding-guide.js',' function onboardingState(', " const anchor=$('transformationCoach')",'onboardingState');
+const onboardingState=pure('onboarding-guide.js',' function onboardingState(', " const anchor=$('neverTwice')",'onboardingState');
 const rotationSummary=pure('rotation-recap.js',' const dateOffset='," const progress=$('panel-progress')",'rotationSummary');
 let tests=0;
 const check=(title,test)=>{test();console.log('PASS',title);tests++};

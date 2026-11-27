@@ -21,7 +21,7 @@ h1,h2,h3{letter-spacing:-.035em}h1{font-weight:800}h2{font-weight:750}
 .app-header h1 .accent{background:linear-gradient(105deg,#f7db91,#c9933f);color:transparent;-webkit-background-clip:text;background-clip:text}
 .app-header>p{font-size:13px;margin-top:9px;color:#ddd1b9}
 #globalSaveStatus{position:absolute;top:24px;right:22px;max-width:42%;font-size:11px;text-align:right;opacity:.9}
-.card,.big3-card,.discipline-overview,.insight-card,.body-goals-card,.activity-card,.zone-card,.nutrition-discipline,.cloud-card,.vigor-coach,.vc-growth-card,details.compact-details{border-radius:21px!important;border:1px solid var(--border)!important;background:linear-gradient(155deg,rgba(255,255,255,.037),transparent 55%),linear-gradient(170deg,var(--panel-alt),var(--panel))!important;box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.055)}
+.card,.big3-card,.discipline-overview,.insight-card,.body-goals-card,.activity-card,.zone-card,.nutrition-discipline,.cloud-card,.vc-growth-card,details.compact-details{border-radius:21px!important;border:1px solid var(--border)!important;background:linear-gradient(155deg,rgba(255,255,255,.037),transparent 55%),linear-gradient(170deg,var(--panel-alt),var(--panel))!important;box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.055)}
 .big3-card{border-color:var(--border-strong)!important;box-shadow:0 18px 45px rgba(0,0,0,.24),inset 0 1px rgba(247,216,152,.13)}
 .discipline-eyebrow,.dashboard-label,.scripture-label,.vc-eyebrow,.vc-growth-eyebrow{font-weight:800;letter-spacing:.12em;color:var(--accent-soft)}
 button,.app-tab{transition:background .2s ease,color .2s ease,border-color .2s ease,transform .16s ease}
@@ -45,15 +45,7 @@ input,textarea,select{background:var(--input-bg);color:var(--text-primary);borde
 .discipline-track,.bar,.task-compact-meter,.zone-meter,.vc-meter{border-radius:999px!important}
 .discipline-track>div,.bar>div,.task-compact-meter>div,.zone-meter>div,.vc-meter>span{background:linear-gradient(90deg,#c69342,#f8d991)!important}
 #panel-today>.big3-card{margin-bottom:14px}
-#panel-today>.vigor-coach{margin-bottom:14px}
 #panel-progress>.vc-growth-card{margin-bottom:17px}
-.vigor-coach .vc-habit-action{background:linear-gradient(120deg,#332718,#201e1a)!important;border-color:#8c6b3d!important;border-radius:17px;padding:17px}
-.vigor-coach .vc-habit-action h3{font-size:20px}
-.vigor-coach .vc-habit-action .vc-eyebrow{color:#f6d38c}
-.vigor-coach .vc-journey{border-radius:16px;background:#20201f}
-.vigor-coach .vc-journey-steps .complete{background:rgba(226,181,94,.12)}
-.vigor-coach .vc-actions .vc-nav{background:linear-gradient(135deg,#f7d991,#d5a24d)!important;color:#1b1408!important;border-radius:12px}
-.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt)!important;color:var(--text-primary)!important;border:1px solid var(--border-strong)!important}
 .vc-growth-card{padding:21px}
 .scripture-card{background:linear-gradient(150deg,#262014,#121619)!important;border-color:#826239!important}
 details.compact-details>summary{font-size:14px;font-weight:750;color:var(--text-primary);padding:15px}
@@ -76,7 +68,7 @@ details.compact-details>summary{font-size:14px;font-weight:750;color:var(--text-
  .app-tab{flex:initial;min-width:0;min-height:59px;font-size:9px;padding:6px 1px;white-space:normal}
  .app-tab svg{width:18px;height:18px}
  .app-panel>.card,.app-panel>.cards{margin-bottom:12px}
- .big3-card,.discipline-overview,.vigor-coach,.vc-growth-card{padding:15px!important}
+ .big3-card,.discipline-overview,.vc-growth-card{padding:15px!important}
  .big3-top{flex-wrap:wrap}
  .big3-row{padding:10px;gap:5px}
  .big3-actions button{min-width:54px;padding:8px 6px}

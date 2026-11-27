@@ -24,13 +24,6 @@ main{max-width:1040px}
 #panel-today>.big3-card .big3-row{border-color:#5e5342!important;padding:14px 12px;background:linear-gradient(115deg,#30302e,#252525)!important}
 #panel-today>.big3-card .big3-row .big3-actions{gap:7px}
 #panel-today>.big3-card .big3-row button{border-radius:11px}
-#panel-today>.vigor-coach{background:linear-gradient(135deg,#1e2124,#151719)!important;border-color:#534b3c!important}
-#panel-today>.vigor-coach h2{font-size:20px}
-#panel-today>.vigor-coach>.vc-journey,#panel-today>.vigor-coach>.vc-training-details{display:none}
-#panel-today>.vigor-coach>.vc-habit-action{display:none}
-#panel-today>.vigor-coach>.vc-roadmap{margin-top:8px}
-#panel-today>.vigor-coach .vc-actions{margin-top:12px}
-#panel-today>.vigor-coach .vc-habit-history{margin-top:10px}
 #vigorStartGuide{border-color:#947343;border-radius:21px}
 #panel-progress>.vc-growth-card{padding:22px;background:linear-gradient(135deg,#28221b,#15181b)!important;border-color:#796442!important}
 #panel-progress>.vc-growth-card h2{font-size:25px}

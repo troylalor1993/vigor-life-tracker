@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const src = fs.readFileSync(path.join(__dirname, '..', 'adaptive-coach.js'), 'utf8');
 new vm.Script(src);
 const from = src.indexOf(' const iso=');
-const to = src.indexOf(' const style=');
+const to = src.indexOf(' window.VigorCoaching=');
 assert(from >= 0 && to > from, 'Could not locate the pure coaching functions');
 const logic = vm.runInNewContext(src.slice(from, to) + '\n({summary,habitIntelligence,habitJourney,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance})');
 const data = {

@@ -2,10 +2,8 @@
    Derives suggestions from the existing personal tracker. No AI calls,
    no new cloud writes, no changes to established workout/habit data. */
 (()=>{'use strict';
- const $=id=>document.getElementById(id);
  const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
  const shiftDate=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return iso(x)};
- const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const dates=(end,n)=>Array.from({length:n},(_,i)=>shiftDate(end,i-(n-1)));
  const recent=(data,end,n=7)=>dates(end,n).map(day=>({day,entry:data.dailyCheckins?.[day],mins:data.discipline?.minimums?.[day]||{}}));
  const countDone=(entry,mins)=>entry?.habits?.reduce((sum,done,i)=>sum+(done||mins?.[i]?1:0),0)||0;
@@ -216,111 +214,5 @@
      ],progress,weight:s.weight,target:valid?target:null
    };
  }
- const style=document.createElement('style');
- style.textContent=`.vigor-coach{background:linear-gradient(125deg,var(--panel-alt),var(--panel));border:1px solid var(--border-strong);border-radius:18px;padding:16px;margin:12px 0;color:var(--text-primary)}.vigor-coach h2{margin:5px 0 9px;font-size:21px}.vigor-coach p{line-height:1.55;font-size:13px;margin:6px 0}.vigor-coach .vc-eyebrow{color:var(--accent-soft);font-size:10px;font-weight:800;letter-spacing:1.5px}.vigor-coach .vc-lead{font-size:16px;font-weight:750;color:var(--text-primary)}.vigor-coach .vc-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vigor-coach .vc-actions .vc-nav{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-contrast);font-weight:750;text-decoration:none;font-size:13px;border:0;cursor:pointer}.vigor-coach .vc-actions .vc-nav.alt{background:var(--panel-alt);border:1px solid var(--border-strong);color:var(--text-primary)}.vigor-coach .vc-stages{display:grid;gap:8px}.vigor-coach .vc-stage{border:1px solid var(--border);background:var(--panel-alt);border-radius:11px;padding:11px}.vigor-coach .vc-stage strong{color:var(--accent-soft)}.vigor-coach .vc-stage p{margin:5px 0 0}.vigor-coach .vc-stage ul{padding-left:20px;margin:9px 0 0;color:var(--text-primary);font-size:12px;line-height:1.65}.vigor-coach details summary{cursor:pointer;color:var(--accent-soft);font-size:13px;font-weight:700}.vigor-coach .vc-note{color:var(--muted);font-size:12px}.vigor-coach .vc-workout{border-top:1px solid var(--border);padding-top:12px;margin:14px 0}.vigor-coach .vc-workout h3{margin:0 0 7px;font-size:16px}.vigor-coach .vc-meter{height:8px;background:var(--border);border-radius:20px;overflow:hidden}.vigor-coach .vc-meter span{display:block;height:100%;background:var(--accent)}.vigor-coach .vc-workout-list>div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}.vigor-coach .vc-workout-list span{color:var(--muted)}.vigor-coach .vc-shift{border-left:3px solid var(--accent);padding:7px 10px;background:var(--panel-alt);border-radius:5px}.vigor-coach .vc-next{margin:5px 0;font-size:13px}.vigor-coach .vc-progression{margin:10px 0 14px;background:var(--panel-alt);border:1px solid var(--border-strong);border-radius:12px;padding:12px}.vigor-coach .vc-progression h3{margin:6px 0;font-size:16px}.vigor-coach .vc-habit-action{border:1px solid var(--border-strong);border-radius:12px;background:var(--panel-alt);padding:13px;margin:12px 0}.vigor-coach .vc-habit-action h3{margin:5px 0;font-size:18px}.vigor-coach .vc-habit-action p{margin:5px 0}.vigor-coach .vc-habit-history{margin:12px 0}.vigor-coach .vc-training-details{border-top:1px solid var(--border);margin-top:13px;padding-top:12px}.vigor-coach .vc-training-details>summary{font-size:14px}.vigor-coach .vc-journey{margin:13px 0;border:1px solid var(--border-strong);border-radius:12px;padding:12px;background:var(--panel-alt)}.vigor-coach .vc-journey-body{padding-top:12px}.vigor-coach .vc-journey-picker{font-size:12px;display:block}.vigor-coach .vc-journey-picker select{margin-top:7px;min-height:45px;width:100%;background:var(--input-bg);color:var(--text-primary);border:1px solid var(--border);border-radius:9px;font-size:16px}.vigor-coach .vc-journey-steps{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}.vigor-coach .vc-journey-steps span{font-size:11px;border:1px solid var(--border);padding:6px 8px;border-radius:20px;color:var(--muted)}.vigor-coach .vc-journey-steps .complete{color:var(--accent-soft);border-color:var(--border-strong)}.vigor-coach .vc-journey h3{margin:10px 0;font-size:17px}`;
- document.head.append(style);
- const root=document.createElement('section');root.className='vigor-coach';root.id='vigorCoach';root.setAttribute('aria-label','Your adaptive coach and 90-day roadmap');
- let selectedJourneyIndex=null;
- const target=$('transformationCoach')||$('daily')||document.querySelector('main > .card');
- if(!target)return;
- target.after(root);
- function render(){
-   const bridge=window.vigorCloudBridge;if(!bridge?.read){root.hidden=true;return}
-   let data;try{data=bridge.read()}catch(e){root.hidden=true;return}
-   if(!data||!Array.isArray(data.habitLabels)){root.hidden=true;return}
-   root.hidden=false;
-   const day=iso(new Date()),c=coaching(data,day),r=roadmap(data,day),w=workoutReview(data,day),p=progressionGuidance(data,day),h=c.habits;
-   const comeback=h.missedYesterday||(h.rate!==null&&h.rate<50);
-   const expanded=root.querySelector('.vc-roadmap')?.open||false;
-   const workoutExpanded=root.querySelector('.vc-workout details')?.open||false;
-   const journeyExpanded=root.querySelector('.vc-journey')?.open||false;
-   const availableIndexes=data.habitLabels.map((_,i)=>i).filter(i=>!data.discipline?.settings?.[i]?.archivedAt);
-   const selectedIndex=availableIndexes.includes(selectedJourneyIndex)?selectedJourneyIndex:(h.chosen?.index??availableIndexes[0]??0);
-   const journey=habitJourney(data,day,selectedIndex);
-   const trainingExpanded=root.querySelector('.vc-training-details')?.open||false;
-   root.innerHTML=`<div class="vc-eyebrow">YOUR HABIT & LIFE COACH · BASED ON YOUR TRACKER</div>
-    <h2>${comeback?'A fresh start today':'Your daily guidance'}</h2>
-    <p class="vc-lead">${escape(c.lead)}</p>
-    <p>${escape(c.reason)}</p><p class="vc-shift"><strong>${escape(c.shift)}:</strong> ${escape(c.shiftAdvice)}</p>
-    ${h.chosen?'<div class="vc-habit-action"><div class="vc-eyebrow">YOUR NEXT SMALL WIN</div><h3>'+escape(h.chosen.name)+'</h3><p><strong>Minimum:</strong> '+escape(h.minimum)+'</p><p><strong>Cue:</strong> '+escape(h.cue)+'</p></div>':h.allDone?'<p class="vc-next">✓ All listed habits are recorded for today.</p>':''}
-
-    <p class="vc-note">${h.rate===null?'No recorded habit trend yet':escape(h.rate+'% habits followed on '+h.recordedDays+' logged non-rest day(s)')} · ${h.totalFull} full completions · ${h.totalMinimum} minimum efforts. Unlogged and designated rest days are not counted as failures.</p>
-    <details class="vc-journey" ${journeyExpanded?'open':''}>
-      <summary>My Habit-Building Journey</summary>
-      ${journey?`<div class="vc-journey-body">
-        <label class="vc-journey-picker">Focus on a habit
-        <select id="vcHabitChoice" aria-label="Habit to develop">
-          ${data.habitLabels.map((label,i)=>({label,i})).filter(x=>!data.discipline?.settings?.[x.i]?.archivedAt).map(({label,i})=>'<option value="'+i+'"'+(i===selectedIndex?' selected':'')+'>'+escape(label)+'</option>').join('')}
-        </select></label>
-        <div class="vc-journey-steps">${journey.steps.map(x=>'<span class="'+(x.complete?'complete':'')+'">'+(x.complete?'✓ ':'○ ')+escape(x.label)+'</span>').join('')}</div>
-        <h3>${escape(journey.headline)}</h3>
-        <p>${escape(journey.suggestion)}</p>
-        <p class="vc-note">${journey.recordedDays} recorded non-rest day(s) in the last 16 days · ${journey.full} full · ${journey.minimums} minimum · ${journey.rate===null?'No consistency rate yet':journey.rate+'% showed up'}. Unlogged days are not assumed failures.</p>
-        ${journey.configured?'<p><strong>Cue:</strong> '+escape(journey.cue)+'</p><p><strong>Minimum:</strong> '+escape(journey.minimum)+'</p><p><strong>Identity:</strong> '+escape(journey.identity)+'</p>':''}
-        <div class="vc-actions">
-          <button type="button" class="vc-nav" data-vc-journey="setup">Set up / adjust habit</button>
-          <button type="button" class="vc-nav alt" data-vc-journey="log">Record habit</button>
-          <button type="button" class="vc-nav alt" data-vc-journey="review">Review progress</button>
-        </div>
-      </div>`:'<p>Add a habit through your existing habits editor to start.</p>'}
-    </details>
-    <details class="vc-habit-history"><summary>See habits needing support</summary><div class="vc-workout-list">${h.perHabit.map(x=>'<div><strong>'+escape(x.name)+'</strong><span>'+(x.rate===null?'Not enough data':x.rate+'% followed')+'</span></div>').join('')}</div></details>
-    <div class="vc-actions"><button type="button" class="vc-nav" data-vc-target="daily">Log one habit</button><button type="button" class="vc-nav alt" data-vc-target="training">View workouts</button></div>
-    <details class="vc-training-details" ${trainingExpanded?'open':''}><summary>Fitness & workout coaching</summary>
-    <section class="vc-workout" aria-label="Your workout rotation review">
-      <h3>Workout progress this rotation</h3>
-      <p class="vc-lead">${w.completed} of ${w.target} planned sessions logged</p>
-      <p>${escape(w.message)}</p>
-      <div class="vc-meter" role="progressbar" aria-label="Workout sessions logged" aria-valuemin="0" aria-valuenow="${Math.min(w.target,w.completed)}" aria-valuemax="${Math.max(1,w.target)}"><span style="width:${w.target?Math.min(100,Math.round(w.completed/w.target*100)):0}%"></span></div>
-      <p class="vc-note">${w.minimumEfforts} minimum-effort session(s) · ${w.daysRemaining} day(s) left in the ${w.length}-day rotation. Previous full rotation: ${w.previous} session(s).</p>
-      ${w.next?'<p class="vc-next"><strong>Next planned option:</strong> '+escape(w.next.name)+' ('+w.next.current+'/'+w.next.target+' completed)</p>':''}
-      <details ${workoutExpanded?'open':''}><summary>Review all workout targets</summary>
-      <div class="vc-workout-list">${w.items.map(x=>'<div><strong>'+escape(x.name)+'</strong><span>'+x.current+'/'+x.target+' logged'+(x.effort?' · '+x.effort+' minimum':'')+'</span></div>').join('')}</div>
-      <p class="vc-note">These are completed-session counts, not measurements of fitness gains. Targets never increase automatically.</p></details>
-    </section>
-    <div class="vc-progression" aria-label="Training progression guidance">
-      <span class="vc-eyebrow">TRAINING GUIDANCE</span>
-      <h3>${escape(p.label)}</h3>
-      <p>${escape(p.detail)}</p>
-      <p class="vc-note">Why: ${escape(p.basis)}. Previous rotations: ${p.priorCompleted}/${p.priorTarget} and ${p.beforeCompleted}/${p.beforeTarget} planned sessions. No workout targets have been changed.</p>
-    </div>
-    </details>
-    <details class="vc-roadmap" ${expanded?'open':''}><summary>My 30 / 60 / 90-day transformation roadmap</summary>
-    <div class="vc-stages">${r.stages.map(x=>`<div class="vc-stage"><strong>Day ${x.day}: ${escape(x.title)}</strong><p>${escape(x.detail)}</p><ul>${x.actions.map(a=>`<li>${escape(a)}</li>`).join('')}</ul></div>`).join('')}</div>
-    <p class="vc-note">${r.progress===null?'Log your weight and set body goals to track weight progress.':escape('Weight goal progress: '+r.progress+'%'+(r.target!==null?' toward '+r.target+' lb':''))}. Your roadmap is flexible and has no required weight-loss deadline.</p>
-    </details>`;
-
-   const picker=root.querySelector('#vcHabitChoice');
-   if(picker)picker.onchange=()=>{selectedJourneyIndex=Number(picker.value);render()};
-   root.querySelectorAll('[data-vc-journey]').forEach(button=>button.onclick=()=>{
-     const action=button.dataset.vcJourney;
-     if(action==='setup'){
-       document.querySelector('[data-panel="settings"]')?.click();
-       const details=$('setupDetails');if(details)details.open=true;
-       const selected=$('setupTopHabit');if(selected&&journey)selected.value=journey.name;
-       if($('setupCue')&&journey)$('setupCue').value=journey.cue;
-       if($('setupMinimum')&&journey)$('setupMinimum').value=journey.minimum;
-       details?.scrollIntoView({behavior:'smooth',block:'start'});
-     }else{
-       document.querySelector('[data-panel="'+(action==='review'?'progress':'today')+'"]')?.click();
-       const destination=action==='review'?$('disciplineReview'):$('daily');
-       const parent=destination?.closest('details');if(parent)parent.open=true;
-       destination?.scrollIntoView({behavior:'smooth',block:'start'});
-     }
-   });
-   root.querySelectorAll('[data-vc-target]').forEach(button=>button.onclick=()=>{
-     const id=button.dataset.vcTarget;
-     document.querySelector('[data-panel="today"]')?.click();
-     const destination=$(id);
-     const parent=destination?.closest('details');if(parent)parent.open=true;
-     destination?.scrollIntoView({behavior:'smooth',block:'start'});
-   });
- }
- render();
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
- window.addEventListener('vigor-sync-status',render);
- document.addEventListener('change',()=>queueMicrotask(render));
- // The original app saves via click handlers; recalculate after those handlers finish.
- document.addEventListener('click',()=>queueMicrotask(render));
- window.VigorCoaching={summary,habitIntelligence,habitJourney,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance,refresh:render};
+ window.VigorCoaching={summary,habitIntelligence,habitJourney,coaching,roadmap,shiftType,suggestedWorkout,workoutReview,progressionGuidance};
 })();
