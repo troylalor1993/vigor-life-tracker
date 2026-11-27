@@ -10,9 +10,7 @@
  let notice='';
  const getData=()=>{try{return window.vigorCloudBridge?.read?.()}catch(e){return null}};
  const mk=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el};
- function navigate(route){document.querySelector('#vigorNav [data-vigor-route="'+route+'"]')?.click()}
  function openHabitEditor(){
-  navigate('today');
   const daily=$('daily'),wrapper=daily?.closest('details');
   if(wrapper)wrapper.open=true;
   const editor=$('habitEditor');
@@ -106,8 +104,7 @@
   const manager=enhanceJourney();if(!manager)return;
   const heading=mk('div','vjm-title');
   const left=mk('div');
-  left.append(mk('div','vigor-eyebrow','YOUR HABITS'),mk('h3','', 'Build better habits'));
-  left.append(mk('p','','Start something good or replace a habit you want to leave behind.'));
+  left.append(mk('h3','', 'My habits'));
   const add=mk('button','vjm-add','+ Add a habit');add.type='button';
   add.onclick=()=>{editorOpen=false;openForm(null,data)};
   heading.append(left,add);manager.append(heading);
@@ -233,7 +230,7 @@
     if(!shown.length)grid.append(mk('p','vjm-empty',hideCompleted&&completedCount?'All visible habits are recorded today. You can show completed ones again.':'No habits in this view yet. Try All habits or add one.'));
     manager.append(grid);
   }else manager.append(mk('p','vjm-empty','No habits yet. Add one to begin.'));
-  const manage=mk('button','vjm-manage','Rearrange or remove habits');
+  const manage=mk('button','vjm-manage','Change habit order');
   manage.type='button';manage.onclick=openHabitEditor;manager.append(manage);
   if(recoveryIndex!==null&&recoveryIndex<data.habitLabels.length){
     const name=data.habitLabels[recoveryIndex];
@@ -292,22 +289,25 @@
     }
     form.append(kind);
     const helper=mk('p','vjm-helper',draft.kind==='replace'
-      ?'Describe the better action you want to take (for example, “Choose water instead of soda”). Track the replacement action—not a claim of perfect abstinence.'
-      :'Describe one action you want to repeat (for example, “Read 10 pages”).');
+      ?'Name the action you want to do instead. For example, choose water instead of soda.'
+      :'Pick one action you want to do often.');
     form.append(helper);
     const fields=[
-      ['name',draft.kind==='replace'?'My replacement action':'Habit I want to build','e.g. Read one chapter',70,true],
-      ['minimum','My smallest doable step','e.g. Read one page',150,true],
-      ['cue','When will I do it? (optional)','e.g. After breakfast',150,false],
-      ['identity','Why this matters (optional)','e.g. I am a lifelong learner',150,false],
-      ...(draft.kind==='replace'?[['plan','What will I do when the urge shows up? (optional)','e.g. When I want soda, I will choose water first',180,false]]:[])
+      ['name',draft.kind==='replace'?'My new action':'Habit name','e.g. Read one chapter',70,true],
+      ['minimum','Small step','e.g. Read one page',150,false],
+      ['cue','When will I do it?','e.g. After breakfast',150,false],
+      ['identity','Why this matters','e.g. I am a lifelong learner',150,false],
+      ...(draft.kind==='replace'?[['plan','What will I do instead?','e.g. When I want soda, I will choose water first',180,false]]:[])
     ];
+    const options=mk('details','vjm-optional');options.append(mk('summary','','More options'));
     fields.forEach(([key,label,placeholder,max,required])=>{
       const field=mk('label','vjm-field');const input=mk('input');input.id=key==='name'?'vjmName':'vjm'+key;
       input.name=key;input.type='text';input.maxLength=max;input.value=draft[key]||'';
       input.placeholder=placeholder;input.required=required;input.oninput=()=>{draft[key]=input.value};
-      field.append(mk('span','',label),input);form.append(field);
+      field.append(mk('span','',label),input);
+      (key==='name'?form:options).append(field);
     });
+    form.append(options);
     const controls=mk('div','vjm-form-actions');
     const save=mk('button','vjm-save',editingIndex===null?'Add habit':'Save changes');save.type='submit';
     const cancel=mk('button','vjm-cancel','Cancel');cancel.type='button';cancel.onclick=()=>{editorOpen=false;notice='';render()};
@@ -342,7 +342,7 @@
    if(!data||!Number.isInteger(index)||index<0||index>=data.habitLabels.length)return false;
    selectedIndex=index;view=data.discipline?.settings?.[index]?.archivedAt?'archived':'all';editorOpen=false;recoveryIndex=null;render();
    document.querySelector('#vigorNav [data-vigor-route="journey"]')?.click();
-   const item=Array.from($('vigorJourneyManager')?.querySelectorAll('.vjm-item')||[])[index];
+   const item=$('vigorJourneyManager')?.querySelector('[data-habit-index="'+index+'"]');
    item?.scrollIntoView({behavior:'smooth',block:'center'});
    return true;
  }};

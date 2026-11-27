@@ -10,7 +10,7 @@
   fitness:'<path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/>',
   more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>'
  };
- const label={today:'Today',journey:'Journey',growth:'Growth',fitness:'Fitness',more:'More'};
+ const label={today:'Today',journey:'Habits',growth:'Progress',fitness:'Fitness',more:'More'};
  const svg=id=>'<svg aria-hidden="true" viewBox="0 0 24 24">'+icons[id]+'</svg>';
  const nav=document.createElement('nav');nav.id='vigorNav';nav.className='app-tabs';nav.setAttribute('aria-label','Main navigation');
  nav.innerHTML=Object.keys(label).map((route,i)=>'<button type="button" class="app-tab'+(!i?' active':'')+'" data-vigor-route="'+route+'" aria-current="'+(!i?'page':'false')+'">'+svg(route)+'<span>'+label[route]+'</span></button>').join('');
@@ -51,7 +51,11 @@
     setActive('more');return;
   }
   closeMenu();
-  if(route==='today'){legacy('today')?.click();window.scrollTo({top:0,behavior:'instant'})}
+  if(route==='today'){
+   const editor=document.getElementById('trainingRoutineEditor');
+   const home=document.getElementById('todayRoutineHome');
+   if(editor&&home&&!home.contains(editor))home.append(editor);
+   legacy('today')?.click();window.scrollTo({top:0,behavior:'instant'})}
   else if(route==='journey'){
     legacy('today')?.click();
     window.scrollTo({top:0,behavior:'instant'});
