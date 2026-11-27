@@ -1814,8 +1814,8 @@ function openTrainingRoutine(date){
  displayTrainingDraft();
 }
 
-$('trainingRoutineEditor').ontoggle=()=>{
- if($('trainingRoutineEditor').open)openTrainingRoutine(iso(new Date()));
+$('trainingRoutineEditor').querySelector('summary').onclick=()=>{
+ if(!$('trainingRoutineEditor').open)openTrainingRoutine(iso(new Date()));
 };
 $('trainingRoutineDay').onchange=()=>{
  captureTrainingDraft();
