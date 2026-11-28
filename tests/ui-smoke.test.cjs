@@ -250,8 +250,19 @@ async function main(){
      await page.locator('#vigorNav [data-vigor-route="more"]').click();
      assert.equal(await page.locator('#vigorMoreMenu').isVisible(),true,'More menu visible');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
-     await page.locator('#todayBible').click();
+     const scriptureCard=page.locator('#todayBible');
+     const scriptureTheme=await scriptureCard.locator('#todayBibleTheme').textContent();
+     const scriptureReference=await scriptureCard.locator('#todayBibleReference').textContent();
+     assert.ok(scriptureTheme.trim(),'Today shows the devotional theme');
+     assert.match(scriptureReference,/\d+.* · NLT$/,'Today shows the passage reference and translation');
+     assert.equal(await scriptureCard.evaluate(card=>card.scrollWidth<=card.clientWidth),true,
+       'Scripture card fits the viewport');
+     await scriptureCard.press('Enter');
      assert.equal(await page.locator('#panel-faith').isVisible(),true,'Faith remains reachable');
+     assert.equal(await page.locator('#devotionalTitle').textContent(),scriptureTheme,'Theme matches the devotional');
+     assert.equal(await page.locator('#verseRef').textContent(),scriptureReference+' reading','Reference matches the devotional');
+     assert.equal(await page.locator('#verseTitle').evaluate(heading=>document.activeElement===heading),true,
+       'Opening Scripture moves focus to the devotional');
      await page.locator('#vigorNav [data-vigor-route="today"]').click();
      assert.equal(await page.locator('#todayTraining').isVisible(),true,'Return to Today with training visible');
      assert.equal(await page.locator('.app-header h1').isVisible(),true,'Today retains full heading');

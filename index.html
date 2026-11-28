@@ -405,7 +405,7 @@ details.compact-details>.card{border:none;border-top:1px solid var(--border);bor
 <button type="button" class="app-tab" data-panel="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19 13 2 1-2 4-2-1a9 9 0 0 1-2 1l-.5 3h-5L9 18a9 9 0 0 1-2-1l-2 1-2-4 2-1a9 9 0 0 1 0-2l-2-1 2-4 2 1a9 9 0 0 1 2-1l.5-3h5l.5 3a9 9 0 0 1 2 1l2-1 2 4-2 1a9 9 0 0 1 0 2Z"/></svg><span>Settings</span></button>
 </nav>
 <section class="card scripture-card" id="devotional" aria-labelledby="verseTitle">
-<div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" style="margin:5px 0 0">Daily Devotional</h2></div><small id="verseDate"></small></div>
+<div class="scripture-heading"><div><div class="scripture-label">Faith for the journey</div><h2 id="verseTitle" tabindex="-1" style="margin:5px 0 0">Daily Devotional</h2></div><small id="verseDate"></small></div>
 <div id="verseRef" class="scripture-ref"></div><h3 class="scripture-title" id="devotionalTitle"></h3>
 <div class="devotional-block"><strong>Today's full NLT passage</strong><div id="scriptureFull" role="status" aria-live="polite">Loading today's NLT passage…</div></div>
 <div class="devotional-block"><strong>Understanding the passage</strong><p id="verseMeaning"></p></div>
@@ -532,11 +532,22 @@ function collapsible(id,node,title,open){
  const details=document.createElement('details');details.className='compact-details';details.open=!!open;
  const heading=document.createElement('summary');heading.textContent=title;details.append(heading,node);panels[id].append(details);
 }
-const bibleLink=document.createElement('button');
-bibleLink.type='button';bibleLink.id='todayBible';bibleLink.className='secondary';
-bibleLink.textContent='Read today’s Bible passage';
-bibleLink.onclick=()=>{document.querySelector('[data-panel="faith"]').click();window.scrollTo(0,0)};
-panels.today.append(bibleLink);
+const bibleCard=document.createElement('button');
+bibleCard.type='button';
+bibleCard.id='todayBible';
+bibleCard.innerHTML=`
+ <span class="today-bible-mark" aria-hidden="true"></span>
+ <span class="today-bible-copy">
+  <span class="today-bible-label">Today’s Scripture</span>
+  <span id="todayBibleTheme" class="today-bible-theme"></span>
+  <span id="todayBibleReference" class="today-bible-reference"></span>
+ </span>
+ <span class="today-bible-action">Read passage</span>`;
+bibleCard.onclick=()=>{
+ document.querySelector('[data-panel="faith"]').click();
+ $('verseTitle').focus();
+};
+panels.today.append(bibleCard);
 relocate('today',document.querySelector('#todayTraining'));
 relocate('today',document.querySelector('#neverTwice'));
 collapsible('today',document.querySelector('#disciplineOverview'),'My consistency & shift guidance',false);
@@ -699,6 +710,8 @@ const day=Math.floor(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/86
 $('verseDate').textContent=now.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 $('verseRef').textContent=verse[0]+' · NLT reading';
 $('devotionalTitle').textContent=verse[1];
+$('todayBibleReference').textContent=verse[0]+' · NLT';
+$('todayBibleTheme').textContent=verse[1];
 $('verseMeaning').textContent=verse[2];$('verseApplication').textContent=verse[3];
 $('verseNLTLink').href='https://www.biblegateway.com/passage/?search='+encodeURIComponent(verse[0])+'&version=NLT';
 loadNltPassage(verse[0]);
